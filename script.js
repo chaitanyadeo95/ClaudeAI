@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // =============================================
   // 1. NAVBAR SCROLL EFFECT
-  // Adds a white background to the navbar after scrolling 80px
+  // Adds shadow to navbar after scrolling 80px
   // =============================================
   const handleNavbarScroll = () => {
     if (window.scrollY > 80) {
