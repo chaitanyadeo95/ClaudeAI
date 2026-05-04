@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- EDIT: Change the title and description to match your business name -->
+  <title>FinAuto Solutions | Automation, Finance Advisory & Accounting Services</title>
+  <meta name="description" content="FinAuto Solutions helps businesses grow through intelligent automation, expert financial advisory, and reliable accounting services." />
+
+  <!-- Open Graph (controls how your link looks when shared on social media) -->
+  <meta property="og:title" content="FinAuto Solutions | Automation, Finance Advisory & Accounting" />
+  <meta property="og:description" content="Streamline operations, make smarter financial decisions, and stay compliant — all under one roof." />
+  <meta property="og:type" content="website" />
+
+  <!-- Favicon (building emoji — replace with your own logo later) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>" />
+
+  <!-- Google Fonts — free -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- =============================================
+       NAVBAR
+       EDIT: Replace "FinAuto Solutions" with your real business name.
+       The nav links auto-scroll to each section — no changes needed.
+       ============================================= -->
+  <header id="navbar">
+    <div class="container nav-inner">
+      <!-- EDIT: Replace text with your business name, or swap for an <img> tag:
+           <img src="logo.png" alt="Your Business Name" height="36"> -->
+      <a href="#hero" class="logo">FinAuto <span>Solutions</span></a>
+
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#services">Services</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+          <li><a href="#contact" class="nav-cta">Get In Touch</a></li>
+        </ul>
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- =============================================
+       HERO SECTION
+       EDIT: Change the headline, subheadline, and button text to match your offer.
+       ============================================= -->
+  <section id="hero">
+    <div class="container hero-content">
+      <span class="section-label light animate-hidden">Trusted by 500+ Businesses</span>
+      <h1 class="animate-hidden">Automate. Advise.<br />Grow With Confidence.</h1>
+      <p class="hero-sub animate-hidden">
+        We help businesses cut through complexity — with intelligent automation,
+        sharp financial advisory, and rock-solid accounting services. All under one roof.
+      </p>
+      <div class="hero-buttons animate-hidden">
+        <a href="#contact" class="btn btn-accent">Get a Free Consultation</a>
+        <a href="#services" class="btn btn-outline">Explore Our Services</a>
+      </div>
+      <div class="hero-stats animate-hidden">
+        <div class="stat">
+          <strong>500+</strong>
+          <span>Clients Served</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>98%</strong>
+          <span>Client Satisfaction</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>12+</strong>
+          <span>Years of Experience</span>
+        </div>
+      </div>
+    </div>
+    <!-- Decorative wave to blend into next section -->
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#f8fafc"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- =============================================
+       SERVICES SECTION
+       EDIT: Change the service titles and descriptions to match what you actually offer.
+       Add or remove cards as needed (each card is a <div class="card">).
+       ============================================= -->
+  <section id="services" class="section bg-light">
+    <div class="container">
+      <div class="section-header animate-hidden">
+        <span class="section-label">What We Do</span>
+        <h2>Services Built Around Your Business</h2>
+        <p class="section-sub">Whether you need to streamline operations, plan for growth, or keep your books in order — we have you covered.</p>
+      </div>
+
+      <div class="cards-grid">
+
+        <!-- EDIT: Service 1 -->
+        <div class="card animate-hidden">
+          <div class="card-icon" style="background:#e0f2fe;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <h3>Business Automation</h3>
+          <p>Eliminate repetitive manual tasks with custom workflow automation. From data entry to reporting — we build systems that work while you sleep.</p>
+          <ul class="card-list">
+            <li>Workflow & process automation</li>
+            <li>ERP & software integration</li>
+            <li>Custom reporting dashboards</li>
+          </ul>
+        </div>
+
+        <!-- EDIT: Service 2 -->
+        <div class="card animate-hidden">
+          <div class="card-icon" style="background:#fef3c7;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <h3>Finance Advisory</h3>
+          <p>Make confident financial decisions backed by expert guidance. We help you plan, budget, and invest strategically for long-term growth.</p>
+          <ul class="card-list">
+            <li>Financial planning & forecasting</li>
+            <li>Investment strategy</li>
+            <li>Risk management & analysis</li>
+          </ul>
+        </div>
+
+        <!-- EDIT: Service 3 -->
+        <div class="card animate-hidden">
+          <div class="card-icon" style="background:#dcfce7;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </div>
+          <h3>Accounting Services</h3>
+          <p>Stay compliant, accurate, and stress-free. Our certified accountants handle your books, taxes, and financial reporting with precision.</p>
+          <ul class="card-list">
+            <li>Bookkeeping & reconciliation</li>
+            <li>Tax preparation & filing</li>
+            <li>Financial statement preparation</li>
+          </ul>
+        </div>
+
+        <!-- EDIT: Service 4 -->
+        <div class="card animate-hidden">
+          <div class="card-icon" style="background:#f3e8ff;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7e22ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+          </div>
+          <h3>Financial Analytics</h3>
+          <p>Turn your numbers into actionable insights. We build custom dashboards and reports that give you a clear picture of your business performance.</p>
+          <ul class="card-list">
+            <li>KPI dashboards & reporting</li>
+            <li>Cash flow analysis</li>
+            <li>Profitability & cost analysis</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       ABOUT / WHY US SECTION
+       EDIT: Update the heading, paragraphs, and bullet points to describe your firm.
+       ============================================= -->
+  <section id="about" class="section bg-white">
+    <div class="container about-grid">
+
+      <div class="about-image-col animate-hidden">
+        <div class="about-image-block">
+          <div class="about-img-placeholder">
+            <!-- EDIT: Replace this block with a real photo:
+                 <img src="your-team-photo.jpg" alt="Our team"> -->
+            <div class="img-inner">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <p>Your Team Photo Here</p>
+            </div>
+          </div>
+          <div class="about-stats-overlay">
+            <div class="overlay-stat">
+              <strong>12+</strong><span>Years in Business</span>
+            </div>
+            <div class="overlay-stat">
+              <strong>$2B+</strong><span>Assets Managed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-text-col animate-hidden">
+        <span class="section-label">Why Choose Us</span>
+        <h2>A Partner You Can Count On — Every Step of the Way</h2>
+        <p>
+          At FinAuto Solutions, we believe that financial clarity and operational efficiency go hand in hand.
+          Founded over a decade ago, we've helped hundreds of businesses — from startups to established enterprises —
+          transform the way they manage money and operations.
+        </p>
+        <p>
+          Our team of certified financial advisors, accountants, and automation specialists works as an extension
+          of your team, not just a vendor. We speak plain language, not jargon.
+        </p>
+        <ul class="check-list">
+          <li>Certified financial advisors and CPAs on staff</li>
+          <li>Industry-specific expertise across 10+ sectors</li>
+          <li>Transparent pricing — no hidden fees</li>
+          <li>Dedicated account manager for every client</li>
+          <li>Secure, cloud-based systems for real-time access</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary" style="margin-top:1.5rem;">Schedule a Free Call</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =============================================
+       HOW IT WORKS SECTION
+       EDIT: Update the step titles and descriptions to match your process.
+       ============================================= -->
+  <section id="how-it-works" class="section bg-light">
+    <div class="container">
+      <div class="section-header animate-hidden">
+        <span class="section-label">Our Process</span>
+        <h2>Getting Started Is Simple</h2>
+        <p class="section-sub">We make it easy to onboard, so you can focus on running your business.</p>
+      </div>
+
+      <div class="steps-row">
+
+        <div class="step animate-hidden">
+          <div class="step-number">1</div>
+          <h3>Free Consultation</h3>
+          <p>Book a no-obligation call. We listen to your challenges, goals, and current setup — and map out exactly where we can help.</p>
+        </div>
+
+        <div class="step-arrow animate-hidden">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+
+        <div class="step animate-hidden">
+          <div class="step-number">2</div>
+          <h3>Custom Strategy</h3>
+          <p>We design a tailored plan — whether it's automating your workflows, restructuring your finances, or cleaning up your accounts.</p>
+        </div>
+
+        <div class="step-arrow animate-hidden">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </div>
+
+        <div class="step animate-hidden">
+          <div class="step-number">3</div>
+          <h3>Ongoing Partnership</h3>
+          <p>We implement, monitor, and continuously optimize. You get regular reports, check-ins, and a team that's always one call away.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       TESTIMONIALS SECTION
+       EDIT: Replace the placeholder names, quotes, and job titles with real reviews.
+       ============================================= -->
+  <section id="testimonials" class="section bg-white">
+    <div class="container">
+      <div class="section-header animate-hidden">
+        <span class="section-label">Client Stories</span>
+        <h2>Trusted by Businesses Like Yours</h2>
+      </div>
+
+      <div class="testimonials-grid">
+
+        <div class="testimonial-card animate-hidden">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"FinAuto Solutions completely transformed our month-end close process. What used to take two weeks now takes two days. Their automation team is exceptional — they understood our systems better than we did."</p>
+          <div class="testimonial-author">
+            <div class="avatar">JR</div>
+            <div>
+              <strong>James Robertson</strong>
+              <span>CFO, Meridian Manufacturing</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card animate-hidden">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"We were drowning in spreadsheets and late tax filings. Within 3 months of working with FinAuto, our books were clean, our taxes were filed on time, and we had a clear picture of our cash flow for the first time."</p>
+          <div class="testimonial-author">
+            <div class="avatar">SL</div>
+            <div>
+              <strong>Sarah Lin</strong>
+              <span>Founder, Bluewave Retail</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card animate-hidden">
+          <div class="stars">★★★★★</div>
+          <p class="quote">"Their finance advisory team helped us raise our Series A with confidence. The financial models they built were pitch-perfect. I can't imagine navigating that process without them."</p>
+          <div class="testimonial-author">
+            <div class="avatar">MP</div>
+            <div>
+              <strong>Marcus Patel</strong>
+              <span>CEO, NexGen Tech</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================
+       CONTACT / CTA SECTION
+       EDIT: Update phone, email, address to your real contact details.
+       FORM: Sign up free at formspree.io, create a form, and replace
+             "YOUR_FORM_ID" in the form action below with your real form ID.
+       ============================================= -->
+  <section id="contact" class="section">
+    <div class="container contact-grid">
+
+      <div class="contact-info animate-hidden">
+        <span class="section-label light">Get In Touch</span>
+        <h2>Let's Talk About Your Business</h2>
+        <p>Ready to automate, get financially fit, or just get your books in order? Fill in the form and we'll get back to you within one business day.</p>
+
+        <div class="contact-details">
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </div>
+            <!-- EDIT: Replace with your real phone number -->
+            <span>+1 (555) 000-0000</span>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <!-- EDIT: Replace with your real email -->
+            <span>hello@finautosolutions.com</span>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <!-- EDIT: Replace with your real address -->
+            <span>123 Finance Street, Suite 400<br />New York, NY 10001</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-wrap animate-hidden">
+        <!-- EDIT: Replace YOUR_FORM_ID with your actual Formspree form ID
+             How to get a free form ID:
+             1. Go to formspree.io and sign up (free)
+             2. Click "New Form", give it a name
+             3. Copy the form ID from the action URL they give you
+             4. Paste it below replacing YOUR_FORM_ID
+             If you skip this, the form will show a thank-you message locally but won't actually send emails. -->
+        <form id="contactForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name <span class="required">*</span></label>
+              <input type="text" id="name" name="name" placeholder="Jane Smith" autocomplete="name" />
+              <span class="field-error" id="nameError"></span>
+            </div>
+            <div class="form-group">
+              <label for="email">Email Address <span class="required">*</span></label>
+              <input type="email" id="email" name="email" placeholder="jane@company.com" autocomplete="email" />
+              <span class="field-error" id="emailError"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number <span class="optional">(optional)</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000" autocomplete="tel" />
+          </div>
+          <div class="form-group">
+            <label for="service">Service You're Interested In</label>
+            <select id="service" name="service">
+              <option value="">— Select a service —</option>
+              <option value="automation">Business Automation</option>
+              <option value="advisory">Finance Advisory</option>
+              <option value="accounting">Accounting Services</option>
+              <option value="analytics">Financial Analytics</option>
+              <option value="multiple">Multiple Services</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Tell Us About Your Needs <span class="required">*</span></label>
+            <textarea id="message" name="message" rows="5" placeholder="Briefly describe your business and what you're looking to achieve..."></textarea>
+            <span class="field-error" id="messageError"></span>
+          </div>
+          <button type="submit" class="btn btn-accent btn-full" id="submitBtn">Send Message</button>
+          <p class="form-note">We'll respond within one business day. No spam, ever.</p>
+          <div class="form-success" id="formSuccess">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <p>Thank you! We've received your message and will be in touch shortly.</p>
+          </div>
+          <div class="form-error-msg" id="formErrorMsg">
+            Something went wrong. Please try again or email us directly.
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =============================================
+       FOOTER
+       EDIT: Update business name, description, links, and contact details.
+       ============================================= -->
+  <footer id="footer">
+    <div class="container footer-grid">
+
+      <div class="footer-brand">
+        <!-- EDIT: Replace with your business name -->
+        <a href="#hero" class="logo logo-light">FinAuto <span>Solutions</span></a>
+        <p>Helping businesses grow through intelligent automation, expert financial advisory, and precise accounting services.</p>
+        <div class="social-links">
+          <!-- EDIT: Replace # with your real social media profile URLs -->
+          <a href="#" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href="#" aria-label="Twitter/X">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">Business Automation</a></li>
+          <li><a href="#services">Finance Advisory</a></li>
+          <li><a href="#services">Accounting Services</a></li>
+          <li><a href="#services">Financial Analytics</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#testimonials">Client Stories</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul class="footer-contact">
+          <!-- EDIT: Replace with your real contact details -->
+          <li>+1 (555) 000-0000</li>
+          <li>hello@finautosolutions.com</li>
+          <li>123 Finance Street, Suite 400<br />New York, NY 10001</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <!-- EDIT: Update the year and business name -->
+        <p>&copy; 2025 FinAuto Solutions. All rights reserved.</p>
+        <div class="footer-legal">
+          <!-- EDIT: Add links to your privacy policy and terms pages when ready -->
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
