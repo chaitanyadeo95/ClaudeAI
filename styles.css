@@ -191,17 +191,14 @@ p { line-height: 1.75; }
 
 /* Gold filled — primary CTA */
 .btn-primary {
-  background: linear-gradient(90deg, var(--gold) 0%, #e8c46a 40%, var(--gold) 60%, var(--deep-gold) 100%);
-  background-size: 200% auto;
+  background: var(--gold);
   color: var(--navy);
   border-color: var(--gold);
-  animation: shimmer 4s linear infinite;
 }
 .btn-primary:hover {
   background: var(--deep-gold);
   border-color: var(--deep-gold);
   color: var(--white);
-  animation: none;
 }
 
 /* Outline — secondary CTA (on dark bg) */
@@ -377,9 +374,7 @@ nav { display: flex; align-items: center; }
   min-height: 100vh;
   display: flex;
   align-items: center;
-  background: linear-gradient(-45deg, #0B1728, #1C3054, #0d2040, #162844);
-  background-size: 400% 400%;
-  animation: heroGradient 18s ease infinite;
+  background: var(--navy);
   overflow: hidden;
   padding-top: 80px;
 }
@@ -389,10 +384,9 @@ nav { display: flex; align-items: center; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 70% 40%, rgba(201,168,76,0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 20% 70%, rgba(28,48,84,0.6) 0%, transparent 50%);
+    radial-gradient(ellipse at 70% 40%, rgba(201,168,76,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 70%, rgba(28,48,84,0.5) 0%, transparent 50%);
   pointer-events: none;
-  animation: floatSlow 12s ease-in-out infinite;
 }
 
 /* Canvas particle layer */
@@ -513,12 +507,7 @@ nav { display: flex; align-items: center; }
   font-weight: normal;
   color: var(--gold);
   line-height: 1;
-  display: block;
-  animation: floatUp 4s ease-in-out infinite;
 }
-
-.stat:nth-child(3) strong { animation-delay: 0.6s; }
-.stat:nth-child(5) strong { animation-delay: 1.2s; }
 
 .stat span {
   font-family: 'Inter', sans-serif;
