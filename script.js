@@ -1,5 +1,87 @@
 'use strict';
 
+// =============================================
+// HERO PARTICLE SYSTEM
+// Floating gold dust particles in the hero background
+// =============================================
+(function initParticles() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+
+  const ctx    = canvas.getContext('2d');
+  const hero   = document.getElementById('home');
+  let animId;
+
+  function resize() {
+    canvas.width  = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const COUNT = 70;
+  const particles = Array.from({ length: COUNT }, () => ({
+    x:  Math.random() * canvas.width,
+    y:  Math.random() * canvas.height,
+    r:  Math.random() * 1.8 + 0.4,
+    dx: (Math.random() - 0.5) * 0.35,
+    dy: (Math.random() - 0.5) * 0.35,
+    op: Math.random() * 0.35 + 0.08,
+  }));
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw connection lines between nearby particles
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx   = particles[i].x - particles[j].x;
+        const dy   = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(201,168,76,${0.06 * (1 - dist / 120)})`;
+          ctx.lineWidth   = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw particles
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(201,168,76,${p.op})`;
+      ctx.fill();
+
+      p.x += p.dx;
+      p.y += p.dy;
+
+      if (p.x < 0)             p.x = canvas.width;
+      if (p.x > canvas.width)  p.x = 0;
+      if (p.y < 0)             p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    });
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  draw();
+
+  // Pause when hero is not visible (performance)
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!animId) draw();
+    } else {
+      cancelAnimationFrame(animId);
+      animId = null;
+    }
+  });
+  obs.observe(hero);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
 
   const navbar      = document.getElementById('navbar');

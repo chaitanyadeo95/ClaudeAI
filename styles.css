@@ -191,14 +191,17 @@ p { line-height: 1.75; }
 
 /* Gold filled — primary CTA */
 .btn-primary {
-  background: var(--gold);
+  background: linear-gradient(90deg, var(--gold) 0%, #e8c46a 40%, var(--gold) 60%, var(--deep-gold) 100%);
+  background-size: 200% auto;
   color: var(--navy);
   border-color: var(--gold);
+  animation: shimmer 4s linear infinite;
 }
 .btn-primary:hover {
   background: var(--deep-gold);
   border-color: var(--deep-gold);
   color: var(--white);
+  animation: none;
 }
 
 /* Outline — secondary CTA (on dark bg) */
@@ -327,6 +330,46 @@ nav { display: flex; align-items: center; }
 .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* =============================================
+   KEYFRAME ANIMATIONS
+   ============================================= */
+@keyframes heroGradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-8px) rotate(2deg); }
+  66%       { transform: translateY(4px) rotate(-1deg); }
+}
+
+@keyframes pulseGold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  50%       { box-shadow: 0 0 24px 4px rgba(201,168,76,0.2); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
    HERO
    ============================================= */
 #home {
@@ -334,7 +377,9 @@ nav { display: flex; align-items: center; }
   min-height: 100vh;
   display: flex;
   align-items: center;
-  background: var(--navy);
+  background: linear-gradient(-45deg, #0B1728, #1C3054, #0d2040, #162844);
+  background-size: 400% 400%;
+  animation: heroGradient 18s ease infinite;
   overflow: hidden;
   padding-top: 80px;
 }
@@ -343,8 +388,66 @@ nav { display: flex; align-items: center; }
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 65% 45%, rgba(201,168,76,0.08) 0%, transparent 55%);
+  background:
+    radial-gradient(ellipse at 70% 40%, rgba(201,168,76,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 70%, rgba(28,48,84,0.6) 0%, transparent 50%);
   pointer-events: none;
+  animation: floatSlow 12s ease-in-out infinite;
+}
+
+/* Canvas particle layer */
+#heroCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Decorative floating hexagon rings */
+#home::after {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border: 1px solid rgba(201,168,76,0.06);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: rotateSlow 40s linear infinite;
+  pointer-events: none;
+}
+
+.hero-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(201,168,76,0.05);
+  pointer-events: none;
+  animation: rotateSlow linear infinite;
+}
+
+.hero-ring-1 {
+  width: 300px; height: 300px;
+  top: 10%; right: 8%;
+  animation-duration: 25s;
+  animation-direction: reverse;
+}
+
+.hero-ring-2 {
+  width: 200px; height: 200px;
+  bottom: 15%; left: 6%;
+  animation-duration: 35s;
+  border-color: rgba(201,168,76,0.08);
+}
+
+.hero-ring-3 {
+  width: 450px; height: 450px;
+  top: -10%; right: -5%;
+  animation-duration: 55s;
+  border-color: rgba(201,168,76,0.04);
 }
 
 .hero-content {
@@ -410,7 +513,12 @@ nav { display: flex; align-items: center; }
   font-weight: normal;
   color: var(--gold);
   line-height: 1;
+  display: block;
+  animation: floatUp 4s ease-in-out infinite;
 }
+
+.stat:nth-child(3) strong { animation-delay: 0.6s; }
+.stat:nth-child(5) strong { animation-delay: 1.2s; }
 
 .stat span {
   font-family: 'Inter', sans-serif;
@@ -514,6 +622,7 @@ nav { display: flex; align-items: center; }
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 32px rgba(11,23,40,0.14);
+  animation: pulseGold 2s ease-in-out infinite;
 }
 
 .card-icon {
