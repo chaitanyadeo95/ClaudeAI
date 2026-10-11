@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AiFinanceo — Client Portal</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><polygon points='114,28 286,28 372,200 286,372 114,372 28,200' fill='%23C9A84C'/><line x1='124.32' y1='268.80' x2='186.24' y2='206.88' stroke='%230B1728' stroke-width='39.56' stroke-linecap='butt'/><line x1='186.24' y1='124.32' x2='282.56' y2='268.80' stroke='%230B1728' stroke-width='39.56' stroke-linecap='butt'/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Design tokens ───────────────────────────────────────────────────────── */
+    :root {
+      --navy:       #0B1728;
+      --deep-navy:  #1C3054;
+      --gold:       #C9A84C;
+      --gold-light: #e8c96a;
+      --ivory:      #F5F3EC;
+      --white:      #FFFFFF;
+      --surface:    #F7F8FA;
+      --border:     #E2E5EA;
+      --text:       #1A1F2E;
+      --muted:      #6B7280;
+      --success:    #16A34A;
+      --danger:     #DC2626;
+      --warning:    #D97706;
+      --info:       #2563EB;
+      --sidebar-w:  230px;
+      --topbar-h:   56px;
+      --radius:     8px;
+      --shadow:     0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+      --shadow-md:  0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+    }
+
+    /* ── Reset ───────────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); background: var(--surface); line-height: 1.5; }
+    button { cursor: pointer; font-family: inherit; }
+    input, select, textarea { font-family: inherit; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Utilities ───────────────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+    .gold   { color: var(--gold); }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       LOGIN SCREEN
+    ═══════════════════════════════════════════════════════════════════════════ */
+    #login-screen {
+      min-height: 100vh;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    }
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .login-brand-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--navy);
+      letter-spacing: -0.4px;
+    }
+    .login-brand-name span { color: var(--gold); }
+    .login-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .login-sub {
+      color: var(--muted);
+      margin-bottom: 28px;
+      font-size: 13px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .form-group input:focus { border-color: var(--gold); }
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 8px;
+      transition: background .15s;
+    }
+    .btn-login:hover { background: var(--deep-navy); }
+    .login-error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .demo-note {
+      margin-top: 20px;
+      padding: 12px;
+      background: #FEF3C7;
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: #92400E;
+      text-align: center;
+    }
+    .demo-note strong { display: block; margin-bottom: 2px; }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .back-link a { color: var(--gold); font-weight: 500; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       APP SHELL
+    ═══════════════════════════════════════════════════════════════════════════ */
+    #app { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      transition: transform .25s;
+    }
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .sidebar-brand {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .sidebar-brand span { color: var(--gold); }
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 8px;
+      overflow-y: auto;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: rgba(255,255,255,.65);
+      font-size: 13.5px;
+      font-weight: 500;
+      margin-bottom: 2px;
+      transition: all .15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.07); color: var(--white); }
+    .nav-item.active { background: rgba(201,168,76,.18); color: var(--gold); }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 13px;
+    }
+    .user-email { font-size: 12px; color: rgba(255,255,255,.5); word-break: break-all; }
+    .btn-logout {
+      width: 100%;
+      padding: 8px;
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 6px;
+      font-size: 13px;
+      transition: all .15s;
+    }
+    .btn-logout:hover { background: rgba(220,38,38,.2); color: #FCA5A5; border-color: rgba(220,38,38,.3); }
+
+    /* ── Top bar (mobile) ────────────────────────────────────────────────────── */
+    #topbar {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--topbar-h);
+      background: var(--navy);
+      z-index: 200;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+    .topbar-brand { font-size: 16px; font-weight: 700; color: var(--white); flex: 1; }
+    .topbar-brand span { color: var(--gold); }
+    .menu-toggle {
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 22px;
+      padding: 4px;
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 99;
+    }
+
+    /* ── Main area ───────────────────────────────────────────────────────────── */
+    #main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-width: 0;
+    }
+    .page {
+      padding: 28px;
+      max-width: 1100px;
+    }
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .page-sub {
+      color: var(--muted);
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+
+    /* ── Cards ───────────────────────────────────────────────────────────────── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Grid helpers ────────────────────────────────────────────────────────── */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    /* ── Buttons ─────────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px;
+      border-radius: var(--radius);
+      font-size: 13.5px;
+      font-weight: 600;
+      border: none;
+      transition: all .15s;
+    }
+    .btn-primary { background: var(--navy); color: var(--white); }
+    .btn-primary:hover { background: var(--deep-navy); }
+    .btn-gold { background: var(--gold); color: var(--navy); }
+    .btn-gold:hover { background: var(--gold-light); }
+    .btn-outline {
+      background: var(--white);
+      color: var(--navy);
+      border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--navy); background: var(--surface); }
+    .btn-danger { background: var(--danger); color: var(--white); }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* ── Forms ───────────────────────────────────────────────────────────────── */
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 13.5px;
+      outline: none;
+      background: var(--white);
+      transition: border-color .15s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--gold); }
+
+    /* ── Tables ──────────────────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface); }
+
+    /* ── Tabs ────────────────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all .15s;
+    }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 600; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       DASHBOARD
+    ═══════════════════════════════════════════════════════════════════════════ */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--navy), var(--deep-navy));
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      color: var(--white);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .welcome-text h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .welcome-text p  { font-size: 13px; color: rgba(255,255,255,.6); }
+    .welcome-logo svg { opacity: .15; }
+    .stat-card { display: flex; flex-direction: column; }
+    .stat-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       INVOICE
+    ═══════════════════════════════════════════════════════════════════════════ */
+    .invoice-layout { display: grid; grid-template-columns: 1fr 360px; gap: 20px; align-items: start; }
+    .items-table input {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 13px;
+      width: 100%;
+    }
+    .items-table th:last-child, .items-table td:last-child { text-align: center; width: 40px; }
+    .remove-item {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 16px;
+      padding: 4px;
+    }
+    .totals-box {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .totals-row.grand {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+      border-bottom: none;
+      padding-top: 10px;
+    }
+    .totals-row.grand span:last-child { color: var(--gold); }
+
+    /* ── Print invoice ───────────────────────────────────────────────────────── */
+    #invoice-preview {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 999;
+      overflow: auto;
+      padding: 40px 20px;
+    }
+    .inv-sheet {
+      background: var(--white);
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #1a1a1a;
+    }
+    .inv-header { display: flex; justify-content: space-between; margin-bottom: 28px; }
+    .inv-logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .inv-company { font-size: 11px; color: #555; }
+    .inv-tag {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0B1728;
+      letter-spacing: -1px;
+    }
+    .inv-meta { text-align: right; font-size: 12px; color: #555; }
+    .inv-meta strong { color: #0B1728; display: block; font-size: 14px; }
+    .inv-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    .inv-party h4 { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: #999; margin-bottom: 4px; }
+    .inv-party p { font-size: 13px; color: #222; line-height: 1.6; }
+    .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .inv-table th {
+      background: #0B1728;
+      color: var(--white);
+      padding: 8px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .inv-table td { padding: 9px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+    .inv-table td:nth-child(2), .inv-table td:nth-child(3), .inv-table td:nth-child(4) { text-align: right; }
+    .inv-totals { float: right; width: 240px; }
+    .inv-trow { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12.5px; border-bottom: 1px solid #eee; }
+    .inv-trow.grand { font-weight: 700; font-size: 15px; border-bottom: none; padding-top: 8px; color: #0B1728; }
+    .clearfix::after { content: ''; display: block; clear: both; }
+    .inv-footer { margin-top: 40px; border-top: 1px solid #eee; padding-top: 16px; font-size: 11px; color: #888; display: flex; justify-content: space-between; }
+    .inv-footer-actions { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       CALCULATORS
+    ═══════════════════════════════════════════════════════════════════════════ */
+    .calc-card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); padding: 24px; }
+    .calc-title { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .calc-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; }
+    .result-box {
+      background: var(--navy);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 16px;
+      color: var(--white);
+    }
+    .result-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .result-row span:last-child { font-weight: 600; color: var(--gold); }
+    .result-row.total { font-size: 15px; font-weight: 700; border-top: 1px solid rgba(255,255,255,.15); margin-top: 6px; padding-top: 10px; }
+    .result-row.total span:last-child { font-size: 17px; }
+
+    /* ── EMI amortization ────────────────────────────────────────────────────── */
+    .emi-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .emi-stat {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 14px;
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .emi-stat .value { font-size: 18px; font-weight: 700; color: var(--navy); }
+    .emi-stat .label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       TAX CALENDAR
+    ═══════════════════════════════════════════════════════════════════════════ */
+    .cal-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .cal-nav-btn {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cal-nav-btn:hover { background: var(--surface); }
+    .cal-month-label { font-size: 18px; font-weight: 700; color: var(--navy); }
+    .cal-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .legend-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    .legend-item { font-size: 12px; color: var(--muted); }
+    .event-list { display: flex; flex-direction: column; gap: 8px; }
+    .event-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+    }
+    .event-date {
+      min-width: 42px;
+      text-align: center;
+    }
+    .event-date .day { font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1; }
+    .event-date .mon { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+    .event-info .title { font-size: 13.5px; font-weight: 600; color: var(--navy); }
+    .event-info .desc  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .event-badge {
+      margin-left: auto;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background: currentColor;
+    }
+    .badge-gst     { color: #16A34A; }
+    .badge-tds     { color: #2563EB; }
+    .badge-it      { color: #7C3AED; }
+    .badge-other   { color: #D97706; }
+    .event-badge span { background: currentColor; opacity: .15; }
+
+    /* ── Responsive ──────────────────────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      #topbar { display: flex; }
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      #main-content { margin-left: 0; padding-top: var(--topbar-h); }
+      .page { padding: 20px 16px; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .invoice-layout { grid-template-columns: 1fr; }
+      .emi-summary { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #invoice-preview, #invoice-preview * { visibility: visible; }
+      #invoice-preview { position: static; background: none; padding: 0; }
+      .inv-footer-actions { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Login Screen ──────────────────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand">
+      <svg width="36" height="36" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+      </svg>
+      <span class="login-brand-name">AI<span>Finance</span>o</span>
+    </div>
+    <h1 class="login-title">Client Portal</h1>
+    <p class="login-sub">Sign in to access your financial dashboard</p>
+    <form id="login-form" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="you@company.com" required autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn-login" id="login-btn">Sign In</button>
+      <p class="login-error hidden" id="login-error"></p>
+    </form>
+    <div class="demo-note">
+      <strong>🔑 Demo Mode</strong>
+      Use any email + password: <strong>demo123</strong>
+    </div>
+    <p class="back-link"><a href="/">← Back to aifinanceo.com</a></p>
+  </div>
+</div>
+
+<!-- ── App Shell ─────────────────────────────────────────────────────────────── -->
+<div id="app" class="hidden">
+
+  <!-- Mobile top bar -->
+  <div id="topbar">
+    <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Open menu">☰</button>
+    <span class="topbar-brand">AI<span>Finance</span>o</span>
+  </div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <svg width="30" height="30" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+      </svg>
+      <span class="sidebar-brand">AI<span>Finance</span>o</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" data-view="invoices" onclick="showView('invoices')">
+        <span class="nav-icon">📄</span> Invoice Generator
+      </button>
+      <button class="nav-item" data-view="calculators" onclick="showView('calculators')">
+        <span class="nav-icon">🧮</span> Calculators
+      </button>
+      <button class="nav-item" data-view="calendar" onclick="showView('calendar')">
+        <span class="nav-icon">📅</span> Tax Calendar
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="user-avatar">U</div>
+        <div>
+          <div style="font-size:12px;color:#fff;font-weight:500" id="user-name-display">User</div>
+          <div class="user-email" id="user-email-display">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main id="main-content">
+    <div id="view-dashboard" class="page"></div>
+    <div id="view-invoices"   class="page hidden"></div>
+    <div id="view-calculators" class="page hidden"></div>
+    <div id="view-calendar"  class="page hidden"></div>
+  </main>
+</div>
+
+<!-- ── Invoice preview/print modal ───────────────────────────────────────────── -->
+<div id="invoice-preview">
+  <div class="inv-footer-actions">
+    <button class="btn btn-gold" onclick="window.print()">🖨 Print / Save PDF</button>
+    <button class="btn btn-outline" onclick="closePreview()" style="background:#fff">✕ Close</button>
+  </div>
+  <div class="inv-sheet" id="inv-sheet-content"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════════
+   CONFIG — replace these with your Supabase project values to enable real auth.
+   Leave as-is to use demo mode.
+══════════════════════════════════════════════════════════════════════════════ */
+const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const DEMO_PASSWORD     = 'demo123'; // change this when using demo mode
+
+const DEMO_MODE = SUPABASE_URL === 'YOUR_SUPABASE_URL';
+
+/* ── State ───────────────────────────────────────────────────────────────────── */
+let currentUser = null;
+let currentView = 'dashboard';
+let invoiceItems = [];
+let invCounter = parseInt(localStorage.getItem('afp_invCounter') || '1');
+let calYear, calMonth;
+
+const today = new Date();
+calYear  = today.getFullYear();
+calMonth = today.getMonth(); // 0-based
+
+/* ── Auth ────────────────────────────────────────────────────────────────────── */
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  const btn   = document.getElementById('login-btn');
+
+  btn.textContent = 'Signing in…';
+  btn.disabled = true;
+  errEl.classList.add('hidden');
+
+  try {
+    if (DEMO_MODE) {
+      if (pass !== DEMO_PASSWORD) throw new Error('Incorrect password. Demo password: demo123');
+      currentUser = { email, name: email.split('@')[0] };
+    } else {
+      // Supabase auth
+      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email, password: pass }),
+      });
+      const data = await res.json();
+      if (data.error || data.error_description) throw new Error(data.error_description || data.error);
+      currentUser = { email, name: email.split('@')[0], token: data.access_token };
+      localStorage.setItem('afp_session', JSON.stringify({ email, token: data.access_token }));
+    }
+    showApp();
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  } finally {
+    btn.textContent = 'Sign In';
+    btn.disabled = false;
+  }
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('afp_session');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function checkExistingSession() {
+  if (DEMO_MODE) return;
+  try {
+    const s = JSON.parse(localStorage.getItem('afp_session') || 'null');
+    if (s?.token) {
+      currentUser = { email: s.email, name: s.email.split('@')[0], token: s.token };
+      showApp();
+    }
+  } catch {}
+}
+
+function showApp() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+
+  const initials = (currentUser.name || currentUser.email)[0].toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  document.getElementById('user-name-display').textContent = currentUser.name || '';
+  document.getElementById('user-email-display').textContent = currentUser.email;
+
+  showView('dashboard');
+}
+
+/* ── Router ──────────────────────────────────────────────────────────────────── */
+function showView(name) {
+  currentView = name;
+  closeSidebar();
+
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  document.querySelectorAll('[id^="view-"]').forEach(d => d.classList.add('hidden'));
+  document.getElementById(`view-${name}`).classList.remove('hidden');
+
+  const renders = { dashboard: renderDashboard, invoices: renderInvoices, calculators: renderCalculators, calendar: renderCalendar };
+  renders[name]?.();
+}
+
+/* ── Sidebar (mobile) ────────────────────────────────────────────────────────── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DASHBOARD
+══════════════════════════════════════════════════════════════════════════════ */
+function renderDashboard() {
+  const el = document.getElementById('view-dashboard');
+  const name = currentUser.name || 'there';
+  const monthName = today.toLocaleString('default', { month: 'long' });
+
+  el.innerHTML = `
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>Good ${hour()}, ${cap(name)} 👋</h2>
+        <p>Here's your financial overview for ${monthName} ${today.getFullYear()}</p>
+      </div>
+      <svg width="80" height="80" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+      </svg>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:24px">
+      <div class="card stat-card">
+        <div class="stat-icon" style="background:#EFF6FF">💼</div>
+        <div class="stat-value">—</div>
+        <div class="stat-label">Active Clients</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-icon" style="background:#F0FDF4">📈</div>
+        <div class="stat-value">—</div>
+        <div class="stat-label">Revenue This Month</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-icon" style="background:#FFFBEB">📄</div>
+        <div class="stat-value" id="dash-inv-count">${invCounter - 1}</div>
+        <div class="stat-label">Invoices Generated</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-icon" style="background:#FEF2F2">📅</div>
+        <div class="stat-value">${nextDueDays()}</div>
+        <div class="stat-label">Days to Next Tax Due</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Quick Actions</div>
+        <div class="quick-actions">
+          <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
+          <button class="btn btn-outline" onclick="showView('calculators')">GST Calculator</button>
+          <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Upcoming Deadlines</div>
+        <div style="margin-top:8px">
+          ${upcomingDeadlines().map(d => `
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:12px;min-width:50px;color:${d.urgent ? 'var(--danger)' : 'var(--muted)'}">
+                ${d.dateStr}
+              </span>
+              <span style="font-size:13px;font-weight:500">${d.title}</span>
+              ${d.urgent ? '<span style="margin-left:auto;font-size:11px;color:var(--danger)">Soon</span>' : ''}
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function hour() {
+  const h = new Date().getHours();
+  return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+}
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+function nextDueDays() {
+  const events = getTaxEvents(today.getFullYear(), today.getMonth());
+  const future = events.filter(e => e.date > today).sort((a,b) => a.date - b.date);
+  if (!future.length) return '—';
+  return Math.ceil((future[0].date - today) / 86400000);
+}
+
+function upcomingDeadlines() {
+  const now = new Date();
+  const events = [...getTaxEvents(now.getFullYear(), now.getMonth()),
+                  ...getTaxEvents(now.getFullYear(), now.getMonth() + 1)];
+  return events
+    .filter(e => e.date >= now)
+    .sort((a,b) => a.date - b.date)
+    .slice(0, 4)
+    .map(e => ({
+      dateStr: e.date.toLocaleDateString('en-IN', { day:'2-digit', month:'short' }),
+      title:   e.title,
+      urgent:  (e.date - now) < 5 * 86400000,
+    }));
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   INVOICE GENERATOR
+══════════════════════════════════════════════════════════════════════════════ */
+function renderInvoices() {
+  if (!invoiceItems.length) invoiceItems = [{ desc: '', qty: 1, rate: '', gst: 18 }];
+
+  const el = document.getElementById('view-invoices');
+  el.innerHTML = `
+    <h1 class="page-title">Invoice Generator</h1>
+    <p class="page-sub">Create and download professional GST invoices</p>
+
+    <div class="invoice-layout">
+      <!-- Left: form -->
+      <div>
+        <!-- From / To -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="grid-2">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">YOUR DETAILS</div>
+              <div class="field"><label>Business Name</label><input id="from-name" value="AiFinanceo" /></div>
+              <div class="field"><label>GSTIN</label><input id="from-gstin" placeholder="27AABCA1234A1Z5" /></div>
+              <div class="field"><label>Address</label><input id="from-addr" value="Pune, Maharashtra, India" /></div>
+              <div class="field"><label>Email</label><input id="from-email" value="info@aifinanceo.com" /></div>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">BILL TO</div>
+              <div class="field"><label>Client Name</label><input id="to-name" placeholder="Client Company Ltd." /></div>
+              <div class="field"><label>GSTIN</label><input id="to-gstin" placeholder="Optional" /></div>
+              <div class="field"><label>Address</label><input id="to-addr" placeholder="City, State" /></div>
+              <div class="field"><label>Email</label><input id="to-email" placeholder="client@example.com" /></div>
+            </div>
+          </div>
+          <div class="grid-3" style="margin-top:8px">
+            <div class="field"><label>Invoice #</label><input id="inv-number" value="INV-${String(invCounter).padStart(3,'0')}" /></div>
+            <div class="field"><label>Invoice Date</label><input type="date" id="inv-date" value="${toDateInput(new Date())}" /></div>
+            <div class="field"><label>Due Date</label><input type="date" id="inv-due" value="${toDateInput(addDays(new Date(),30))}" /></div>
+          </div>
+        </div>
+
+        <!-- Line items -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px">LINE ITEMS</div>
+          <div class="table-wrap">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th style="width:70px">Qty</th>
+                  <th style="width:110px">Rate (₹)</th>
+                  <th style="width:90px">GST %</th>
+                  <th style="width:100px;text-align:right">Amount</th>
+                  <th style="width:40px"></th>
+                </tr>
+              </thead>
+              <tbody id="items-body"></tbody>
+            </table>
+          </div>
+          <button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="addItem()">+ Add Row</button>
+        </div>
+
+        <!-- GST type -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="field">
+            <label>GST Type</label>
+            <select id="gst-type" onchange="renderItemsTable()">
+              <option value="intra">Intra-state (CGST + SGST)</option>
+              <option value="inter">Inter-state (IGST)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Notes / Terms</label>
+            <textarea id="inv-notes" rows="2" style="resize:none" placeholder="Payment within 30 days. Bank transfer preferred."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: totals + actions -->
+      <div>
+        <div class="card" style="position:sticky;top:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px">SUMMARY</div>
+          <div class="totals-box" id="totals-box">
+            <!-- Filled by recalculate() -->
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+            <button class="btn btn-gold" onclick="previewInvoice()" style="justify-content:center;width:100%">
+              👁 Preview &amp; Print PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  renderItemsTable();
+  recalculate();
+
+  // Re-calc on any field change
+  el.addEventListener('input', recalculate);
+}
+
+function addItem() {
+  invoiceItems.push({ desc: '', qty: 1, rate: '', gst: 18 });
+  renderItemsTable();
+}
+
+function removeItem(i) {
+  if (invoiceItems.length === 1) return;
+  invoiceItems.splice(i, 1);
+  renderItemsTable();
+  recalculate();
+}
+
+function renderItemsTable() {
+  const tbody = document.getElementById('items-body');
+  if (!tbody) return;
+  tbody.innerHTML = invoiceItems.map((item, i) => `
+    <tr>
+      <td><input value="${esc(item.desc)}" oninput="invoiceItems[${i}].desc=this.value" placeholder="Service description" /></td>
+      <td><input type="number" min="1" value="${item.qty}" oninput="invoiceItems[${i}].qty=+this.value;recalculate()" style="width:60px" /></td>
+      <td><input type="number" min="0" value="${item.rate}" oninput="invoiceItems[${i}].rate=+this.value;recalculate()" placeholder="0.00" /></td>
+      <td>
+        <select onchange="invoiceItems[${i}].gst=+this.value;recalculate()">
+          ${[0,5,12,18,28].map(r => `<option value="${r}" ${item.gst==r?'selected':''}>${r}%</option>`).join('')}
+        </select>
+      </td>
+      <td style="text-align:right;font-weight:500">₹${fmt((item.qty||1) * (item.rate||0))}</td>
+      <td><button class="remove-item" onclick="removeItem(${i})" title="Remove">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function recalculate() {
+  const box = document.getElementById('totals-box');
+  if (!box) return;
+  const isInter = document.getElementById('gst-type')?.value === 'inter';
+
+  let subtotal = 0, gstTotal = 0;
+  const gstGroups = {};
+
+  invoiceItems.forEach(item => {
+    const amt = (item.qty || 1) * (item.rate || 0);
+    subtotal += amt;
+    const gstAmt = amt * (item.gst || 0) / 100;
+    gstTotal += gstAmt;
+    if (item.gst > 0) {
+      gstGroups[item.gst] = (gstGroups[item.gst] || 0) + gstAmt;
+    }
+  });
+
+  const gstLines = Object.entries(gstGroups).map(([r, amt]) => {
+    if (isInter) return `<div class="totals-row"><span>IGST @ ${r}%</span><span>₹${fmt(amt)}</span></div>`;
+    return `<div class="totals-row"><span>CGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>
+            <div class="totals-row"><span>SGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>`;
+  }).join('');
+
+  box.innerHTML = `
+    <div class="totals-row"><span>Subtotal</span><span>₹${fmt(subtotal)}</span></div>
+    ${gstLines}
+    <div class="totals-row grand"><span>Total</span><span>₹${fmt(subtotal + gstTotal)}</span></div>
+  `;
+}
+
+function previewInvoice() {
+  const isInter = document.getElementById('gst-type')?.value === 'inter';
+  const fromName  = v('from-name'),  fromGST = v('from-gstin'), fromAddr = v('from-addr'), fromEmail = v('from-email');
+  const toName    = v('to-name'),    toGST   = v('to-gstin'),   toAddr   = v('to-addr'),   toEmail  = v('to-email');
+  const invNum    = v('inv-number'), invDate = v('inv-date'),   invDue   = v('inv-due');
+  const notes     = v('inv-notes');
+
+  let subtotal = 0, gstTotal = 0;
+  const gstGroups = {};
+  const rows = invoiceItems.map(item => {
+    const amt = (item.qty || 1) * (item.rate || 0);
+    subtotal += amt;
+    const gstAmt = amt * (item.gst || 0) / 100;
+    gstTotal += gstAmt;
+    if (item.gst > 0) gstGroups[item.gst] = (gstGroups[item.gst] || 0) + gstAmt;
+    return `<tr>
+      <td>${esc(item.desc) || '—'}</td>
+      <td style="text-align:right">${item.qty}</td>
+      <td style="text-align:right">₹${fmt(item.rate||0)}</td>
+      <td style="text-align:right">₹${fmt(amt)}</td>
+    </tr>`;
+  }).join('');
+
+  const gstLines = Object.entries(gstGroups).map(([r,amt]) => {
+    if (isInter) return `<div class="inv-trow"><span>IGST @ ${r}%</span><span>₹${fmt(amt)}</span></div>`;
+    return `<div class="inv-trow"><span>CGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>
+            <div class="inv-trow"><span>SGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>`;
+  }).join('');
+
+  document.getElementById('inv-sheet-content').innerHTML = `
+    <div class="inv-header">
+      <div>
+        <div class="inv-logo-row">
+          <svg width="32" height="32" viewBox="0 0 400 400"><polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/><line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/><line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/></svg>
+          <strong style="font-size:16px;color:#0B1728;font-family:Georgia,serif">${esc(fromName)}</strong>
+        </div>
+        <div class="inv-company">${esc(fromAddr)}<br>${esc(fromEmail)}${fromGST ? '<br>GSTIN: '+esc(fromGST) : ''}</div>
+      </div>
+      <div>
+        <div class="inv-tag">INVOICE</div>
+        <div class="inv-meta">
+          <strong>${esc(invNum)}</strong>
+          Date: ${fmtDate(invDate)}<br>
+          Due: ${fmtDate(invDue)}
+        </div>
+      </div>
+    </div>
+
+    <div class="inv-parties">
+      <div class="inv-party">
+        <h4>Bill To</h4>
+        <p><strong>${esc(toName) || '—'}</strong><br>${esc(toAddr) || ''}${toGST ? '<br>GSTIN: '+esc(toGST) : ''}${toEmail ? '<br>'+esc(toEmail) : ''}</p>
+      </div>
+    </div>
+
+    <table class="inv-table">
+      <thead><tr><th>Description</th><th style="text-align:right">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    <div class="clearfix">
+      <div class="inv-totals">
+        <div class="inv-trow"><span>Subtotal</span><span>₹${fmt(subtotal)}</span></div>
+        ${gstLines}
+        <div class="inv-trow grand"><span>Total</span><span>₹${fmt(subtotal + gstTotal)}</span></div>
+      </div>
+    </div>
+
+    ${notes ? `<div style="margin-top:32px;padding:12px;background:#f9f9f9;border-left:3px solid #C9A84C;font-size:12px;color:#555"><strong>Notes:</strong> ${esc(notes)}</div>` : ''}
+
+    <div class="inv-footer">
+      <span>Thank you for your business.</span>
+      <span>${esc(fromEmail)} · ${esc(fromAddr)}</span>
+    </div>
+  `;
+
+  document.getElementById('invoice-preview').style.display = 'block';
+
+  // Increment counter after first preview
+  invCounter++;
+  localStorage.setItem('afp_invCounter', invCounter);
+}
+
+function closePreview() {
+  document.getElementById('invoice-preview').style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CALCULATORS
+══════════════════════════════════════════════════════════════════════════════ */
+function renderCalculators() {
+  const el = document.getElementById('view-calculators');
+  el.innerHTML = `
+    <h1 class="page-title">Financial Calculators</h1>
+    <p class="page-sub">GST, TDS, EMI and compound interest — instant calculations</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'tab-gst')">GST Calculator</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-tds')">TDS Calculator</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-emi')">EMI Calculator</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-ci')">Compound Interest</button>
+    </div>
+
+    <!-- GST -->
+    <div id="tab-gst" class="tab-panel active">
+      <div style="max-width:480px">
+        <div class="calc-card">
+          <div class="calc-title">GST Calculator</div>
+          <div class="calc-sub">Calculate GST on any amount — intra-state or inter-state</div>
+          <div class="field"><label>Enter Amount (₹)</label><input type="number" id="gst-amount" oninput="calcGST()" placeholder="10000" /></div>
+          <div class="field">
+            <label>GST Rate</label>
+            <select id="gst-rate" onchange="calcGST()">
+              <option value="5">5%</option>
+              <option value="12">12%</option>
+              <option value="18" selected>18%</option>
+              <option value="28">28%</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Amount Type</label>
+            <select id="gst-incl" onchange="calcGST()">
+              <option value="excl">Exclusive of GST (add GST on top)</option>
+              <option value="incl">Inclusive of GST (extract GST)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Transaction Type</label>
+            <select id="gst-txn" onchange="calcGST()">
+              <option value="intra">Intra-state (CGST + SGST)</option>
+              <option value="inter">Inter-state (IGST)</option>
+            </select>
+          </div>
+          <div id="gst-result" class="result-box hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TDS -->
+    <div id="tab-tds" class="tab-panel">
+      <div style="max-width:480px">
+        <div class="calc-card">
+          <div class="calc-title">TDS Calculator</div>
+          <div class="calc-sub">Calculate TDS deductible under the Income Tax Act (FY 2024-25)</div>
+          <div class="field">
+            <label>Payment Type</label>
+            <select id="tds-type" onchange="calcTDS()">
+              <option value="194J">Professional / Technical Fees (194J) — 10%</option>
+              <option value="194C-ind">Contractor — Individual (194C) — 1%</option>
+              <option value="194C-co">Contractor — Company (194C) — 2%</option>
+              <option value="194H">Commission / Brokerage (194H) — 5%</option>
+              <option value="194I-land">Rent — Land / Building (194I) — 10%</option>
+              <option value="194I-plant">Rent — Plant & Machinery (194I) — 2%</option>
+              <option value="194A">Interest — Bank FD (194A) — 10%</option>
+              <option value="194D">Insurance Commission (194D) — 5%</option>
+            </select>
+          </div>
+          <div class="field"><label>Payment Amount (₹)</label><input type="number" id="tds-amount" oninput="calcTDS()" placeholder="100000" /></div>
+          <div id="tds-result" class="result-box hidden"></div>
+          <p style="font-size:11px;color:var(--muted);margin-top:12px">* Rates for Resident Indians. Surcharge/cess not included. Verify with current Finance Act.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMI -->
+    <div id="tab-emi" class="tab-panel">
+      <div style="max-width:520px">
+        <div class="calc-card">
+          <div class="calc-title">EMI Calculator</div>
+          <div class="calc-sub">Loan EMI and amortisation breakdown</div>
+          <div class="field"><label>Loan Amount (₹)</label><input type="number" id="emi-principal" oninput="calcEMI()" placeholder="1000000" /></div>
+          <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="emi-rate" oninput="calcEMI()" step="0.1" placeholder="9.5" /></div>
+          <div class="field">
+            <label>Tenure</label>
+            <div style="display:flex;gap:10px;align-items:center">
+              <input type="number" id="emi-tenure" oninput="calcEMI()" style="flex:1" placeholder="5" />
+              <select id="emi-unit" onchange="calcEMI()" style="width:100px">
+                <option value="years">Years</option>
+                <option value="months">Months</option>
+              </select>
+            </div>
+          </div>
+          <div id="emi-result" class="hidden"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compound Interest -->
+    <div id="tab-ci" class="tab-panel">
+      <div style="max-width:480px">
+        <div class="calc-card">
+          <div class="calc-title">Compound Interest Calculator</div>
+          <div class="calc-sub">See how your investment grows over time</div>
+          <div class="field"><label>Principal Amount (₹)</label><input type="number" id="ci-principal" oninput="calcCI()" placeholder="100000" /></div>
+          <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="ci-rate" oninput="calcCI()" step="0.1" placeholder="12" /></div>
+          <div class="field"><label>Period (Years)</label><input type="number" id="ci-years" oninput="calcCI()" placeholder="5" /></div>
+          <div class="field">
+            <label>Compounding Frequency</label>
+            <select id="ci-freq" onchange="calcCI()">
+              <option value="1">Annually</option>
+              <option value="2">Half-Yearly</option>
+              <option value="4" selected>Quarterly</option>
+              <option value="12">Monthly</option>
+            </select>
+          </div>
+          <div id="ci-result" class="result-box hidden"></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function switchTab(btn, id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── GST ─────────────────────────────────────────────────────────────────────── */
+function calcGST() {
+  const amt    = parseFloat(document.getElementById('gst-amount').value) || 0;
+  const rate   = parseFloat(document.getElementById('gst-rate').value) || 18;
+  const isIncl = document.getElementById('gst-incl').value === 'incl';
+  const isInter = document.getElementById('gst-txn').value === 'inter';
+  const el     = document.getElementById('gst-result');
+
+  if (!amt) { el.classList.add('hidden'); return; }
+
+  let base, gst;
+  if (isIncl) {
+    gst  = amt * rate / (100 + rate);
+    base = amt - gst;
+  } else {
+    base = amt;
+    gst  = amt * rate / 100;
+  }
+
+  let gstLines = '';
+  if (isInter) {
+    gstLines = `<div class="result-row"><span>IGST (${rate}%)</span><span>₹${fmt(gst)}</span></div>`;
+  } else {
+    gstLines = `
+      <div class="result-row"><span>CGST (${rate/2}%)</span><span>₹${fmt(gst/2)}</span></div>
+      <div class="result-row"><span>SGST (${rate/2}%)</span><span>₹${fmt(gst/2)}</span></div>`;
+  }
+
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="result-row"><span>Base Amount</span><span>₹${fmt(base)}</span></div>
+    ${gstLines}
+    <div class="result-row total"><span>Invoice Total</span><span>₹${fmt(base + gst)}</span></div>
+  `;
+}
+
+/* ── TDS ─────────────────────────────────────────────────────────────────────── */
+const TDS_RATES = {
+  '194J': .10, '194C-ind': .01, '194C-co': .02,
+  '194H': .05, '194I-land': .10, '194I-plant': .02,
+  '194A': .10, '194D': .05,
+};
+function calcTDS() {
+  const type = document.getElementById('tds-type').value;
+  const amt  = parseFloat(document.getElementById('tds-amount').value) || 0;
+  const el   = document.getElementById('tds-result');
+  if (!amt) { el.classList.add('hidden'); return; }
+
+  const rate = TDS_RATES[type] || 0;
+  const tds  = amt * rate;
+  const net  = amt - tds;
+
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="result-row"><span>Gross Amount</span><span>₹${fmt(amt)}</span></div>
+    <div class="result-row"><span>TDS Rate</span><span>${(rate*100).toFixed(1)}%</span></div>
+    <div class="result-row"><span>TDS Amount</span><span>₹${fmt(tds)}</span></div>
+    <div class="result-row total"><span>Net Payable</span><span>₹${fmt(net)}</span></div>
+  `;
+}
+
+/* ── EMI ─────────────────────────────────────────────────────────────────────── */
+function calcEMI() {
+  const P  = parseFloat(document.getElementById('emi-principal').value) || 0;
+  const r  = (parseFloat(document.getElementById('emi-rate').value) || 0) / 1200;
+  let   n  = parseFloat(document.getElementById('emi-tenure').value) || 0;
+  const unit = document.getElementById('emi-unit').value;
+  const el = document.getElementById('emi-result');
+  if (unit === 'years') n *= 12;
+
+  if (!P || !r || !n) { el.classList.add('hidden'); return; }
+
+  const emi      = P * r * Math.pow(1+r,n) / (Math.pow(1+r,n) - 1);
+  const total    = emi * n;
+  const interest = total - P;
+
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="emi-summary">
+      <div class="emi-stat">
+        <div class="value">₹${fmt(emi)}</div>
+        <div class="label">Monthly EMI</div>
+      </div>
+      <div class="emi-stat">
+        <div class="value">₹${fmt(total)}</div>
+        <div class="label">Total Payment</div>
+      </div>
+      <div class="emi-stat">
+        <div class="value">₹${fmt(interest)}</div>
+        <div class="label">Total Interest</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ── Compound Interest ───────────────────────────────────────────────────────── */
+function calcCI() {
+  const P    = parseFloat(document.getElementById('ci-principal').value) || 0;
+  const r    = (parseFloat(document.getElementById('ci-rate').value) || 0) / 100;
+  const t    = parseFloat(document.getElementById('ci-years').value) || 0;
+  const n    = parseInt(document.getElementById('ci-freq').value) || 1;
+  const el   = document.getElementById('ci-result');
+  if (!P || !r || !t) { el.classList.add('hidden'); return; }
+
+  const maturity = P * Math.pow(1 + r/n, n*t);
+  const interest = maturity - P;
+
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="result-row"><span>Principal</span><span>₹${fmt(P)}</span></div>
+    <div class="result-row"><span>Interest Earned</span><span>₹${fmt(interest)}</span></div>
+    <div class="result-row total"><span>Maturity Amount</span><span>₹${fmt(maturity)}</span></div>
+  `;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   TAX CALENDAR
+══════════════════════════════════════════════════════════════════════════════ */
+function getTaxEvents(year, month) {
+  const m = ((month % 12) + 12) % 12;
+  const y = year + (month < 0 ? -1 : month > 11 ? 1 : 0);
+  const d = (day) => new Date(y, m, day);
+
+  const events = [
+    { date: d(7),  title: 'TDS Deposit', desc: 'Deposit TDS/TCS collected in previous month', type: 'tds' },
+    { date: d(10), title: 'GSTR-7 / GSTR-8', desc: 'TDS/TCS through GST for previous month', type: 'gst' },
+    { date: d(11), title: 'GSTR-1 (Monthly)', desc: 'Outward supplies — filers with turnover >₹5 Cr', type: 'gst' },
+    { date: d(13), title: 'GSTR-1 IFF (Quarterly)', desc: 'Invoice Furnishing Facility for QRMP filers', type: 'gst' },
+    { date: d(15), title: 'PF / ESI Payment', desc: 'Provident Fund and ESI contributions due', type: 'other' },
+    { date: d(20), title: 'GSTR-3B', desc: 'Monthly GST return — all regular taxpayers', type: 'gst' },
+    { date: d(25), title: 'GST Composition', desc: 'Quarterly payment for composition scheme dealers', type: 'gst' },
+    { date: d(28), title: 'GSTR-11', desc: 'Inward supplies by UIN holders', type: 'gst' },
+  ];
+
+  // Advance tax (Q1: Jun 15, Q2: Sep 15, Q3: Dec 15, Q4: Mar 15)
+  if ([5,8,11,2].includes(m)) {
+    const qtrs = {5:'Q1 (15%)', 8:'Q2 (45%)', 11:'Q3 (75%)', 2:'Q4 (100%)'};
+    events.push({ date: d(15), title: `Advance Tax ${qtrs[m]}`, desc: 'Advance income tax installment due', type: 'it' });
+  }
+
+  // Annual
+  if (m === 6)  events.push({ date: d(31), title: 'ITR Filing Deadline', desc: 'Income Tax Return — individuals & non-audit', type: 'it' });
+  if (m === 8)  events.push({ date: d(30), title: 'Tax Audit Report', desc: 'Form 3CA-3CD / 3CB-3CD filing deadline', type: 'it' });
+  if (m === 9)  events.push({ date: d(31), title: 'ITR — Audit Cases', desc: 'Income Tax Return for audit-required entities', type: 'it' });
+  if (m === 11) events.push({ date: d(31), title: 'GSTR-9 / 9C', desc: 'Annual GST Return and Reconciliation Statement', type: 'gst' });
+
+  return events.filter(e => !isNaN(e.date));
+}
+
+const CAL_COLORS = { gst: '#16A34A', tds: '#2563EB', it: '#7C3AED', other: '#D97706' };
+const CAL_LABELS = { gst: 'GST', tds: 'TDS / TCS', it: 'Income Tax', other: 'Other' };
+
+function renderCalendar() {
+  const el = document.getElementById('view-calendar');
+  const monthName = new Date(calYear, calMonth).toLocaleString('default', { month: 'long' });
+
+  const events = getTaxEvents(calYear, calMonth).sort((a,b) => a.date - b.date);
+  const todayMs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+
+  const eventRows = events.map(e => {
+    const isPast = e.date.getTime() < todayMs;
+    const isToday = e.date.getTime() === todayMs;
+    return `
+      <div class="event-item" style="border-left-color:${CAL_COLORS[e.type]};${isPast ? 'opacity:.55' : ''}">
+        <div class="event-date">
+          <div class="day">${e.date.getDate()}</div>
+          <div class="mon">${monthName.slice(0,3)}</div>
+        </div>
+        <div class="event-info">
+          <div class="title">${e.title}${isToday ? ' <span style="color:var(--danger);font-size:11px">● Today</span>' : ''}</div>
+          <div class="desc">${e.desc}</div>
+        </div>
+        <span style="margin-left:auto;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${CAL_COLORS[e.type]}22;color:${CAL_COLORS[e.type]}">
+          ${CAL_LABELS[e.type]}
+        </span>
+      </div>`;
+  }).join('') || '<p style="color:var(--muted);padding:20px 0;text-align:center">No major deadlines this month</p>';
+
+  el.innerHTML = `
+    <h1 class="page-title">Tax Compliance Calendar</h1>
+    <p class="page-sub">India — GST, TDS, Income Tax and PF/ESI deadlines</p>
+
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
+      <span class="cal-month-label">${monthName} ${calYear}</span>
+      <button class="cal-nav-btn" onclick="calNav(1)">›</button>
+      <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="calGoToday()">Today</button>
+    </div>
+
+    <div class="cal-legend" style="margin-bottom:20px">
+      ${Object.entries(CAL_COLORS).map(([k,c]) =>
+        `<span class="legend-item"><span class="legend-dot" style="background:${c}"></span>${CAL_LABELS[k]}</span>`
+      ).join('')}
+    </div>
+
+    <div class="event-list">${eventRows}</div>
+  `;
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+function calGoToday() {
+  calYear = today.getFullYear();
+  calMonth = today.getMonth();
+  renderCalendar();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════════════════════════════════ */
+function fmt(n) {
+  return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function v(id) { return document.getElementById(id)?.value || ''; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toDateInput(d) { return d.toISOString().slice(0,10); }
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
+function fmtDate(str) { if (!str) return '—'; const d = new Date(str); return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+
+/* ── Init ────────────────────────────────────────────────────────────────────── */
+checkExistingSession();
+</script>
+</body>
+</html>

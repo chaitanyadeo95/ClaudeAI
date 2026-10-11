@@ -304,6 +304,20 @@ nav { display: flex; align-items: center; }
   color: var(--white) !important;
 }
 
+.nav-login {
+  border: 1.5px solid rgba(201,168,76,0.5) !important;
+  color: var(--gold) !important;
+  padding: 8px 18px !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: 500 !important;
+  transition: all var(--transition) !important;
+}
+
+.nav-login:hover {
+  background: rgba(201,168,76,0.12) !important;
+  border-color: var(--gold) !important;
+}
+
 /* Hamburger */
 .hamburger {
   display: none;
