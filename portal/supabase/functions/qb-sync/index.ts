@@ -292,7 +292,7 @@ async function pullBankAccounts(
 ): Promise<number> {
   const data: any = await qbGet(
     supabase, apiBase, `${companyPath}/query`, accessToken,
-    { query: "SELECT * FROM Account WHERE AccountType = 'Bank' OR AccountType = 'Other Current Asset' MAXRESULTS 200" },
+    { query: "SELECT * FROM Account WHERE AccountType IN ('Bank', 'Other Current Asset') MAXRESULTS 200" },
     logCtx,
   );
 
