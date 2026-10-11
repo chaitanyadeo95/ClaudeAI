@@ -1,0 +1,40 @@
+name: Deploy Supabase Functions
+
+on:
+  push:
+    branches: [claude/build-website-GMmsV]
+    paths:
+      - 'portal/supabase/functions/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Set function secrets
+        run: |
+          supabase secrets set \
+            QB_CLIENT_ID="${{ secrets.QB_CLIENT_ID }}" \
+            QB_CLIENT_SECRET="${{ secrets.QB_CLIENT_SECRET }}" \
+            QB_REDIRECT_URI="${{ secrets.QB_REDIRECT_URI }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy QB functions
+        run: |
+          supabase functions deploy qb-oauth-init     --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} --no-verify-jwt
+          supabase functions deploy qb-oauth-callback --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} --no-verify-jwt
+          supabase functions deploy qb-sync           --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        working-directory: portal
