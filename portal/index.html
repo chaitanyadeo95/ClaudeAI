@@ -724,8 +724,11 @@
    CONFIG — replace these with your Supabase project values to enable real auth.
    Leave as-is to use demo mode.
 ══════════════════════════════════════════════════════════════════════════════ */
-const SUPABASE_URL      = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL      = 'https://keiladscsohyzfgbzidn.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // not needed until Phase 2 auth
+
+// Demo client — replace with logged-in user's client_id once auth is wired
+const DEMO_CLIENT_ID = 'f5016961-00dd-41e3-9941-e9459e46e414';
 const DEMO_PASSWORD     = 'demo123'; // change this when using demo mode
 
 const DEMO_MODE = SUPABASE_URL === 'YOUR_SUPABASE_URL';
@@ -835,11 +838,12 @@ function closeSidebar() {
 /* ══════════════════════════════════════════════════════════════════════════════
    DASHBOARD
 ══════════════════════════════════════════════════════════════════════════════ */
-function renderDashboard() {
-  const el = document.getElementById('view-dashboard');
+async function renderDashboard() {
+  const el   = document.getElementById('view-dashboard');
   const name = currentUser.name || 'there';
   const monthName = today.toLocaleString('default', { month: 'long' });
 
+  // Skeleton while loading
   el.innerHTML = `
     <div class="welcome-banner">
       <div class="welcome-text">
@@ -852,54 +856,134 @@ function renderDashboard() {
         <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
       </svg>
     </div>
+    <div id="dash-body"><div style="color:var(--muted);padding:20px 0">Loading financial data…</div></div>
+  `;
 
+  // Fetch live data from Supabase Edge Function
+  let d = null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/get-dashboard?client_id=${DEMO_CLIENT_ID}`);
+    if (res.ok) d = await res.json();
+  } catch {}
+
+  const body = document.getElementById('dash-body');
+  if (!body) return;
+
+  if (!d) {
+    body.innerHTML = `<div class="card" style="color:var(--danger)">Could not load financial data. Check your QuickBooks connection.</div>`;
+    return;
+  }
+
+  const syncNote = d.lastSync
+    ? `Synced ${timeAgo(d.lastSync.at)} · ${d.lastSync.accounts} accounts · ${d.lastSync.invoices} invoices`
+    : 'Not yet synced';
+
+  const bankRows = (d.bank.accounts || []).map(a => `
+    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span>${esc(a.account_name)}</span>
+      <span style="font-weight:600;color:${a.balance >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCur(a.balance)}</span>
+    </div>`).join('');
+
+  const invoiceRows = (d.ar.top || []).map(inv => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <div>
+        <div style="font-weight:500">${esc(inv.customer_name)}</div>
+        <div style="color:var(--muted);font-size:11px">${esc(inv.invoice_number)} · Due ${inv.due_date ? fmtDate(inv.due_date) : '—'}</div>
+      </div>
+      <span style="font-weight:600;color:var(--navy)">${fmtCur(inv.balance)}</span>
+    </div>`).join('');
+
+  body.innerHTML = `
+    <!-- Stat cards -->
     <div class="grid-4" style="margin-bottom:24px">
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#EFF6FF">💼</div>
-        <div class="stat-value">—</div>
-        <div class="stat-label">Active Clients</div>
+        <div class="stat-icon" style="background:#F0FDF4">📥</div>
+        <div class="stat-value" style="font-size:20px">${fmtCur(d.ar.total)}</div>
+        <div class="stat-label">Total AR Outstanding</div>
+        ${d.ar.overdue ? `<div style="margin-top:6px;font-size:11px;color:var(--danger);font-weight:600">${d.ar.overdue} overdue</div>` : ''}
       </div>
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#F0FDF4">📈</div>
-        <div class="stat-value">—</div>
-        <div class="stat-label">Revenue This Month</div>
+        <div class="stat-icon" style="background:#FEF2F2">📤</div>
+        <div class="stat-value" style="font-size:20px">${fmtCur(d.ap.total)}</div>
+        <div class="stat-label">Total AP Outstanding</div>
+        ${d.ap.overdue ? `<div style="margin-top:6px;font-size:11px;color:var(--danger);font-weight:600">${d.ap.overdue} overdue</div>` : ''}
       </div>
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#FFFBEB">📄</div>
-        <div class="stat-value" id="dash-inv-count">${invCounter - 1}</div>
-        <div class="stat-label">Invoices Generated</div>
+        <div class="stat-icon" style="background:#EFF6FF">🏦</div>
+        <div class="stat-value" style="font-size:20px">${fmtCur(d.bank.total)}</div>
+        <div class="stat-label">Total Bank Balance</div>
+        <div style="margin-top:6px;font-size:11px;color:var(--muted)">${d.bank.accounts.length} accounts</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#FEF2F2">📅</div>
+        <div class="stat-icon" style="background:#FFFBEB">📅</div>
         <div class="stat-value">${nextDueDays()}</div>
         <div class="stat-label">Days to Next Tax Due</div>
       </div>
     </div>
 
+    <div class="grid-2" style="margin-bottom:24px">
+      <!-- Top open invoices -->
+      <div class="card">
+        <div class="card-title">Top Open Invoices (AR)</div>
+        <div style="margin-top:8px">
+          ${invoiceRows || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No open invoices</div>'}
+        </div>
+        ${d.ar.count > 5 ? `<div style="margin-top:10px;font-size:12px;color:var(--muted)">${d.ar.count - 5} more invoices not shown</div>` : ''}
+      </div>
+
+      <!-- Bank accounts -->
+      <div class="card">
+        <div class="card-title">Bank &amp; Cash Accounts</div>
+        <div style="margin-top:8px">
+          ${bankRows || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No bank accounts found</div>'}
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);margin-top:4px">
+          <span>Total</span><span>${fmtCur(d.bank.total)}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="grid-2">
+      <!-- Quick actions -->
       <div class="card">
         <div class="card-title">Quick Actions</div>
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
-          <button class="btn btn-outline" onclick="showView('calculators')">GST Calculator</button>
+          <button class="btn btn-outline" onclick="showView('calculators')">Calculator</button>
           <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
         </div>
       </div>
+
+      <!-- Upcoming deadlines -->
       <div class="card">
-        <div class="card-title">Upcoming Deadlines</div>
-        <div style="margin-top:8px">
-          ${upcomingDeadlines().map(d => `
-            <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
-              <span style="font-size:12px;min-width:50px;color:${d.urgent ? 'var(--danger)' : 'var(--muted)'}">
-                ${d.dateStr}
-              </span>
-              <span style="font-size:13px;font-weight:500">${d.title}</span>
-              ${d.urgent ? '<span style="margin-left:auto;font-size:11px;color:var(--danger)">Soon</span>' : ''}
-            </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="card-title" style="margin:0">Upcoming Deadlines</div>
+          <div style="font-size:11px;color:var(--muted)">${syncNote}</div>
         </div>
+        ${upcomingDeadlines().map(d => `
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:12px;min-width:50px;color:${d.urgent ? 'var(--danger)' : 'var(--muted)'}">${d.dateStr}</span>
+            <span style="font-size:13px;font-weight:500">${d.title}</span>
+            ${d.urgent ? '<span style="margin-left:auto;font-size:11px;color:var(--danger)">Soon</span>' : ''}
+          </div>`).join('')}
       </div>
     </div>
   `;
+}
+
+function fmtCur(n) {
+  const num = parseFloat(n) || 0;
+  return '$' + Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function timeAgo(iso) {
+  if (!iso) return '—';
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
 }
 
 function hour() {
