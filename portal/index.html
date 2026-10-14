@@ -1248,8 +1248,32 @@ async function renderDashboard() {
   const body = document.getElementById('dash-body');
   if (!body) return;
 
-  if (!d) {
-    body.innerHTML = `<div class="card" style="color:var(--danger)">Could not load financial data. Check your QuickBooks connection.</div>`;
+  // No data at all — not connected yet
+  const notConnected = !d || (!d.ar?.count && !d.ap?.count && !d.bank?.accounts?.length && !d.lastSync);
+
+  if (!d || notConnected) {
+    body.innerHTML = `
+      <div style="max-width:480px;margin:60px auto;text-align:center">
+        <div style="font-size:56px;margin-bottom:16px">🔗</div>
+        <h2 style="font-size:22px;font-weight:700;color:#0a0a0a;margin-bottom:10px">Connect Your Accounting Software</h2>
+        <p style="font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.7">
+          Connect QuickBooks to see your AR, AP, cash position and financial insights — all in one place. Takes less than 2 minutes.
+        </p>
+        <a href="${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production"
+           style="display:inline-block;background:#0a0a0a;color:#fff;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:12px">
+          Connect QuickBooks →
+        </a>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Secure OAuth 2.0 · Read-only access · Disconnect anytime</p>
+
+        <div style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border)">
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px">More connectors coming soon</p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">📊 Google Sheets</div>
+            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">🧾 Tally</div>
+            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">📁 CSV Upload</div>
+          </div>
+        </div>
+      </div>`;
     return;
   }
 
