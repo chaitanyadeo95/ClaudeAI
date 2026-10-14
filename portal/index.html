@@ -34,10 +34,36 @@
 
     /* ── Reset ───────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); background: var(--surface); line-height: 1.5; }
+    body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); background: #EEF1F7; line-height: 1.5; }
     button { cursor: pointer; font-family: inherit; }
     input, select, textarea { font-family: inherit; }
     a { text-decoration: none; color: inherit; }
+
+    /* ── Floating background orbs ────────────────────────────────────────────── */
+    #app-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.13;
+      animation: floatOrb linear infinite;
+    }
+    .orb-1 { width: 520px; height: 520px; background: #C9A84C; top: -120px; left: -100px; animation-duration: 22s; }
+    .orb-2 { width: 400px; height: 400px; background: #0B1728; top: 40%; right: -80px; animation-duration: 18s; animation-delay: -6s; }
+    .orb-3 { width: 300px; height: 300px; background: #C9A84C; bottom: -80px; left: 30%; animation-duration: 26s; animation-delay: -12s; }
+    .orb-4 { width: 200px; height: 200px; background: #1C3054; top: 60%; left: 15%; animation-duration: 20s; animation-delay: -4s; }
+    @keyframes floatOrb {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(40px, -30px) scale(1.07); }
+      66%  { transform: translate(-20px, 40px) scale(0.95); }
+      100% { transform: translate(0, 0) scale(1); }
+    }
 
     /* ── Utilities ───────────────────────────────────────────────────────────── */
     .hidden { display: none !important; }
@@ -48,19 +74,22 @@
     ═══════════════════════════════════════════════════════════════════════════ */
     #login-screen {
       min-height: 100vh;
-      background: var(--navy);
+      background: linear-gradient(135deg, #0B1728 0%, #1a2f52 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      z-index: 1;
     }
     .login-card {
-      background: var(--white);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
       padding: 40px 36px;
       width: 100%;
       max-width: 380px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.4);
+      box-shadow: 0 24px 64px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.1);
     }
     .login-brand {
       display: flex;
@@ -262,6 +291,8 @@
       margin-left: var(--sidebar-w);
       flex: 1;
       min-width: 0;
+      position: relative;
+      z-index: 1;
     }
     .page {
       padding: 28px;
@@ -281,18 +312,25 @@
 
     /* ── Cards ───────────────────────────────────────────────────────────────── */
     .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.7);
       padding: 20px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 4px 24px rgba(11,23,40,0.08), 0 1px 4px rgba(11,23,40,0.04);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(11,23,40,0.12), 0 2px 8px rgba(11,23,40,0.06);
+      transform: translateY(-1px);
     }
     .card-title {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: .6px;
+      letter-spacing: .8px;
       margin-bottom: 8px;
     }
     .stat-value {
@@ -394,31 +432,64 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
+    /* ── Sidebar polish ──────────────────────────────────────────────────────── */
+    #sidebar {
+      background: linear-gradient(180deg, #0B1728 0%, #111f38 100%);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+    }
+
     /* ═══════════════════════════════════════════════════════════════════════════
        DASHBOARD
     ═══════════════════════════════════════════════════════════════════════════ */
     .welcome-banner {
-      background: linear-gradient(135deg, var(--navy), var(--deep-navy));
-      border-radius: var(--radius);
-      padding: 20px 24px;
+      background: linear-gradient(135deg, #0B1728 0%, #1a2f52 60%, #0f2040 100%);
+      border-radius: 16px;
+      padding: 24px 28px;
       color: var(--white);
       margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-shadow: 0 8px 32px rgba(11,23,40,0.25);
+      position: relative;
+      overflow: hidden;
     }
-    .welcome-text h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
-    .welcome-text p  { font-size: 13px; color: rgba(255,255,255,.6); }
-    .welcome-logo svg { opacity: .15; }
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(201,168,76,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: 20%;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .welcome-text h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+    .welcome-text p  { font-size: 13px; color: rgba(255,255,255,.55); }
+    .welcome-logo svg { opacity: .12; }
     .stat-card { display: flex; flex-direction: column; }
     .stat-icon {
-      width: 36px; height: 36px;
-      border-radius: 8px;
+      width: 40px; height: 40px;
+      border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      margin-bottom: 12px;
+      font-size: 20px;
+      margin-bottom: 14px;
     }
     .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ── Number highlight ────────────────────────────────────────────────────── */
+    .big-num {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
 
     /* ═══════════════════════════════════════════════════════════════════════════
        INVOICE
@@ -604,14 +675,22 @@
       #sidebar.open { transform: translateX(0); }
       .sidebar-overlay.open { display: block; }
       #main-content { margin-left: 0; padding-top: var(--topbar-h); }
-      .page { padding: 20px 16px; }
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .page { padding: 16px 14px 32px; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; gap: 12px; }
       .invoice-layout { grid-template-columns: 1fr; }
       .emi-summary { grid-template-columns: 1fr; }
+      .welcome-banner { padding: 18px 20px; border-radius: 12px; }
+      .welcome-text h2 { font-size: 17px; }
+      .card { border-radius: 12px; padding: 16px; }
+      .big-num { font-size: 22px; }
     }
     @media (max-width: 500px) {
-      .grid-4 { grid-template-columns: 1fr 1fr; }
+      .grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .page { padding: 12px 12px 40px; }
+      .welcome-banner { padding: 16px; }
+      .welcome-text h2 { font-size: 15px; }
+      .card { padding: 14px; }
     }
 
     @media print {
@@ -623,6 +702,14 @@
   </style>
 </head>
 <body>
+
+<!-- ── Floating background ───────────────────────────────────────────────────── -->
+<div id="app-bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
 
 <!-- ── Login Screen ──────────────────────────────────────────────────────────── -->
 <div id="login-screen">
