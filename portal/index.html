@@ -1009,6 +1009,9 @@
   setTimeout(() => canvas.classList.add('ready'), 100);
 })();
 
+// Open signup tab if coming from main site CTA
+if (window.location.hash === '#signup') switchAuthTab('signup');
+
 /* ══════════════════════════════════════════════════════════════════════════════
    CONFIG
 ══════════════════════════════════════════════════════════════════════════════ */
