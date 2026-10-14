@@ -790,6 +790,99 @@
     .import-status { text-align: center; padding: 48px 20px; }
     .import-status .si-icon { font-size: 56px; margin-bottom: 16px; }
     @media (max-width: 700px) { .type-cards { grid-template-columns: 1fr; } .import-steps { flex-wrap: wrap; gap: 4px; } }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       DARK CANVAS THEME — cards float on the star field
+    ═══════════════════════════════════════════════════════════════════════════ */
+    body { background: #07080d; }
+    #main-content { background: transparent; }
+
+    /* Cards become frosted dark glass; remap design tokens so inline var() resolves light */
+    .card {
+      background: rgba(14,15,20,0.82);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 1px 0 rgba(255,255,255,0.06) inset;
+      color: #E8E9EF;
+      --navy: #E8E9EF;
+      --text: #E0E1E8;
+      --muted: rgba(255,255,255,0.42);
+      --border: rgba(255,255,255,0.08);
+    }
+    .card:hover {
+      box-shadow: 0 16px 56px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.08) inset;
+      background: rgba(18,20,28,0.88);
+    }
+    .card-title { color: rgba(255,255,255,0.42); }
+    .stat-value { color: #F0F1F6; }
+    .stat-label { color: rgba(255,255,255,0.4); }
+
+    /* Page-level headings sit directly on dark background */
+    .page-title { color: #F0F1F6; }
+    .page-sub   { color: rgba(255,255,255,0.42); }
+
+    /* Tables inside dark cards */
+    th  { color: rgba(255,255,255,0.4); border-bottom-color: rgba(255,255,255,0.08); }
+    td  { border-bottom-color: rgba(255,255,255,0.06); color: #E0E1E8; }
+    tr:hover td { background: rgba(255,255,255,0.04); }
+
+    /* Form fields inside dark cards */
+    .field input, .field select, .field textarea {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.14);
+      color: #E8E9EF;
+    }
+    .field input::placeholder { color: rgba(255,255,255,0.28); }
+    .field input:focus, .field select:focus { border-color: var(--gold); background: rgba(255,255,255,0.1); }
+    .field label { color: rgba(255,255,255,0.7); }
+
+    /* Buttons inside dark cards */
+    .btn-outline { background: rgba(255,255,255,0.07); color: #E0E1E8; border-color: rgba(255,255,255,0.15); }
+    .btn-outline:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+    .btn-gold, .btn-primary { --navy: #0a0a0a; }
+
+    /* Tax calendar events on dark */
+    .event-item { background: rgba(14,15,20,0.82); border-color: rgba(255,255,255,0.07); }
+    .event-info .title { color: #E8E9EF; }
+    .event-info .desc  { color: rgba(255,255,255,0.42); }
+    .event-date .day   { color: #E8E9EF; }
+    .event-date .mon   { color: rgba(255,255,255,0.38); }
+    .cal-nav-btn { background: rgba(14,15,20,0.8); border-color: rgba(255,255,255,0.12); color: #E0E1E8; }
+    .cal-nav-btn:hover { background: rgba(255,255,255,0.08); }
+    .cal-month-label { color: #F0F1F6; }
+
+    /* Calculator cards */
+    .calc-card { background: rgba(14,15,20,0.82); border-color: rgba(255,255,255,0.08); }
+    .calc-title { color: #F0F1F6; }
+    .calc-sub { color: rgba(255,255,255,0.42); }
+    .emi-stat { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); }
+    .emi-stat .value { color: #F0F1F6; }
+    .emi-stat .label { color: rgba(255,255,255,0.4); }
+
+    /* Tabs on dark background */
+    .tabs { border-bottom-color: rgba(255,255,255,0.1); }
+    .tab-btn { color: rgba(255,255,255,0.42); }
+    .tab-btn.active { color: #F0F1F6; border-bottom-color: var(--gold); }
+
+    /* Import wizard on dark */
+    .import-step { color: rgba(255,255,255,0.35); }
+    .import-step.active { color: #F0F1F6; }
+    .import-step.done   { color: var(--gold); }
+    .step-num { border-color: rgba(255,255,255,0.18); }
+    .type-card { background: rgba(14,15,20,0.82); border-color: rgba(255,255,255,0.1); }
+    .type-card:hover, .type-card.selected { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+    .tc-title { color: #F0F1F6; }
+    .tc-desc  { color: rgba(255,255,255,0.42); }
+    .drop-zone { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.14); }
+    .drop-zone .dz-text { color: #E8E9EF; }
+    .drop-zone .dz-sub  { color: rgba(255,255,255,0.38); }
+    .drop-zone:hover, .drop-zone.drag-over { background: rgba(201,168,76,0.08); border-color: var(--gold); }
+    .col-map-table th { color: rgba(255,255,255,0.42); border-bottom-color: rgba(255,255,255,0.08); }
+    .col-map-table td { border-bottom-color: rgba(255,255,255,0.06); color: #E0E1E8; }
+    .col-map-table select { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); color: #E8E9EF; }
+    .import-status { color: #E8E9EF; }
+
+    /* Invoice preview sheet stays white */
+    .inv-sheet * { color: #1a1a1a; }
   </style>
 </head>
 <body>
@@ -1293,28 +1386,28 @@ async function renderDashboard() {
     body.innerHTML = `
       <div style="max-width:480px;margin:60px auto;text-align:center">
         <div style="font-size:56px;margin-bottom:16px">🔗</div>
-        <h2 style="font-size:22px;font-weight:700;color:#0a0a0a;margin-bottom:10px">Connect Your Accounting Software</h2>
-        <p style="font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.7">
+        <h2 style="font-size:22px;font-weight:700;color:#F0F1F6;margin-bottom:10px">Connect Your Accounting Software</h2>
+        <p style="font-size:14px;color:rgba(255,255,255,0.52);margin-bottom:32px;line-height:1.7">
           Connect QuickBooks to see your AR, AP, cash position and financial insights — all in one place. Takes less than 2 minutes.
         </p>
         <a href="${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production"
-           style="display:inline-block;background:#0a0a0a;color:#fff;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:12px">
+           style="display:inline-block;background:var(--gold);color:#0a0a0a;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:12px">
           Connect QuickBooks →
         </a>
-        <p style="font-size:12px;color:var(--muted);margin-top:8px">Secure OAuth 2.0 · Read-only access · Disconnect anytime</p>
+        <p style="font-size:12px;color:rgba(255,255,255,0.38);margin-top:8px">Secure OAuth 2.0 · Read-only access · Disconnect anytime</p>
 
-        <div style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border)">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Other ways to connect</p>
+        <div style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.1)">
+          <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px">Other ways to connect</p>
           <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
             <button onclick="showView('import')"
-              style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;cursor:pointer;font-family:inherit">
+              style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:#E8E9EF;background:rgba(255,255,255,0.07);cursor:pointer;font-family:inherit">
               📁 Upload CSV
             </button>
             <button onclick="importState={step:1,type:null,source:'sheets',headers:[],rows:[],mapping:{},replace:true};showView('import')"
-              style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;cursor:pointer;font-family:inherit">
+              style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:#E8E9EF;background:rgba(255,255,255,0.07);cursor:pointer;font-family:inherit">
               📊 Google Sheets
             </button>
-            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">🧾 Tally — coming soon</div>
+            <div style="padding:10px 20px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:13px;color:rgba(255,255,255,0.38);background:rgba(255,255,255,0.04)">🧾 Tally — coming soon</div>
           </div>
         </div>
       </div>`;
