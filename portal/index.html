@@ -901,100 +901,154 @@ async function renderDashboard() {
   }
 
   const syncNote = d.lastSync
-    ? `Synced ${timeAgo(d.lastSync.at)} · ${d.lastSync.accounts} accounts · ${d.lastSync.invoices} invoices`
+    ? `Synced ${timeAgo(d.lastSync.at)}`
     : 'Not yet synced';
 
+  // ── Decision intelligence ─────────────────────────────────────────────────
+  const bankTotal   = d.bank.total || 0;
+  const apTotal     = d.ap.total   || 0;
+  const arTotal     = d.ar.total   || 0;
+
+  // Cash runway: bank / avg monthly AP spend (rough: AP * 12 / 12 = AP as monthly proxy)
+  const runwayDays  = apTotal > 0 ? Math.round((bankTotal / apTotal) * 30) : null;
+  const runwayColor = runwayDays === null ? 'var(--success)' : runwayDays < 15 ? 'var(--danger)' : runwayDays < 45 ? 'var(--warning)' : 'var(--success)';
+  const runwayText  = runwayDays === null ? 'No bills due' : runwayDays < 0 ? 'Cash deficit' : `~${runwayDays} days`;
+
+  // Payment risk: can we cover AP with bank?
+  const paymentRisk = apTotal > bankTotal;
+  const shortfall   = apTotal - bankTotal;
+
+  // Overdue collections ranked by balance
+  const overdueInvoices = (d.ar.top || []).filter(inv => inv.due_date && new Date(inv.due_date) < today);
+  overdueInvoices.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance));
+
+  // GST estimate (rough: 18% of AR as proxy for GST collected)
+  const gstEstimate = arTotal * 0.18;
+
+  // This week's action items
+  const actions = [];
+  if (overdueInvoices.length)
+    actions.push({ urgent: true,  icon: '📞', text: `Follow up on ${overdueInvoices.length} overdue invoice${overdueInvoices.length > 1 ? 's' : ''} — ${fmtCur(overdueInvoices.reduce((s,i) => s + parseFloat(i.balance||0), 0))} uncollected` });
+  if (paymentRisk)
+    actions.push({ urgent: true,  icon: '⚠️', text: `Bank balance is ${fmtCur(shortfall)} short to cover all bills — arrange funds` });
+  const deadlines = upcomingDeadlines().filter(dl => dl.urgent);
+  if (deadlines.length)
+    actions.push({ urgent: true,  icon: '📅', text: `${deadlines[0].title} due ${deadlines[0].dateStr} — don't miss it` });
+  if (gstEstimate > 0)
+    actions.push({ urgent: false, icon: '🔒', text: `Set aside ~${fmtCur(gstEstimate)} for GST — don't spend collected tax` });
+  if (!actions.length)
+    actions.push({ urgent: false, icon: '✅', text: 'All clear — no urgent actions this week' });
+
+  // Collection priority rows
+  const collectionRows = (d.ar.top || [])
+    .sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
+    .slice(0, 5)
+    .map(inv => {
+      const overdue = inv.due_date && new Date(inv.due_date) < today;
+      const daysOverdue = overdue ? Math.round((today - new Date(inv.due_date)) / 86400000) : 0;
+      return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-weight:500;font-size:13px">${esc(inv.customer_name)}</div>
+          <div style="font-size:11px;color:${overdue ? 'var(--danger)' : 'var(--muted)'}">
+            ${overdue ? `${daysOverdue}d overdue` : `Due ${fmtDate(inv.due_date)}`} · ${esc(inv.invoice_number)}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700;color:var(--navy);font-size:13px">${fmtCur(inv.balance)}</div>
+          ${overdue ? '<div style="font-size:10px;color:var(--danger);font-weight:600">FOLLOW UP</div>' : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+  // Bank rows
   const bankRows = (d.bank.accounts || []).map(a => `
     <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
-      <span>${esc(a.account_name)}</span>
+      <span style="color:var(--text)">${esc(a.account_name)}</span>
       <span style="font-weight:600;color:${a.balance >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCur(a.balance)}</span>
     </div>`).join('');
 
-  const invoiceRows = (d.ar.top || []).map(inv => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
-      <div>
-        <div style="font-weight:500">${esc(inv.customer_name)}</div>
-        <div style="color:var(--muted);font-size:11px">${esc(inv.invoice_number)} · Due ${inv.due_date ? fmtDate(inv.due_date) : '—'}</div>
-      </div>
-      <span style="font-weight:600;color:var(--navy)">${fmtCur(inv.balance)}</span>
-    </div>`).join('');
-
   body.innerHTML = `
-    <!-- Stat cards -->
-    <div class="grid-4" style="margin-bottom:24px">
+
+    <!-- ── Action strip ─────────────────────────────────────────────────── -->
+    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--gold)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:600;font-size:14px;color:var(--navy)">This Week — Focus On</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--muted)" id="sync-note">${syncNote}</span>
+          <button id="sync-btn" onclick="syncNow()" style="font-size:11px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Sync Now</button>
+        </div>
+      </div>
+      ${actions.map(a => `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-top:1px solid var(--border)">
+          <span style="font-size:15px;margin-top:1px">${a.icon}</span>
+          <span style="font-size:13px;color:${a.urgent ? 'var(--text)' : 'var(--muted)'};font-weight:${a.urgent ? '500' : '400'}">${a.text}</span>
+          ${a.urgent ? '<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--danger);white-space:nowrap;padding-top:2px">ACTION</span>' : ''}
+        </div>`).join('')}
+    </div>
+
+    <!-- ── Key numbers ──────────────────────────────────────────────────── -->
+    <div class="grid-4" style="margin-bottom:20px">
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#F0FDF4">📥</div>
-        <div class="stat-value" style="font-size:20px">${fmtCur(d.ar.total)}</div>
-        <div class="stat-label">Total AR Outstanding</div>
-        ${d.ar.overdue ? `<div style="margin-top:6px;font-size:11px;color:var(--danger);font-weight:600">${d.ar.overdue} overdue</div>` : ''}
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Cash Position</div>
+        <div style="font-size:22px;font-weight:700;color:var(--navy)">${fmtCur(bankTotal)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${d.bank.accounts.length} account${d.bank.accounts.length !== 1 ? 's' : ''}</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#FEF2F2">📤</div>
-        <div class="stat-value" style="font-size:20px">${fmtCur(d.ap.total)}</div>
-        <div class="stat-label">Total AP Outstanding</div>
-        ${d.ap.overdue ? `<div style="margin-top:6px;font-size:11px;color:var(--danger);font-weight:600">${d.ap.overdue} overdue</div>` : ''}
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Cash Runway</div>
+        <div style="font-size:22px;font-weight:700;color:${runwayColor}">${runwayText}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">vs outstanding bills</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#EFF6FF">🏦</div>
-        <div class="stat-value" style="font-size:20px">${fmtCur(d.bank.total)}</div>
-        <div class="stat-label">Total Bank Balance</div>
-        <div style="margin-top:6px;font-size:11px;color:var(--muted)">${d.bank.accounts.length} accounts</div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Money to Collect</div>
+        <div style="font-size:22px;font-weight:700;color:var(--navy)">${fmtCur(arTotal)}</div>
+        <div style="font-size:12px;color:${d.ar.overdue ? 'var(--danger)' : 'var(--muted)'};margin-top:4px;font-weight:${d.ar.overdue ? '600' : '400'}">${d.ar.overdue ? `${d.ar.overdue} overdue` : `${d.ar.count} invoices`}</div>
       </div>
       <div class="card stat-card">
-        <div class="stat-icon" style="background:#FFFBEB">📅</div>
-        <div class="stat-value">${nextDueDays()}</div>
-        <div class="stat-label">Days to Next Tax Due</div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Bills to Pay</div>
+        <div style="font-size:22px;font-weight:700;color:${paymentRisk ? 'var(--danger)' : 'var(--navy)}'}">${fmtCur(apTotal)}</div>
+        <div style="font-size:12px;color:${paymentRisk ? 'var(--danger)' : 'var(--muted)'};margin-top:4px;font-weight:${paymentRisk ? '600' : '400'}">${paymentRisk ? 'Insufficient funds' : `${d.ap.count} bills`}</div>
       </div>
     </div>
 
-    <div class="grid-2" style="margin-bottom:24px">
-      <!-- Top open invoices -->
+    <!-- ── Collection priority + Bank ──────────────────────────────────── -->
+    <div class="grid-2" style="margin-bottom:20px">
       <div class="card">
-        <div class="card-title">Top Open Invoices (AR)</div>
-        <div style="margin-top:8px">
-          ${invoiceRows || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No open invoices</div>'}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div class="card-title" style="margin:0">Collection Priority</div>
+          <span style="font-size:11px;color:var(--muted)">Largest first</span>
         </div>
-        ${d.ar.count > 5 ? `<div style="margin-top:10px;font-size:12px;color:var(--muted)">${d.ar.count - 5} more invoices not shown</div>` : ''}
+        ${collectionRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No open invoices — great!</div>'}
+        ${d.ar.count > 5 ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">${d.ar.count - 5} more not shown</div>` : ''}
       </div>
 
-      <!-- Bank accounts -->
       <div class="card">
-        <div class="card-title">Bank &amp; Cash Accounts</div>
-        <div style="margin-top:8px">
-          ${bankRows || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No bank accounts found</div>'}
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);margin-top:4px">
-          <span>Total</span><span>${fmtCur(d.bank.total)}</span>
-        </div>
+        <div class="card-title">Bank &amp; Cash</div>
+        ${bankRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No accounts found</div>'}
+        ${bankRows ? `<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);margin-top:4px"><span>Total Cash</span><span>${fmtCur(bankTotal)}</span></div>` : ''}
+        ${gstEstimate > 0 ? `<div style="margin-top:12px;padding:10px 12px;background:#FFFBEB;border-radius:6px;border:1px solid #FDE68A;font-size:12px;color:#92400E"><strong>GST Reserve:</strong> Set aside ~${fmtCur(gstEstimate)} from collected AR for tax filing.</div>` : ''}
       </div>
     </div>
 
+    <!-- ── Tax deadlines + Quick actions ───────────────────────────────── -->
     <div class="grid-2">
-      <!-- Quick actions -->
+      <div class="card">
+        <div class="card-title">Upcoming Tax Deadlines</div>
+        ${upcomingDeadlines().map(dl => `
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:12px;min-width:54px;color:${dl.urgent ? 'var(--danger)' : 'var(--muted)'};font-weight:${dl.urgent ? '600' : '400'}">${dl.dateStr}</span>
+            <span style="font-size:13px;font-weight:500">${dl.title}</span>
+            ${dl.urgent ? '<span style="margin-left:auto;font-size:10px;color:var(--danger);font-weight:700">SOON</span>' : ''}
+          </div>`).join('')}
+      </div>
+
       <div class="card">
         <div class="card-title">Quick Actions</div>
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
-          <button class="btn btn-outline" onclick="showView('calculators')">Calculator</button>
+          <button class="btn btn-outline" onclick="showView('calculators')">GST / TDS Calc</button>
           <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
         </div>
-      </div>
-
-      <!-- Upcoming deadlines -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div class="card-title" style="margin:0">Upcoming Deadlines</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div style="font-size:11px;color:var(--muted)" id="sync-note">${syncNote}</div>
-            <button id="sync-btn" onclick="syncNow()" style="font-size:11px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Sync Now</button>
-          </div>
-        </div>
-        ${upcomingDeadlines().map(d => `
-          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:12px;min-width:50px;color:${d.urgent ? 'var(--danger)' : 'var(--muted)'}">${d.dateStr}</span>
-            <span style="font-size:13px;font-weight:500">${d.title}</span>
-            ${d.urgent ? '<span style="margin-left:auto;font-size:11px;color:var(--danger)">Soon</span>' : ''}
-          </div>`).join('')}
       </div>
     </div>
   `;
