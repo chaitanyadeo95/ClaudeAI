@@ -2399,54 +2399,44 @@ async function importExecute() {
 
   try {
     const records = importState.rows.map((row, idx) => {
-      const ts  = `csv_${Date.now()}_${idx}`;
-      const rec = { client_id: clientId, source: 'csv', synced_at: new Date().toISOString() };
-
-      if (importState.type === 'ar') {
-        rec.zoho_invoice_id = ts;
-        rec.invoice_number  = getV(row, 'invoice_number') || `CSV-${idx+1}`;
-        rec.customer_name   = getV(row, 'customer_name');
-        rec.invoice_date    = importParseDate(getV(row, 'invoice_date'));
-        rec.due_date        = importParseDate(getV(row, 'due_date'));
-        rec.total           = importParseNum(getV(row, 'total'));
-        rec.balance         = importParseNum(getV(row, 'balance'));
-        rec.status          = getV(row, 'status') || 'open';
-        rec.currency_code   = 'INR';
-      } else if (importState.type === 'ap') {
-        rec.zoho_bill_id    = ts;
-        rec.bill_number     = getV(row, 'bill_number') || `BILL-${idx+1}`;
-        rec.vendor_name     = getV(row, 'vendor_name');
-        rec.bill_date       = importParseDate(getV(row, 'bill_date'));
-        rec.due_date        = importParseDate(getV(row, 'due_date'));
-        rec.total           = importParseNum(getV(row, 'total'));
-        rec.balance         = importParseNum(getV(row, 'balance'));
-        rec.status          = getV(row, 'status') || 'open';
-        rec.currency_code   = 'INR';
-      } else {
-        rec.zoho_account_id = ts;
-        rec.account_name    = getV(row, 'account_name');
-        rec.bank_name       = getV(row, 'bank_name');
-        rec.account_number  = getV(row, 'account_number');
-        rec.account_type    = getV(row, 'account_type') || 'Bank';
-        rec.balance         = importParseNum(getV(row, 'balance'));
-        rec.currency_code   = 'INR';
-      }
-      return rec;
+      if (importState.type === 'ar') return {
+        invoice_number: getV(row, 'invoice_number') || `CSV-${idx+1}`,
+        customer_name:  getV(row, 'customer_name'),
+        invoice_date:   importParseDate(getV(row, 'invoice_date')),
+        due_date:       importParseDate(getV(row, 'due_date')),
+        total:          importParseNum(getV(row, 'total')),
+        balance:        importParseNum(getV(row, 'balance')),
+        status:         getV(row, 'status') || 'open',
+        currency_code:  'INR',
+      };
+      if (importState.type === 'ap') return {
+        bill_number:  getV(row, 'bill_number') || `BILL-${idx+1}`,
+        vendor_name:  getV(row, 'vendor_name'),
+        bill_date:    importParseDate(getV(row, 'bill_date')),
+        due_date:     importParseDate(getV(row, 'due_date')),
+        total:        importParseNum(getV(row, 'total')),
+        balance:      importParseNum(getV(row, 'balance')),
+        status:       getV(row, 'status') || 'open',
+        currency_code: 'INR',
+      };
+      return {
+        account_name:   getV(row, 'account_name'),
+        bank_name:      getV(row, 'bank_name'),
+        account_number: getV(row, 'account_number'),
+        account_type:   getV(row, 'account_type') || 'Bank',
+        balance:        importParseNum(getV(row, 'balance')),
+        currency_code:  'INR',
+      };
     });
 
-    if (importState.replace) {
-      const { error: delErr } = await sb.from(schema.table)
-        .delete().eq('client_id', clientId).eq('source', 'csv');
-      if (delErr) throw new Error('Delete failed: ' + delErr.message);
-    }
-
-    const BATCH = 50;
-    let imported = 0;
-    for (let i = 0; i < records.length; i += BATCH) {
-      const { error } = await sb.from(schema.table).insert(records.slice(i, i + BATCH));
-      if (error) throw new Error(error.message);
-      imported += Math.min(BATCH, records.length - i);
-    }
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/csv-import`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId, type: importState.type, records, replace: importState.replace }),
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Import failed');
+    const imported = result.imported;
 
     body.innerHTML = `
       <div class="import-status">
@@ -2465,11 +2455,7 @@ async function importExecute() {
         <div class="si-icon">❌</div>
         <div style="font-size:18px;font-weight:700;color:var(--danger);margin-bottom:8px">Import Failed</div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${esc(err.message)}</div>
-        ${err.message.includes('permission') || err.message.includes('policy') || err.message.includes('violat') ? `
-          <div style="font-size:12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:12px 16px;max-width:440px;margin:0 auto 24px;text-align:left">
-            <strong>One-time setup needed:</strong> Run the CSV Import migration in your Supabase project
-            (SQL Editor → paste <code>portal/supabase/migrations/20241014000002_csv_import_policies.sql</code>).
-          </div>` : ''}
+        <div style="font-size:12px;color:var(--muted);margin-bottom:24px">The csv-import function may still be deploying — wait 2 minutes and try again.</div>
         <div style="display:flex;gap:12px;justify-content:center">
           <button class="btn btn-outline" onclick="importState.step=3;renderImportStep()">← Try Again</button>
           <button class="btn btn-outline" onclick="renderImport()">Start Over</button>
