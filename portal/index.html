@@ -756,6 +756,40 @@
       #invoice-preview { position: static; background: none; padding: 0; }
       .inv-footer-actions { display: none; }
     }
+
+    /* ── Import wizard ───────────────────────────────────────────────────────── */
+    .import-steps { display: flex; margin-bottom: 28px; }
+    .import-step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 12px; color: var(--muted); }
+    .import-step.active { color: var(--navy); font-weight: 600; }
+    .import-step.done   { color: var(--success); }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .import-step.active .step-num { border-color: var(--gold); background: var(--gold); color: var(--navy); }
+    .import-step.done   .step-num { border-color: var(--success); background: var(--success); color: #fff; }
+
+    .type-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .type-card { padding: 20px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; text-align: center; background: #fff; transition: all .15s; }
+    .type-card:hover  { border-color: var(--gold); background: #FFFBEB; }
+    .type-card.selected { border-color: var(--gold); background: #FFFBEB; }
+    .type-card .tc-icon  { font-size: 28px; margin-bottom: 8px; }
+    .type-card .tc-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .type-card .tc-desc  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    .drop-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all .15s; background: #fafafa; }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--gold); background: #FFFBEB; }
+    .drop-zone .dz-icon { font-size: 36px; margin-bottom: 12px; }
+    .drop-zone .dz-text { font-size: 14px; font-weight: 500; color: var(--navy); margin-bottom: 4px; }
+    .drop-zone .dz-sub  { font-size: 12px; color: var(--muted); }
+
+    .col-map-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .col-map-table th { padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 2px solid var(--border); }
+    .col-map-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .col-map-table select { font-size: 13px; padding: 6px 8px; border: 1.5px solid var(--border); border-radius: 4px; background: #fff; width: 100%; }
+    .req-badge  { font-size: 10px; color: var(--danger); font-weight: 600; margin-left: 4px; }
+    .opt-badge  { font-size: 10px; color: var(--muted); margin-left: 4px; }
+
+    .import-status { text-align: center; padding: 48px 20px; }
+    .import-status .si-icon { font-size: 56px; margin-bottom: 16px; }
+    @media (max-width: 700px) { .type-cards { grid-template-columns: 1fr; } .import-steps { flex-wrap: wrap; gap: 4px; } }
   </style>
 </head>
 <body>
@@ -868,6 +902,9 @@
       <button class="nav-item" data-view="calendar" onclick="showView('calendar')">
         <span class="nav-icon">📅</span> Tax Calendar
       </button>
+      <button class="nav-item" data-view="import" onclick="showView('import')">
+        <span class="nav-icon">📤</span> Import Data
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -892,6 +929,7 @@
     <div id="view-invoices"   class="page hidden"></div>
     <div id="view-calculators" class="page hidden"></div>
     <div id="view-calendar"  class="page hidden"></div>
+    <div id="view-import"    class="page hidden"></div>
   </main>
 </div>
 
@@ -1173,7 +1211,7 @@ function showView(name) {
   document.querySelectorAll('[id^="view-"]').forEach(d => d.classList.add('hidden'));
   document.getElementById(`view-${name}`).classList.remove('hidden');
 
-  const renders = { dashboard: renderDashboard, invoices: renderInvoices, calculators: renderCalculators, calendar: renderCalendar };
+  const renders = { dashboard: renderDashboard, invoices: renderInvoices, calculators: renderCalculators, calendar: renderCalendar, import: renderImport };
   renders[name]?.();
 }
 
@@ -1266,11 +1304,14 @@ async function renderDashboard() {
         <p style="font-size:12px;color:var(--muted);margin-top:8px">Secure OAuth 2.0 · Read-only access · Disconnect anytime</p>
 
         <div style="margin-top:48px;padding-top:32px;border-top:1px solid var(--border)">
-          <p style="font-size:13px;color:var(--muted);margin-bottom:16px">More connectors coming soon</p>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Other ways to connect</p>
           <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">📊 Google Sheets</div>
-            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">🧾 Tally</div>
-            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">📁 CSV Upload</div>
+            <button onclick="showView('import')"
+              style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;cursor:pointer;font-family:inherit">
+              📁 Upload CSV
+            </button>
+            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">📊 Google Sheets — coming soon</div>
+            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">🧾 Tally — coming soon</div>
           </div>
         </div>
       </div>`;
@@ -2077,6 +2118,387 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
 function toDateInput(d) { return d.toISOString().slice(0,10); }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate()+n); return r; }
 function fmtDate(str) { if (!str) return '—'; const d = new Date(str); return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   CSV IMPORT
+══════════════════════════════════════════════════════════════════════════════ */
+let importState = { step: 1, type: null, headers: [], rows: [], mapping: {}, replace: true };
+
+const IMPORT_SCHEMAS = {
+  ar: {
+    label: 'AR Invoices',
+    table: 'ar_invoices',
+    idField: 'zoho_invoice_id',
+    fields: [
+      { key: 'invoice_number', label: 'Invoice Number', required: false, hints: ['invoice number','inv #','invoice no','inv no','number','ref','doc no','voucher no'] },
+      { key: 'customer_name',  label: 'Customer Name',  required: true,  hints: ['customer','client','party','customer name','bill to','name','party name'] },
+      { key: 'invoice_date',   label: 'Invoice Date',   required: false, hints: ['invoice date','date','inv date','doc date','voucher date'] },
+      { key: 'due_date',       label: 'Due Date',       required: false, hints: ['due date','due','payment due','due_date','expiry date'] },
+      { key: 'total',          label: 'Total Amount',   required: false, hints: ['total','invoice total','amount','gross','value','total amount'] },
+      { key: 'balance',        label: 'Balance Due',    required: true,  hints: ['balance','outstanding','due amount','open balance','amount due','pending','balance due','pending amount'] },
+      { key: 'status',         label: 'Status',         required: false, hints: ['status','state','payment status'] },
+    ],
+  },
+  ap: {
+    label: 'AP Bills',
+    table: 'ap_bills',
+    idField: 'zoho_bill_id',
+    fields: [
+      { key: 'bill_number',  label: 'Bill Number',  required: false, hints: ['bill number','bill no','bill_number','number','ref','doc no','voucher no'] },
+      { key: 'vendor_name',  label: 'Vendor Name',  required: true,  hints: ['vendor','supplier','party','vendor name','payee','name','party name'] },
+      { key: 'bill_date',    label: 'Bill Date',    required: false, hints: ['bill date','date','bill_date','doc date','voucher date'] },
+      { key: 'due_date',     label: 'Due Date',     required: false, hints: ['due date','due','payment due','due_date'] },
+      { key: 'total',        label: 'Total Amount', required: false, hints: ['total','bill total','amount','gross','value','total amount'] },
+      { key: 'balance',      label: 'Balance Due',  required: true,  hints: ['balance','outstanding','due amount','open balance','amount due','pending','balance due','pending amount'] },
+      { key: 'status',       label: 'Status',       required: false, hints: ['status','state','payment status'] },
+    ],
+  },
+  bank: {
+    label: 'Bank Accounts',
+    table: 'bank_accounts',
+    idField: 'zoho_account_id',
+    fields: [
+      { key: 'account_name',   label: 'Account Name',   required: true,  hints: ['account name','account','name','description','ledger name'] },
+      { key: 'bank_name',      label: 'Bank Name',      required: false, hints: ['bank','bank name','institution','bank/institution'] },
+      { key: 'account_number', label: 'Account Number', required: false, hints: ['account number','acc no','account_number','acct no','a/c no'] },
+      { key: 'account_type',   label: 'Account Type',   required: false, hints: ['type','account type','acct type','group'] },
+      { key: 'balance',        label: 'Balance',        required: true,  hints: ['balance','closing balance','current balance','amount','balance amount','closing bal'] },
+    ],
+  },
+};
+
+function importStepsHtml() {
+  const labels = ['Choose Type', 'Upload File', 'Map Columns', 'Import'];
+  return labels.map((l, i) => {
+    const n = i + 1;
+    const cls = n < importState.step ? 'done' : n === importState.step ? 'active' : '';
+    const icon = n < importState.step ? '✓' : n;
+    return `<div class="import-step ${cls}"><div class="step-num">${icon}</div>${l}</div>`;
+  }).join('');
+}
+
+function renderImport() {
+  const el = document.getElementById('view-import');
+  el.innerHTML = `
+    <h1 class="page-title">Import Data</h1>
+    <p class="page-sub">Upload a CSV from QuickBooks, Tally, Excel, or any accounting software</p>
+    <div id="import-body"></div>
+  `;
+  importState = { step: 1, type: null, headers: [], rows: [], mapping: {}, replace: true };
+  renderImportStep();
+}
+
+function renderImportStep() {
+  const body = document.getElementById('import-body');
+  if (!body) return;
+  const sh = importStepsHtml();
+
+  if (importState.step === 1) {
+    body.innerHTML = `
+      <div class="import-steps">${sh}</div>
+      <div class="card" style="max-width:700px">
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px">What data are you importing?</div>
+        <div class="type-cards">
+          <div class="type-card ${importState.type==='ar'?'selected':''}" onclick="importSetType('ar')">
+            <div class="tc-icon">📄</div>
+            <div class="tc-title">AR Invoices</div>
+            <div class="tc-desc">Money owed to you — outstanding customer invoices</div>
+          </div>
+          <div class="type-card ${importState.type==='ap'?'selected':''}" onclick="importSetType('ap')">
+            <div class="tc-icon">🧾</div>
+            <div class="tc-title">AP Bills</div>
+            <div class="tc-desc">Money you owe — unpaid vendor bills and payables</div>
+          </div>
+          <div class="type-card ${importState.type==='bank'?'selected':''}" onclick="importSetType('bank')">
+            <div class="tc-icon">🏦</div>
+            <div class="tc-title">Bank Accounts</div>
+            <div class="tc-desc">Current bank balances — all accounts in one place</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="importStep2()" ${!importState.type?'disabled':''}>Next →</button>
+      </div>`;
+
+  } else if (importState.step === 2) {
+    body.innerHTML = `
+      <div class="import-steps">${sh}</div>
+      <div class="card" style="max-width:580px">
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px">Upload your CSV file</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Any column names work — you'll map them in the next step.</p>
+        <div class="drop-zone" id="drop-zone"
+          onclick="document.getElementById('csv-file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="event.preventDefault();this.classList.remove('drag-over');importHandleFile(event.dataTransfer.files[0])">
+          <div class="dz-icon">📁</div>
+          <div class="dz-text">Drop CSV here or click to browse</div>
+          <div class="dz-sub">Export from QuickBooks, Tally, Zoho, Excel — any .csv file</div>
+        </div>
+        <input type="file" id="csv-file-input" accept=".csv,text/csv" class="hidden" onchange="importHandleFile(this.files[0])" />
+        <p id="file-error" style="color:var(--danger);font-size:13px;margin-top:10px;display:none"></p>
+        <div style="margin-top:16px">
+          <button class="btn btn-outline btn-sm" onclick="importState.step=1;renderImportStep()">← Back</button>
+        </div>
+      </div>`;
+
+  } else if (importState.step === 3) {
+    renderImportMappingStep();
+
+  } else if (importState.step === 4) {
+    body.innerHTML = `
+      <div class="import-status">
+        <div class="si-icon">⏳</div>
+        <div style="font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px">Importing…</div>
+        <div style="font-size:14px;color:var(--muted)">Saving your data to the dashboard</div>
+      </div>`;
+    importExecute();
+  }
+}
+
+function importSetType(type) { importState.type = type; renderImportStep(); }
+function importStep2() { if (!importState.type) return; importState.step = 2; renderImportStep(); }
+
+function importHandleFile(file) {
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.csv') && file.type !== 'text/csv') {
+    const e = document.getElementById('file-error');
+    if (e) { e.style.display = 'block'; e.textContent = 'Please upload a .csv file.'; }
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const { headers, rows } = importParseCSV(ev.target.result);
+    if (!rows.length) {
+      const e = document.getElementById('file-error');
+      if (e) { e.style.display = 'block'; e.textContent = 'No data rows found. Check the file.'; }
+      return;
+    }
+    importState.headers = headers;
+    importState.rows    = rows;
+    importState.mapping = importAutoDetect(headers, importState.type);
+    importState.step    = 3;
+    renderImportStep();
+  };
+  reader.readAsText(file);
+}
+
+function importParseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (!lines.length) return { headers: [], rows: [] };
+  const parseRow = (line) => {
+    const result = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+      else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    result.push(cur.trim()); return result;
+  };
+  const headers = parseRow(lines[0]);
+  const rows    = lines.slice(1).map(parseRow).filter(r => r.some(c => c));
+  return { headers, rows };
+}
+
+function importAutoDetect(headers, type) {
+  const schema = IMPORT_SCHEMAS[type];
+  const hLow   = headers.map(h => h.toLowerCase().trim().replace(/_/g,' '));
+  const mapping = {};
+  for (const field of schema.fields) {
+    let found = -1;
+    for (const hint of field.hints) {
+      const idx = hLow.findIndex(h => h === hint || h.includes(hint));
+      if (idx !== -1) { found = idx; break; }
+    }
+    mapping[field.key] = found;
+  }
+  return mapping;
+}
+
+function renderImportMappingStep() {
+  const body   = document.getElementById('import-body');
+  const schema = IMPORT_SCHEMAS[importState.type];
+  const sh     = importStepsHtml();
+  const preview = importState.rows.slice(0, 3);
+
+  const noneOpt = '<option value="-1">— Skip this field —</option>';
+  const colOpts = (sel) => noneOpt + importState.headers.map((h, i) =>
+    `<option value="${i}" ${i === sel ? 'selected' : ''}>${esc(h)}</option>`
+  ).join('');
+
+  const mappingRows = schema.fields.map(f => {
+    const sel    = importState.mapping[f.key] ?? -1;
+    const sample = sel >= 0 && preview.length ? (preview[0][sel] || '') : '';
+    return `<tr>
+      <td>
+        <span style="font-weight:500">${f.label}</span>
+        ${f.required ? '<span class="req-badge">*</span>' : '<span class="opt-badge">opt</span>'}
+      </td>
+      <td><select onchange="importState.mapping['${f.key}']=parseInt(this.value);renderImportMappingStep()">
+        ${colOpts(sel)}
+      </select></td>
+      <td style="font-size:12px;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(sample) || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const mappedFields = schema.fields.filter(f => (importState.mapping[f.key] ?? -1) >= 0);
+  const previewHead  = mappedFields.map(f => `<th>${f.label}</th>`).join('');
+  const previewBody  = preview.map(row =>
+    `<tr>${mappedFields.map(f => `<td>${esc(row[importState.mapping[f.key]] || '')}</td>`).join('')}</tr>`
+  ).join('');
+
+  body.innerHTML = `
+    <div class="import-steps">${sh}</div>
+    <div class="card" style="max-width:800px">
+      <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px">Map your columns</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">${importState.rows.length} rows detected. Match each dashboard field to your CSV column.</p>
+
+      <div class="table-wrap" style="margin-bottom:24px">
+        <table class="col-map-table">
+          <thead><tr><th>Dashboard Field</th><th>Your CSV Column</th><th>Sample</th></tr></thead>
+          <tbody>${mappingRows}</tbody>
+        </table>
+      </div>
+
+      ${previewHead ? `
+        <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:8px">Preview</div>
+        <div class="table-wrap" style="margin-bottom:20px">
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+            <thead style="background:var(--surface)"><tr>${previewHead}</tr></thead>
+            <tbody>${previewBody}</tbody>
+          </table>
+        </div>` : ''}
+
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:16px">
+        <input type="checkbox" ${importState.replace?'checked':''} onchange="importState.replace=this.checked" />
+        Replace existing CSV-imported data (recommended when re-importing the same file)
+      </label>
+
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-outline" onclick="importState.step=2;renderImportStep()">← Back</button>
+        <button class="btn btn-gold" onclick="importConfirm()">Import ${importState.rows.length} rows →</button>
+      </div>
+    </div>`;
+}
+
+function importConfirm() {
+  const schema  = IMPORT_SCHEMAS[importState.type];
+  const missing = schema.fields.filter(f => f.required && (importState.mapping[f.key] ?? -1) < 0);
+  if (missing.length) {
+    alert('Please map required fields: ' + missing.map(f => f.label).join(', '));
+    return;
+  }
+  importState.step = 4;
+  renderImportStep();
+}
+
+async function importExecute() {
+  const body     = document.getElementById('import-body');
+  const schema   = IMPORT_SCHEMAS[importState.type];
+  const clientId = currentUser?.id;
+  const getV     = (row, key) => { const i = importState.mapping[key] ?? -1; return i >= 0 ? (row[i] || '').trim() : ''; };
+
+  try {
+    const records = importState.rows.map((row, idx) => {
+      const ts  = `csv_${Date.now()}_${idx}`;
+      const rec = { client_id: clientId, source: 'csv', synced_at: new Date().toISOString() };
+
+      if (importState.type === 'ar') {
+        rec.zoho_invoice_id = ts;
+        rec.invoice_number  = getV(row, 'invoice_number') || `CSV-${idx+1}`;
+        rec.customer_name   = getV(row, 'customer_name');
+        rec.invoice_date    = importParseDate(getV(row, 'invoice_date'));
+        rec.due_date        = importParseDate(getV(row, 'due_date'));
+        rec.total           = importParseNum(getV(row, 'total'));
+        rec.balance         = importParseNum(getV(row, 'balance'));
+        rec.status          = getV(row, 'status') || 'open';
+        rec.currency_code   = 'INR';
+      } else if (importState.type === 'ap') {
+        rec.zoho_bill_id    = ts;
+        rec.bill_number     = getV(row, 'bill_number') || `BILL-${idx+1}`;
+        rec.vendor_name     = getV(row, 'vendor_name');
+        rec.bill_date       = importParseDate(getV(row, 'bill_date'));
+        rec.due_date        = importParseDate(getV(row, 'due_date'));
+        rec.total           = importParseNum(getV(row, 'total'));
+        rec.balance         = importParseNum(getV(row, 'balance'));
+        rec.status          = getV(row, 'status') || 'open';
+        rec.currency_code   = 'INR';
+      } else {
+        rec.zoho_account_id = ts;
+        rec.account_name    = getV(row, 'account_name');
+        rec.bank_name       = getV(row, 'bank_name');
+        rec.account_number  = getV(row, 'account_number');
+        rec.account_type    = getV(row, 'account_type') || 'Bank';
+        rec.balance         = importParseNum(getV(row, 'balance'));
+        rec.currency_code   = 'INR';
+      }
+      return rec;
+    });
+
+    if (importState.replace) {
+      const { error: delErr } = await sb.from(schema.table)
+        .delete().eq('client_id', clientId).eq('source', 'csv');
+      if (delErr) throw new Error('Delete failed: ' + delErr.message);
+    }
+
+    const BATCH = 50;
+    let imported = 0;
+    for (let i = 0; i < records.length; i += BATCH) {
+      const { error } = await sb.from(schema.table).insert(records.slice(i, i + BATCH));
+      if (error) throw new Error(error.message);
+      imported += Math.min(BATCH, records.length - i);
+    }
+
+    body.innerHTML = `
+      <div class="import-status">
+        <div class="si-icon">✅</div>
+        <div style="font-size:22px;font-weight:700;color:var(--success);margin-bottom:8px">Import Successful!</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:28px">${imported} ${schema.label.toLowerCase()} saved to your dashboard.</div>
+        <div style="display:flex;gap:12px;justify-content:center">
+          <button class="btn btn-gold" onclick="showView('dashboard')">View Dashboard →</button>
+          <button class="btn btn-outline" onclick="renderImport()">Import More</button>
+        </div>
+      </div>`;
+
+  } catch (err) {
+    body.innerHTML = `
+      <div class="import-status">
+        <div class="si-icon">❌</div>
+        <div style="font-size:18px;font-weight:700;color:var(--danger);margin-bottom:8px">Import Failed</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${esc(err.message)}</div>
+        ${err.message.includes('permission') || err.message.includes('policy') || err.message.includes('violat') ? `
+          <div style="font-size:12px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:12px 16px;max-width:440px;margin:0 auto 24px;text-align:left">
+            <strong>One-time setup needed:</strong> Run the CSV Import migration in your Supabase project
+            (SQL Editor → paste <code>portal/supabase/migrations/20241014000002_csv_import_policies.sql</code>).
+          </div>` : ''}
+        <div style="display:flex;gap:12px;justify-content:center">
+          <button class="btn btn-outline" onclick="importState.step=3;renderImportStep()">← Try Again</button>
+          <button class="btn btn-outline" onclick="renderImport()">Start Over</button>
+        </div>
+      </div>`;
+  }
+}
+
+function importParseNum(s) {
+  if (!s) return null;
+  const n = parseFloat(s.replace(/[₹$£€,\s]/g, ''));
+  return isNaN(n) ? null : n;
+}
+
+function importParseDate(s) {
+  if (!s) return null;
+  const c = s.trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(c)) return c.slice(0, 10);
+  const m = c.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
+  if (m) {
+    let [, a, b, y] = m;
+    if (y.length === 2) y = '20' + y;
+    const ai = parseInt(a), bi = parseInt(b);
+    if (bi > 12) return `${y}-${String(ai).padStart(2,'0')}-${String(bi).padStart(2,'0')}`;
+    return `${y}-${String(bi).padStart(2,'0')}-${String(ai).padStart(2,'0')}`;
+  }
+  try { const d = new Date(c); if (!isNaN(d)) return d.toISOString().slice(0,10); } catch {}
+  return null;
+}
 
 /* ── Init ────────────────────────────────────────────────────────────────────── */
 checkExistingSession();
