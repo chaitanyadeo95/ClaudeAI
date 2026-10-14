@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
   <style>
     /* ── Design tokens ───────────────────────────────────────────────────────── */
     :root {
@@ -155,6 +156,77 @@
       color: var(--muted);
     }
     .back-link a { color: var(--gold); font-weight: 500; }
+
+    /* ── Auth tabs ───────────────────────────────────────────────────────────── */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      background: none;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .auth-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+
+    /* ── Trial banner ────────────────────────────────────────────────────────── */
+    #trial-banner {
+      background: linear-gradient(90deg, #0a0a0a, #1a1a1a);
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    #trial-banner .trial-days { font-weight: 700; color: var(--gold); }
+    #trial-banner .trial-upgrade {
+      background: var(--gold);
+      color: #0a0a0a;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ── Trial expired screen ────────────────────────────────────────────────── */
+    #trial-expired {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .expired-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4);
+    }
+    .expired-card h2 { font-size: 22px; font-weight: 700; color: #0a0a0a; margin: 16px 0 8px; }
+    .expired-card p  { font-size: 14px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+    .expired-card .price { font-size: 32px; font-weight: 800; color: #0a0a0a; margin-bottom: 4px; }
+    .expired-card .price span { font-size: 16px; font-weight: 400; color: var(--muted); }
 
     /* ═══════════════════════════════════════════════════════════════════════════
        APP SHELL
@@ -702,21 +774,63 @@
       </svg>
       <span class="login-brand-name">AI<span>Finance</span>o</span>
     </div>
-    <h1 class="login-title">Client Portal</h1>
-    <p class="login-sub">Sign in to access your financial dashboard</p>
-    <form id="login-form" onsubmit="handleLogin(event)">
-      <div class="form-group">
-        <label>Email address</label>
-        <input type="email" id="login-email" placeholder="you@company.com" required autocomplete="email" />
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="login-pass" placeholder="••••••••" required autocomplete="current-password" />
-      </div>
-      <button type="submit" class="btn-login" id="login-btn">Sign In</button>
-      <p class="login-error hidden" id="login-error"></p>
-    </form>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Start Free Trial</button>
+    </div>
+
+    <!-- Sign In -->
+    <div id="form-signin">
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="login-email" placeholder="you@company.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-pass" placeholder="••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-login" id="login-btn">Sign In</button>
+        <p class="login-error hidden" id="login-error"></p>
+      </form>
+    </div>
+
+    <!-- Sign Up -->
+    <div id="form-signup" class="hidden">
+      <form onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label>Your name</label>
+          <input type="text" id="signup-name" placeholder="Rahul Sharma" required />
+        </div>
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="signup-email" placeholder="you@company.com" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signup-pass" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn-login" id="signup-btn">Start 14-Day Free Trial</button>
+        <p class="login-error hidden" id="signup-error"></p>
+      </form>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px">No credit card required. Full access for 14 days.</p>
+    </div>
+
     <p class="back-link"><a href="/">← Back to aifinanceo.com</a></p>
+  </div>
+</div>
+
+<!-- ── Trial expired overlay ─────────────────────────────────────────────────── -->
+<div id="trial-expired" class="hidden">
+  <div class="expired-card">
+    <div style="font-size:48px">⏰</div>
+    <h2>Your Trial Has Ended</h2>
+    <p>You've had 14 days of full access. Subscribe to keep your dashboard, QuickBooks sync, and all features.</p>
+    <div class="price">₹1,999 <span>/ month</span></div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:20px">Cancel anytime. No lock-in.</p>
+    <button class="btn-login" style="margin-bottom:12px" onclick="initiatePayment()">Subscribe Now</button>
+    <br/>
+    <button onclick="logout()" style="background:none;border:none;font-size:13px;color:var(--muted);cursor:pointer">Sign out</button>
   </div>
 </div>
 
@@ -770,6 +884,10 @@
 
   <!-- Main content -->
   <main id="main-content">
+    <div id="trial-banner" class="hidden">
+      <span>🎁 Free trial — <span class="trial-days" id="trial-days-left"></span> remaining</span>
+      <button class="trial-upgrade" onclick="showTrialExpired()">Upgrade Now</button>
+    </div>
     <div id="view-dashboard" class="page"></div>
     <div id="view-invoices"   class="page hidden"></div>
     <div id="view-calculators" class="page hidden"></div>
@@ -892,83 +1010,126 @@
 })();
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   CONFIG — replace these with your Supabase project values to enable real auth.
-   Leave as-is to use demo mode.
+   CONFIG
 ══════════════════════════════════════════════════════════════════════════════ */
 const SUPABASE_URL      = 'https://keiladscsohyzfgbzidn.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // not needed until Phase 2 auth
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // paste your anon key here
 
-// Demo client — replace with logged-in user's client_id once auth is wired
-const DEMO_CLIENT_ID = 'f5016961-00dd-41e3-9941-e9459e46e414';
-const DEMO_PASSWORD     = 'demo123'; // change this when using demo mode
-
-const DEMO_MODE = SUPABASE_URL === 'YOUR_SUPABASE_URL';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ── State ───────────────────────────────────────────────────────────────────── */
-let currentUser = null;
-let currentView = 'dashboard';
+let currentUser  = null;   // { id, email, name, trialEndsAt, subscriptionStatus }
+let currentView  = 'dashboard';
 let invoiceItems = [];
-let invCounter = parseInt(localStorage.getItem('afp_invCounter') || '1');
+let invCounter   = parseInt(localStorage.getItem('afp_invCounter') || '1');
 let calYear, calMonth;
 
 const today = new Date();
 calYear  = today.getFullYear();
-calMonth = today.getMonth(); // 0-based
+calMonth = today.getMonth();
 
-/* ── Auth ────────────────────────────────────────────────────────────────────── */
+/* ── Auth tab toggle ─────────────────────────────────────────────────────────── */
+function switchAuthTab(tab) {
+  document.getElementById('form-signin').classList.toggle('hidden', tab !== 'signin');
+  document.getElementById('form-signup').classList.toggle('hidden', tab !== 'signup');
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+}
+
+/* ── Sign In ─────────────────────────────────────────────────────────────────── */
 async function handleLogin(e) {
   e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const errEl = document.getElementById('login-error');
   const btn   = document.getElementById('login-btn');
-
-  btn.textContent = 'Signing in…';
-  btn.disabled = true;
+  btn.textContent = 'Signing in…'; btn.disabled = true;
   errEl.classList.add('hidden');
-
   try {
-    if (DEMO_MODE) {
-      if (pass !== DEMO_PASSWORD) throw new Error('Incorrect password. Demo password: demo123');
-      currentUser = { email, name: email.split('@')[0] };
-    } else {
-      // Supabase auth
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY },
-        body: JSON.stringify({ email, password: pass }),
-      });
-      const data = await res.json();
-      if (data.error || data.error_description) throw new Error(data.error_description || data.error);
-      currentUser = { email, name: email.split('@')[0], token: data.access_token };
-      localStorage.setItem('afp_session', JSON.stringify({ email, token: data.access_token }));
-    }
-    showApp();
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) throw new Error(error.message);
+    await loadUserAndShow(data.user);
   } catch (err) {
     errEl.textContent = err.message;
     errEl.classList.remove('hidden');
-  } finally {
-    btn.textContent = 'Sign In';
-    btn.disabled = false;
-  }
+  } finally { btn.textContent = 'Sign In'; btn.disabled = false; }
 }
 
-function logout() {
+/* ── Sign Up ─────────────────────────────────────────────────────────────────── */
+async function handleSignup(e) {
+  e.preventDefault();
+  const name  = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pass  = document.getElementById('signup-pass').value;
+  const errEl = document.getElementById('signup-error');
+  const btn   = document.getElementById('signup-btn');
+  btn.textContent = 'Creating account…'; btn.disabled = true;
+  errEl.classList.add('hidden');
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { name } } });
+    if (error) throw new Error(error.message);
+    if (data.user) await loadUserAndShow(data.user);
+    else {
+      errEl.textContent = 'Check your email to confirm your account, then sign in.';
+      errEl.classList.remove('hidden');
+      errEl.style.color = 'var(--success)';
+    }
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  } finally { btn.textContent = 'Start 14-Day Free Trial'; btn.disabled = false; }
+}
+
+/* ── Load client profile after auth ─────────────────────────────────────────── */
+async function loadUserAndShow(authUser) {
+  const { data: client } = await sb
+    .from('clients')
+    .select('name, trial_ends_at, subscription_status')
+    .eq('id', authUser.id)
+    .maybeSingle();
+
+  currentUser = {
+    id:                 authUser.id,
+    email:              authUser.email,
+    name:               client?.name || authUser.email.split('@')[0],
+    trialEndsAt:        client?.trial_ends_at ? new Date(client.trial_ends_at) : null,
+    subscriptionStatus: client?.subscription_status || 'trial',
+  };
+  showApp();
+}
+
+/* ── Trial helpers ───────────────────────────────────────────────────────────── */
+function trialDaysLeft() {
+  if (!currentUser?.trialEndsAt) return 14;
+  return Math.max(0, Math.ceil((currentUser.trialEndsAt - new Date()) / 86400000));
+}
+
+function isTrialExpired() {
+  if (currentUser?.subscriptionStatus === 'active') return false;
+  return trialDaysLeft() <= 0;
+}
+
+function showTrialExpired() {
+  document.getElementById('trial-expired').classList.remove('hidden');
+}
+
+function initiatePayment() {
+  alert('Razorpay integration coming soon! Contact info@aifinanceo.com to subscribe.');
+}
+
+/* ── Logout ──────────────────────────────────────────────────────────────────── */
+async function logout() {
+  await sb.auth.signOut();
   currentUser = null;
-  localStorage.removeItem('afp_session');
   document.getElementById('app').classList.add('hidden');
+  document.getElementById('trial-expired').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
 }
 
-function checkExistingSession() {
-  if (DEMO_MODE) return;
-  try {
-    const s = JSON.parse(localStorage.getItem('afp_session') || 'null');
-    if (s?.token) {
-      currentUser = { email: s.email, name: s.email.split('@')[0], token: s.token };
-      showApp();
-    }
-  } catch {}
+/* ── Restore session on page load ────────────────────────────────────────────── */
+async function checkExistingSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) await loadUserAndShow(session.user);
 }
 
 function showApp() {
@@ -979,6 +1140,23 @@ function showApp() {
   document.getElementById('user-avatar').textContent = initials;
   document.getElementById('user-name-display').textContent = currentUser.name || '';
   document.getElementById('user-email-display').textContent = currentUser.email;
+
+  // Trial banner
+  const banner = document.getElementById('trial-banner');
+  const daysEl = document.getElementById('trial-days-left');
+  if (currentUser.subscriptionStatus !== 'active') {
+    const days = trialDaysLeft();
+    if (days > 0) {
+      daysEl.textContent = `${days} day${days !== 1 ? 's' : ''}`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+      showTrialExpired();
+      return;
+    }
+  } else {
+    banner.classList.add('hidden');
+  }
 
   showView('dashboard');
 }
@@ -1016,7 +1194,7 @@ async function syncNow() {
   btn.disabled = true;
   btn.textContent = 'Syncing…';
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-sync`, { method: 'POST', body: JSON.stringify({ client_id: DEMO_CLIENT_ID }), headers: { 'Content-Type': 'application/json' } });
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-sync`, { method: 'POST', body: JSON.stringify({ client_id: currentUser?.id }), headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();
     const result = data.results?.[0];
     if (result?.status === 'success') {
@@ -1057,9 +1235,10 @@ async function renderDashboard() {
   `;
 
   // Fetch live data from Supabase Edge Function
+  const clientId = currentUser?.id;
   let d = null;
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/get-dashboard?client_id=${DEMO_CLIENT_ID}`);
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/get-dashboard?client_id=${clientId}`);
     if (res.ok) d = await res.json();
   } catch {}
 
