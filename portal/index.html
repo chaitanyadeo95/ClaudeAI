@@ -11,15 +11,15 @@
   <style>
     /* ── Design tokens ───────────────────────────────────────────────────────── */
     :root {
-      --navy:       #0B1728;
-      --deep-navy:  #1C3054;
+      --navy:       #0a0a0a;
+      --deep-navy:  #111111;
       --gold:       #C9A84C;
       --gold-light: #e8c96a;
       --ivory:      #F5F3EC;
       --white:      #FFFFFF;
-      --surface:    #F7F8FA;
+      --surface:    #F4F5F7;
       --border:     #E2E5EA;
-      --text:       #1A1F2E;
+      --text:       #111111;
       --muted:      #6B7280;
       --success:    #16A34A;
       --danger:     #DC2626;
@@ -34,36 +34,21 @@
 
     /* ── Reset ───────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); background: #EEF1F7; line-height: 1.5; }
+    body { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text); background: #f2f3f5; line-height: 1.5; }
     button { cursor: pointer; font-family: inherit; }
     input, select, textarea { font-family: inherit; }
     a { text-decoration: none; color: inherit; }
 
-    /* ── Floating background orbs ────────────────────────────────────────────── */
-    #app-bg {
+    /* ── Neural network canvas background ───────────────────────────────────── */
+    #portal-canvas {
       position: fixed;
       inset: 0;
       z-index: 0;
-      overflow: hidden;
       pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s;
     }
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.13;
-      animation: floatOrb linear infinite;
-    }
-    .orb-1 { width: 520px; height: 520px; background: #C9A84C; top: -120px; left: -100px; animation-duration: 22s; }
-    .orb-2 { width: 400px; height: 400px; background: #0B1728; top: 40%; right: -80px; animation-duration: 18s; animation-delay: -6s; }
-    .orb-3 { width: 300px; height: 300px; background: #C9A84C; bottom: -80px; left: 30%; animation-duration: 26s; animation-delay: -12s; }
-    .orb-4 { width: 200px; height: 200px; background: #1C3054; top: 60%; left: 15%; animation-duration: 20s; animation-delay: -4s; }
-    @keyframes floatOrb {
-      0%   { transform: translate(0, 0) scale(1); }
-      33%  { transform: translate(40px, -30px) scale(1.07); }
-      66%  { transform: translate(-20px, 40px) scale(0.95); }
-      100% { transform: translate(0, 0) scale(1); }
-    }
+    #portal-canvas.ready { opacity: 1; }
 
     /* ── Utilities ───────────────────────────────────────────────────────────── */
     .hidden { display: none !important; }
@@ -74,7 +59,7 @@
     ═══════════════════════════════════════════════════════════════════════════ */
     #login-screen {
       min-height: 100vh;
-      background: linear-gradient(135deg, #0B1728 0%, #1a2f52 100%);
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -263,7 +248,7 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       height: var(--topbar-h);
-      background: var(--navy);
+      background: #0a0a0a;
       z-index: 200;
       align-items: center;
       padding: 0 16px;
@@ -434,15 +419,15 @@
 
     /* ── Sidebar polish ──────────────────────────────────────────────────────── */
     #sidebar {
-      background: linear-gradient(180deg, #0B1728 0%, #111f38 100%);
-      box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+      background: linear-gradient(180deg, #0a0a0a 0%, #151515 100%);
+      box-shadow: 4px 0 24px rgba(0,0,0,0.3);
     }
 
     /* ═══════════════════════════════════════════════════════════════════════════
        DASHBOARD
     ═══════════════════════════════════════════════════════════════════════════ */
     .welcome-banner {
-      background: linear-gradient(135deg, #0B1728 0%, #1a2f52 60%, #0f2040 100%);
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 60%, #0f0f0f 100%);
       border-radius: 16px;
       padding: 24px 28px;
       color: var(--white);
@@ -703,13 +688,8 @@
 </head>
 <body>
 
-<!-- ── Floating background ───────────────────────────────────────────────────── -->
-<div id="app-bg">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="orb orb-4"></div>
-</div>
+<!-- ── Neural network background canvas ─────────────────────────────────────── -->
+<canvas id="portal-canvas"></canvas>
 
 <!-- ── Login Screen ──────────────────────────────────────────────────────────── -->
 <div id="login-screen">
@@ -807,6 +787,110 @@
 </div>
 
 <script>
+/* ── Neural network background ───────────────────────────────────────────────── */
+(function initPortalNet() {
+  const canvas = document.getElementById('portal-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let animId, nodes = [], signals = [], frame = 0;
+
+  const NODE_COUNT   = 60;
+  const HUB_COUNT    = 8;
+  const CONNECT_DIST = 150;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    buildNodes();
+  }
+
+  function buildNodes() {
+    nodes = Array.from({ length: NODE_COUNT }, (_, i) => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      dx: (Math.random() - 0.5) * 0.25,
+      dy: (Math.random() - 0.5) * 0.25,
+      r: i < HUB_COUNT ? 3.5 + Math.random() * 2.5 : 1.5 + Math.random() * 1.5,
+      isHub: i < HUB_COUNT,
+      pulse: Math.random(),
+      pulseDir: Math.random() < 0.5 ? 1 : -1,
+    }));
+  }
+
+  function spawnSignal() {
+    const a = nodes[Math.floor(Math.random() * nodes.length)];
+    const b = nodes[Math.floor(Math.random() * nodes.length)];
+    if (a === b) return;
+    if (Math.hypot(a.x - b.x, a.y - b.y) < CONNECT_DIST)
+      signals.push({ a, b, t: 0, speed: 0.007 + Math.random() * 0.010 });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    frame++;
+    if (frame % 20 === 0 && signals.length < 20) spawnSignal();
+
+    // Edges
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < CONNECT_DIST) {
+          const a = 0.15 * (1 - dist / CONNECT_DIST);
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(201,168,76,${a})`;
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Signals
+    for (let i = signals.length - 1; i >= 0; i--) {
+      const s = signals[i]; s.t += s.speed;
+      if (s.t > 1) { signals.splice(i, 1); continue; }
+      const sx = s.a.x + (s.b.x - s.a.x) * s.t;
+      const sy = s.a.y + (s.b.y - s.a.y) * s.t;
+      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 6);
+      g.addColorStop(0, 'rgba(201,168,76,0.9)');
+      g.addColorStop(1, 'rgba(201,168,76,0)');
+      ctx.beginPath(); ctx.arc(sx, sy, 6, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+    }
+
+    // Nodes
+    nodes.forEach(n => {
+      if (n.isHub) {
+        n.pulse += 0.012 * n.pulseDir;
+        if (n.pulse > 1 || n.pulse < 0) n.pulseDir *= -1;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r + 5 + n.pulse * 7, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(201,168,76,${0.2 * n.pulse})`;
+        ctx.lineWidth = 1; ctx.stroke();
+      }
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 2.2);
+      g.addColorStop(0, n.isHub ? 'rgba(201,168,76,0.95)' : 'rgba(201,168,76,0.65)');
+      g.addColorStop(1, 'rgba(201,168,76,0)');
+      ctx.beginPath(); ctx.arc(n.x, n.y, n.r * 2.2, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+      n.x += n.dx; n.y += n.dy;
+      if (n.x < 0) n.x = canvas.width;
+      if (n.x > canvas.width) n.x = 0;
+      if (n.y < 0) n.y = canvas.height;
+      if (n.y > canvas.height) n.y = 0;
+    });
+
+    animId = requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  draw();
+  setTimeout(() => canvas.classList.add('ready'), 100);
+})();
+
 /* ══════════════════════════════════════════════════════════════════════════════
    CONFIG — replace these with your Supabase project values to enable real auth.
    Leave as-is to use demo mode.
