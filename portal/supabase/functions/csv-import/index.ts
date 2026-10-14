@@ -5,32 +5,46 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const TABLE_MAP: Record<string, string> = {
+  ar:   'ar_invoices',
+  ap:   'ap_bills',
+  bank: 'bank_accounts',
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
+  const fail = (msg: string, status = 400) =>
+    new Response(JSON.stringify({ error: msg }), {
+      status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
   try {
-    const { client_id, type, records, replace } = await req.json();
+    const body = await req.json();
+    const { client_id, type, action } = body;
 
-    if (!client_id || !type || !Array.isArray(records)) {
-      return new Response(JSON.stringify({ error: 'Missing client_id, type, or records' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    const tableMap: Record<string, string> = {
-      ar:   'ar_invoices',
-      ap:   'ap_bills',
-      bank: 'bank_accounts',
-    };
-    const table = tableMap[type];
-    if (!table) {
-      return new Response(JSON.stringify({ error: 'Invalid type' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
+    if (!client_id || !type) return fail('Missing client_id or type');
+    const table = TABLE_MAP[type];
+    if (!table) return fail('Invalid type — must be ar, ap, or bank');
 
     const sb = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
+
+    // ── Clear action: delete all CSV-imported records for this type ───────────
+    if (action === 'clear') {
+      const { error } = await sb.from(table)
+        .delete().eq('client_id', client_id).eq('source', 'csv');
+      if (error) throw new Error(error.message);
+      return new Response(JSON.stringify({ cleared: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // ── Import action ─────────────────────────────────────────────────────────
+    const { records, replace } = body;
+    if (!Array.isArray(records)) return fail('Missing records array');
 
     if (replace) {
       const { error: delErr } = await sb.from(table)
@@ -46,7 +60,6 @@ Deno.serve(async (req) => {
         client_id,
         source: 'csv',
         synced_at: new Date().toISOString(),
-        // Ensure unique external ID for each row
         ...(type === 'ar'   && { zoho_invoice_id: `csv_${Date.now()}_${i + idx}` }),
         ...(type === 'ap'   && { zoho_bill_id:    `csv_${Date.now()}_${i + idx}` }),
         ...(type === 'bank' && { zoho_account_id: `csv_${Date.now()}_${i + idx}` }),

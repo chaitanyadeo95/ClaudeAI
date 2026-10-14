@@ -2184,11 +2184,74 @@ function renderImport() {
   const el = document.getElementById('view-import');
   el.innerHTML = `
     <h1 class="page-title">Import Data</h1>
-    <p class="page-sub">Upload a CSV from QuickBooks, Tally, Excel, or any accounting software</p>
+    <p class="page-sub">Upload a CSV or connect Google Sheets — from any accounting software</p>
     <div id="import-body"></div>
+    <div id="import-manage" style="max-width:700px;margin-top:32px"></div>
   `;
   importState = { step: 1, type: null, source: 'csv', headers: [], rows: [], mapping: {}, replace: true };
   renderImportStep();
+  renderImportManage();
+}
+
+async function renderImportManage() {
+  const el = document.getElementById('import-manage');
+  if (!el) return;
+  el.innerHTML = `<div style="font-size:13px;color:var(--muted);padding:8px 0">Checking imported data…</div>`;
+
+  const clientId = currentUser?.id;
+  const types = [
+    { key: 'ar',   table: 'ar_invoices',   label: 'AR Invoices',    icon: '📄' },
+    { key: 'ap',   table: 'ap_bills',       label: 'AP Bills',       icon: '🧾' },
+    { key: 'bank', table: 'bank_accounts',  label: 'Bank Accounts',  icon: '🏦' },
+  ];
+
+  const counts = await Promise.all(types.map(async t => {
+    const { count } = await sb.from(t.table)
+      .select('*', { count: 'exact', head: true })
+      .eq('client_id', clientId).eq('source', 'csv');
+    return { ...t, count: count || 0 };
+  }));
+
+  const hasAny = counts.some(c => c.count > 0);
+  if (!hasAny) { el.innerHTML = ''; return; }
+
+  el.innerHTML = `
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:16px">Manage Imported Data</div>
+      ${counts.filter(c => c.count > 0).map(c => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">${c.icon}</span>
+            <div>
+              <div style="font-size:13px;font-weight:500">${c.label}</div>
+              <div style="font-size:12px;color:var(--muted)">${c.count} record${c.count !== 1 ? 's' : ''} from CSV / Google Sheets</div>
+            </div>
+          </div>
+          <button onclick="importClear('${c.key}','${c.label}',this)"
+            style="padding:6px 14px;border:1.5px solid var(--danger);border-radius:6px;font-size:12px;font-weight:600;color:var(--danger);background:#fff;cursor:pointer;font-family:inherit">
+            Clear
+          </button>
+        </div>`).join('')}
+      <p style="font-size:12px;color:var(--muted);margin-top:12px">Clearing removes only CSV/Sheets data. QuickBooks data is not affected.</p>
+    </div>`;
+}
+
+async function importClear(type, label, btn) {
+  if (!confirm(`Remove all imported ${label} from your dashboard?\n\nQuickBooks data will not be affected.`)) return;
+  btn.textContent = 'Clearing…'; btn.disabled = true;
+  try {
+    const res  = await fetch(`${SUPABASE_URL}/functions/v1/csv-import`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ client_id: currentUser?.id, type, action: 'clear' }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Clear failed');
+    renderImportManage();
+  } catch (err) {
+    alert('Error: ' + err.message);
+    btn.textContent = 'Clear'; btn.disabled = false;
+  }
 }
 
 function renderImportStep() {
@@ -2539,6 +2602,7 @@ async function importExecute() {
           <button class="btn btn-outline" onclick="renderImport()">Import More</button>
         </div>
       </div>`;
+    renderImportManage();
 
   } catch (err) {
     body.innerHTML = `
