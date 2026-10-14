@@ -1310,7 +1310,10 @@ async function renderDashboard() {
               style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;cursor:pointer;font-family:inherit">
               📁 Upload CSV
             </button>
-            <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">📊 Google Sheets — coming soon</div>
+            <button onclick="importState={step:1,type:null,source:'sheets',headers:[],rows:[],mapping:{},replace:true};showView('import')"
+              style="padding:10px 20px;border:2px solid var(--gold);border-radius:8px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;cursor:pointer;font-family:inherit">
+              📊 Google Sheets
+            </button>
             <div style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted);background:#fff">🧾 Tally — coming soon</div>
           </div>
         </div>
@@ -2122,7 +2125,7 @@ function fmtDate(str) { if (!str) return '—'; const d = new Date(str); return 
 /* ══════════════════════════════════════════════════════════════════════════════
    CSV IMPORT
 ══════════════════════════════════════════════════════════════════════════════ */
-let importState = { step: 1, type: null, headers: [], rows: [], mapping: {}, replace: true };
+let importState = { step: 1, type: null, source: 'csv', headers: [], rows: [], mapping: {}, replace: true };
 
 const IMPORT_SCHEMAS = {
   ar: {
@@ -2184,7 +2187,7 @@ function renderImport() {
     <p class="page-sub">Upload a CSV from QuickBooks, Tally, Excel, or any accounting software</p>
     <div id="import-body"></div>
   `;
-  importState = { step: 1, type: null, headers: [], rows: [], mapping: {}, replace: true };
+  importState = { step: 1, type: null, source: 'csv', headers: [], rows: [], mapping: {}, replace: true };
   renderImportStep();
 }
 
@@ -2219,21 +2222,68 @@ function renderImportStep() {
       </div>`;
 
   } else if (importState.step === 2) {
+    const src = importState.source || 'csv';
     body.innerHTML = `
       <div class="import-steps">${sh}</div>
-      <div class="card" style="max-width:580px">
-        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:4px">Upload your CSV file</div>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Any column names work — you'll map them in the next step.</p>
-        <div class="drop-zone" id="drop-zone"
-          onclick="document.getElementById('csv-file-input').click()"
-          ondragover="event.preventDefault();this.classList.add('drag-over')"
-          ondragleave="this.classList.remove('drag-over')"
-          ondrop="event.preventDefault();this.classList.remove('drag-over');importHandleFile(event.dataTransfer.files[0])">
-          <div class="dz-icon">📁</div>
-          <div class="dz-text">Drop CSV here or click to browse</div>
-          <div class="dz-sub">Export from QuickBooks, Tally, Zoho, Excel — any .csv file</div>
+      <div class="card" style="max-width:600px">
+
+        <!-- Source tabs -->
+        <div style="display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;gap:0">
+          <button onclick="importState.source='csv';renderImportStep()"
+            style="flex:1;padding:10px;font-size:13.5px;font-weight:600;border:none;background:none;
+              color:${src==='csv'?'var(--navy)':'var(--muted)'};
+              border-bottom:2px solid ${src==='csv'?'var(--gold)':'transparent'};
+              margin-bottom:-2px;cursor:pointer;font-family:inherit">
+            📁 Upload CSV
+          </button>
+          <button onclick="importState.source='sheets';renderImportStep()"
+            style="flex:1;padding:10px;font-size:13.5px;font-weight:600;border:none;background:none;
+              color:${src==='sheets'?'var(--navy)':'var(--muted)'};
+              border-bottom:2px solid ${src==='sheets'?'var(--gold)':'transparent'};
+              margin-bottom:-2px;cursor:pointer;font-family:inherit">
+            📊 Google Sheets
+          </button>
         </div>
-        <input type="file" id="csv-file-input" accept=".csv,text/csv" class="hidden" onchange="importHandleFile(this.files[0])" />
+
+        ${src === 'csv' ? `
+          <div class="drop-zone" id="drop-zone"
+            onclick="document.getElementById('csv-file-input').click()"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="event.preventDefault();this.classList.remove('drag-over');importHandleFile(event.dataTransfer.files[0])">
+            <div class="dz-icon">📁</div>
+            <div class="dz-text">Drop CSV here or click to browse</div>
+            <div class="dz-sub">Export from QuickBooks, Tally, Zoho, Excel — any .csv file</div>
+          </div>
+          <input type="file" id="csv-file-input" accept=".csv,text/csv" class="hidden" onchange="importHandleFile(this.files[0])" />
+        ` : `
+          <div style="margin-bottom:16px">
+            <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:10px">How to connect Google Sheets</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px">
+                <span style="background:var(--gold);color:#0a0a0a;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;margin-top:1px">1</span>
+                <span>Open your Google Sheet → click <strong>Share</strong> (top right)</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px">
+                <span style="background:var(--gold);color:#0a0a0a;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;margin-top:1px">2</span>
+                <span>Under <em>General access</em> choose <strong>"Anyone with the link"</strong> → <strong>Viewer</strong></span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px">
+                <span style="background:var(--gold);color:#0a0a0a;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;margin-top:1px">3</span>
+                <span>Copy the URL from your browser address bar and paste below</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Google Sheets URL</label>
+              <input type="url" id="sheets-url" placeholder="https://docs.google.com/spreadsheets/d/..."
+                style="font-size:13px" />
+            </div>
+            <button class="btn btn-gold" onclick="importHandleSheetUrl()" style="width:100%;justify-content:center;margin-top:4px">
+              <span id="sheets-btn-text">Fetch Sheet →</span>
+            </button>
+          </div>
+        `}
+
         <p id="file-error" style="color:var(--danger);font-size:13px;margin-top:10px;display:none"></p>
         <div style="margin-top:16px">
           <button class="btn btn-outline btn-sm" onclick="importState.step=1;renderImportStep()">← Back</button>
@@ -2279,6 +2329,47 @@ function importHandleFile(file) {
     renderImportStep();
   };
   reader.readAsText(file);
+}
+
+async function importHandleSheetUrl() {
+  const urlInput = document.getElementById('sheets-url');
+  const errEl    = document.getElementById('file-error');
+  const btnText  = document.getElementById('sheets-btn-text');
+  const url      = urlInput?.value?.trim();
+
+  if (!url) {
+    if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Please paste your Google Sheets URL.'; }
+    return;
+  }
+  if (!url.includes('docs.google.com/spreadsheets')) {
+    if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'That doesn\'t look like a Google Sheets URL.'; }
+    return;
+  }
+
+  if (errEl) errEl.style.display = 'none';
+  if (btnText) btnText.textContent = 'Fetching…';
+
+  try {
+    const res  = await fetch(`${SUPABASE_URL}/functions/v1/sheets-fetch`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ url }),
+    });
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || 'Could not fetch sheet');
+
+    const { headers, rows } = importParseCSV(data.csv);
+    if (!rows.length) throw new Error('The sheet has no data rows. Make sure the first row has column headers.');
+
+    importState.headers = headers;
+    importState.rows    = rows;
+    importState.mapping = importAutoDetect(headers, importState.type);
+    importState.step    = 3;
+    renderImportStep();
+  } catch (err) {
+    if (errEl)   { errEl.style.display = 'block'; errEl.textContent = err.message; }
+    if (btnText) btnText.textContent = 'Fetch Sheet →';
+  }
 }
 
 function importParseCSV(text) {
