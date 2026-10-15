@@ -1583,8 +1583,8 @@ async function obSave() {
   currentUser.country = obCountry;
   currentUser.phone   = phone || null;
   document.getElementById('onboarding-overlay').classList.add('hidden');
+  resetObNextBtn();
   updateSidebarCountry();
-  // Re-render current view with new locale
   renderDashboard();
 }
 
@@ -1599,10 +1599,25 @@ function openProfileSettings() {
   document.querySelectorAll('#onboarding-overlay .country-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.country === obCountry);
   });
+  // Pre-fill phone so obSave() preserves it even if step 2 is skipped
   document.getElementById('ob-phone').value = currentUser.phone || '';
-  document.getElementById('ob-next-1').disabled = false;
+
+  // Settings mode: step 1 saves directly instead of going to step 2
+  const btn = document.getElementById('ob-next-1');
+  btn.disabled = false;
+  btn.textContent = 'Save Changes';
+  btn.onclick = obSave;
+
   document.getElementById('onboarding-overlay').classList.remove('hidden');
   obGoStep(1);
+}
+
+function resetObNextBtn() {
+  const btn = document.getElementById('ob-next-1');
+  if (!btn) return;
+  btn.textContent = 'Continue →';
+  btn.onclick = () => obGoStep(2);
+  btn.disabled = true;
 }
 
 /* ── Auth helper: returns Authorization header for Edge Function calls ──────── */
