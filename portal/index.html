@@ -69,13 +69,14 @@
       z-index: 1;
     }
     .login-card {
-      background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(20px);
+      background: rgba(14,15,20,0.92);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(201,168,76,0.2);
       border-radius: 20px;
       padding: 40px 36px;
       width: 100%;
       max-width: 380px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
     }
     .login-brand {
       display: flex;
@@ -86,18 +87,18 @@
     .login-brand-name {
       font-size: 20px;
       font-weight: 700;
-      color: var(--navy);
+      color: #E8E9EF;
       letter-spacing: -0.4px;
     }
     .login-brand-name span { color: var(--gold); }
     .login-title {
       font-size: 22px;
       font-weight: 700;
-      color: var(--navy);
+      color: #F0F1F6;
       margin-bottom: 4px;
     }
     .login-sub {
-      color: var(--muted);
+      color: rgba(255,255,255,0.42);
       margin-bottom: 28px;
       font-size: 13px;
     }
@@ -107,33 +108,36 @@
       font-size: 13px;
       font-weight: 500;
       margin-bottom: 6px;
-      color: var(--text);
+      color: rgba(255,255,255,0.7);
     }
     .form-group input {
       width: 100%;
       padding: 10px 12px;
-      border: 1.5px solid var(--border);
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.14);
       border-radius: var(--radius);
       font-size: 14px;
+      color: #E8E9EF;
       outline: none;
-      transition: border-color .15s;
+      transition: border-color .15s, background .15s;
     }
-    .form-group input:focus { border-color: var(--gold); }
+    .form-group input::placeholder { color: rgba(255,255,255,0.28); }
+    .form-group input:focus { border-color: var(--gold); background: rgba(255,255,255,0.1); }
     .btn-login {
       width: 100%;
       padding: 12px;
-      background: var(--navy);
-      color: var(--white);
+      background: var(--gold);
+      color: #0a0a0a;
       border: none;
       border-radius: var(--radius);
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 700;
       margin-top: 8px;
       transition: background .15s;
     }
-    .btn-login:hover { background: var(--deep-navy); }
+    .btn-login:hover { background: var(--gold-light); }
     .login-error {
-      color: var(--danger);
+      color: #f87171;
       font-size: 13px;
       margin-top: 12px;
       text-align: center;
@@ -141,26 +145,27 @@
     .demo-note {
       margin-top: 20px;
       padding: 12px;
-      background: #FEF3C7;
+      background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.2);
       border-radius: var(--radius);
       font-size: 12px;
-      color: #92400E;
+      color: rgba(255,255,255,0.55);
       text-align: center;
     }
-    .demo-note strong { display: block; margin-bottom: 2px; }
+    .demo-note strong { display: block; margin-bottom: 2px; color: var(--gold); }
     .back-link {
       display: block;
       text-align: center;
       margin-top: 20px;
       font-size: 13px;
-      color: var(--muted);
+      color: rgba(255,255,255,0.35);
     }
     .back-link a { color: var(--gold); font-weight: 500; }
 
     /* ── Auth tabs ───────────────────────────────────────────────────────────── */
     .auth-tabs {
       display: flex;
-      border-bottom: 2px solid var(--border);
+      border-bottom: 2px solid rgba(255,255,255,0.1);
       margin-bottom: 24px;
     }
     .auth-tab {
@@ -170,13 +175,13 @@
       font-weight: 600;
       border: none;
       background: none;
-      color: var(--muted);
+      color: rgba(255,255,255,0.38);
       border-bottom: 2px solid transparent;
       margin-bottom: -2px;
       cursor: pointer;
       transition: all .15s;
     }
-    .auth-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+    .auth-tab.active { color: #E8E9EF; border-bottom-color: var(--gold); }
 
     /* ── Trial banner ────────────────────────────────────────────────────────── */
     #trial-banner {
@@ -1103,10 +1108,34 @@
           <label>Password</label>
           <input type="password" id="signup-pass" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" />
         </div>
+        <div class="form-group">
+          <label>Your region <span style="font-weight:400;color:rgba(255,255,255,0.35)">(sets currency &amp; tax calendar)</span></label>
+          <div class="country-grid" id="signup-country-grid" style="margin-bottom:0">
+            <div class="country-card selected" data-country="IN" onclick="signupSelectCountry('IN',this)">
+              <div class="cc-flag">🇮🇳</div>
+              <div class="cc-name">India</div>
+              <div class="cc-curr">₹ INR</div>
+            </div>
+            <div class="country-card" data-country="US" onclick="signupSelectCountry('US',this)">
+              <div class="cc-flag">🇺🇸</div>
+              <div class="cc-name">United States</div>
+              <div class="cc-curr">$ USD</div>
+            </div>
+            <div class="country-card" data-country="AE" onclick="signupSelectCountry('AE',this)">
+              <div class="cc-flag">🇦🇪</div>
+              <div class="cc-name">UAE</div>
+              <div class="cc-curr">AED</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mobile number <span style="font-weight:400;color:rgba(255,255,255,0.35)">(optional)</span></label>
+          <input type="tel" id="signup-phone" placeholder="+91 98765 43210" autocomplete="tel" />
+        </div>
         <button type="submit" class="btn-login" id="signup-btn">Start 14-Day Free Trial</button>
         <p class="login-error hidden" id="signup-error"></p>
       </form>
-      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:14px">No credit card required. Full access for 14 days.</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.3);text-align:center;margin-top:14px">No credit card required. Full access for 14 days.</p>
     </div>
 
     <p class="back-link"><a href="/">← Back to aifinanceo.com</a></p>
@@ -1387,11 +1416,19 @@ async function handleLogin(e) {
 }
 
 /* ── Sign Up ─────────────────────────────────────────────────────────────────── */
+function signupSelectCountry(code, el) {
+  document.querySelectorAll('#signup-country-grid .country-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
 async function handleSignup(e) {
   e.preventDefault();
-  const name  = document.getElementById('signup-name').value.trim();
-  const email = document.getElementById('signup-email').value.trim();
-  const pass  = document.getElementById('signup-pass').value;
+  const name    = document.getElementById('signup-name').value.trim();
+  const email   = document.getElementById('signup-email').value.trim();
+  const pass    = document.getElementById('signup-pass').value;
+  const phone   = (document.getElementById('signup-phone')?.value || '').trim() || null;
+  const countryEl = document.querySelector('#signup-country-grid .country-card.selected');
+  const country = countryEl?.dataset.country || 'IN';
   const errEl = document.getElementById('signup-error');
   const btn   = document.getElementById('signup-btn');
   btn.textContent = 'Creating account…'; btn.disabled = true;
@@ -1399,11 +1436,14 @@ async function handleSignup(e) {
   try {
     const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { name } } });
     if (error) throw new Error(error.message);
-    if (data.user) await loadUserAndShow(data.user);
-    else {
+    if (data.user) {
+      // Save country and phone collected during signup
+      await sb.from('clients').update({ country, phone }).eq('id', data.user.id);
+      await loadUserAndShow(data.user);
+    } else {
       errEl.textContent = 'Check your email to confirm your account, then sign in.';
       errEl.classList.remove('hidden');
-      errEl.style.color = 'var(--success)';
+      errEl.style.color = '#4ade80';
     }
   } catch (err) {
     errEl.textContent = err.message;
@@ -1429,10 +1469,6 @@ async function loadUserAndShow(authUser) {
     subscriptionStatus: client?.subscription_status || 'trial',
   };
   showApp();
-  if (!currentUser.country) {
-    // First login — show onboarding after a brief moment for the app to render
-    setTimeout(() => document.getElementById('onboarding-overlay').classList.remove('hidden'), 300);
-  }
 }
 
 /* ── Trial helpers ───────────────────────────────────────────────────────────── */
