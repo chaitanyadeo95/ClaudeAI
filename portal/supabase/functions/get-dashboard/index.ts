@@ -33,7 +33,7 @@ serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
   const now      = new Date();
 
-  const [arRes, apRes, bankRes, syncRes, tokenRes] = await Promise.all([
+  const [arRes, apRes, bankRes, syncRes, qbTokenRes, tallyTokenRes] = await Promise.all([
     supabase.from("ar_invoices")
       .select("balance, due_date, customer_name, invoice_number, total")
       .eq("client_id", clientId),
@@ -59,13 +59,19 @@ serve(async (req) => {
       .select("realm_id, updated_at")
       .eq("client_id", clientId)
       .maybeSingle(),
+
+    supabase.from("tally_agent_tokens")
+      .select("id, last_sync, company")
+      .eq("client_id", clientId)
+      .maybeSingle(),
   ]);
 
-  const invoices    = arRes.data ?? [];
-  const bills       = apRes.data ?? [];
-  const banks       = bankRes.data ?? [];
-  const lastSync    = syncRes.data;
-  const qbConnected = !!tokenRes.data?.realm_id;
+  const invoices       = arRes.data ?? [];
+  const bills          = apRes.data ?? [];
+  const banks          = bankRes.data ?? [];
+  const lastSync       = syncRes.data;
+  const qbConnected    = !!qbTokenRes.data?.realm_id;
+  const tallyConnected = !!tallyTokenRes.data?.id;
 
   const totalAR   = invoices.reduce((s, r) => s + (parseFloat(r.balance) || 0), 0);
   const totalAP   = bills.reduce((s, r) => s + (parseFloat(r.balance) || 0), 0);
@@ -99,6 +105,7 @@ serve(async (req) => {
       accounts: banks,
     },
     qbConnected,
+    tallyConnected,
     lastSync: lastSync
       ? {
           at:      lastSync.finished_at,

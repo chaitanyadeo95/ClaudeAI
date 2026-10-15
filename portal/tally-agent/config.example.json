@@ -1,0 +1,9 @@
+{
+  "AGENT_TOKEN":            "paste-your-token-from-aifinanceo-here",
+  "AIFINANCEO_URL":         "https://keiladscsohyzfgbzidn.supabase.co/functions/v1/tally-sync",
+  "TALLY_HOST":             "localhost",
+  "TALLY_PORT":             9000,
+  "SYNC_INTERVAL_MINUTES":  30,
+  "FINANCIAL_YEAR_START":   "20240401",
+  "FINANCIAL_YEAR_END":     "20250331"
+}
