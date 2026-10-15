@@ -35,6 +35,21 @@ serve(async (req) => {
     try { const b = await req.json(); targetClientId = b.client_id ?? null; } catch {}
   }
 
+  // ── Auth: if a client_id is provided, verify the caller owns it ────────────
+  // (Scheduled/cron calls without a client_id are allowed without a JWT)
+  if (targetClientId) {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return jsonResp({ error: "Missing authorization" }, 401);
+    }
+    const token = authHeader.slice(7);
+    const anonSb = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!);
+    const { data: { user }, error: authErr } = await anonSb.auth.getUser(token);
+    if (authErr || !user) return jsonResp({ error: "Invalid or expired token" }, 401);
+    if (user.id !== targetClientId) return jsonResp({ error: "Forbidden" }, 403);
+  }
+  // ───────────────────────────────────────────────────────────────────────────
+
   let query = supabase.from("qb_tokens").select("*");
   if (targetClientId) query = query.eq("client_id", targetClientId);
 

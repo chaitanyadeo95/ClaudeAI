@@ -2,6 +2,7 @@
 // Returns live financial summary for a client from synced QuickBooks data.
 //
 // GET /functions/v1/get-dashboard?client_id=<uuid>
+// Requires: Authorization: Bearer <supabase-session-token>
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -9,6 +10,7 @@ import { corsHeaders } from "../_shared/quickbooks.ts";
 
 const SUPABASE_URL        = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SUPABASE_ANON_KEY   = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -16,6 +18,17 @@ serve(async (req) => {
   const url      = new URL(req.url);
   const clientId = url.searchParams.get("client_id");
   if (!clientId) return json({ error: "Missing client_id" }, 400);
+
+  // ── Auth: verify the caller owns this client_id ──────────────────────────────
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) return json({ error: "Missing authorization" }, 401);
+  const token = authHeader.slice(7);
+
+  const anonSb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const { data: { user }, error: authErr } = await anonSb.auth.getUser(token);
+  if (authErr || !user) return json({ error: "Invalid or expired token" }, 401);
+  if (user.id !== clientId) return json({ error: "Forbidden" }, 403);
+  // ─────────────────────────────────────────────────────────────────────────────
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
   const now      = new Date();
@@ -59,7 +72,6 @@ serve(async (req) => {
     (r) => r.due_date && new Date(r.due_date) < now
   );
 
-  // Top 5 invoices by balance (largest first)
   const topInvoices = [...invoices]
     .sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance))
     .slice(0, 5);

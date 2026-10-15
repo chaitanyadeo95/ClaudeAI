@@ -1318,6 +1318,15 @@ function closeSidebar() {
   document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
+/* ── Auth helper: returns Authorization header for Edge Function calls ──────── */
+async function authHeaders(extra = {}) {
+  const { data: { session } } = await sb.auth.getSession();
+  const token = session?.access_token;
+  return token
+    ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...extra }
+    : { 'Content-Type': 'application/json', ...extra };
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    DASHBOARD
 ══════════════════════════════════════════════════════════════════════════════ */
@@ -1328,7 +1337,7 @@ async function syncNow() {
   btn.disabled = true;
   btn.textContent = 'Syncing…';
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-sync`, { method: 'POST', body: JSON.stringify({ client_id: currentUser?.id }), headers: { 'Content-Type': 'application/json' } });
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-sync`, { method: 'POST', body: JSON.stringify({ client_id: currentUser?.id }), headers: await authHeaders() });
     const data = await res.json();
     const result = data.results?.[0];
     if (result?.status === 'success') {
@@ -1372,7 +1381,7 @@ async function renderDashboard() {
   const clientId = currentUser?.id;
   let d = null;
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/get-dashboard?client_id=${clientId}`);
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/get-dashboard?client_id=${clientId}`, { headers: await authHeaders() });
     if (res.ok) d = await res.json();
   } catch {}
 
@@ -2335,7 +2344,7 @@ async function importClear(type, label, btn) {
   try {
     const res  = await fetch(`${SUPABASE_URL}/functions/v1/csv-import`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders(),
       body:    JSON.stringify({ client_id: currentUser?.id, type, action: 'clear' }),
     });
     const data = await res.json();
@@ -2678,7 +2687,7 @@ async function importExecute() {
 
     const res = await fetch(`${SUPABASE_URL}/functions/v1/csv-import`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders(),
       body: JSON.stringify({ client_id: clientId, type: importState.type, records, replace: importState.replace }),
     });
     const result = await res.json();

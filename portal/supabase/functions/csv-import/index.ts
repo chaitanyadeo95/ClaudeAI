@@ -27,6 +27,20 @@ Deno.serve(async (req) => {
     const table = TABLE_MAP[type];
     if (!table) return fail('Invalid type — must be ar, ap, or bank');
 
+    // ── Auth: verify the caller owns this client_id ─────────────────────────────
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) return fail('Missing authorization', 401);
+    const token = authHeader.slice(7);
+
+    const anonSb = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+    );
+    const { data: { user }, error: authErr } = await anonSb.auth.getUser(token);
+    if (authErr || !user) return fail('Invalid or expired token', 401);
+    if (user.id !== client_id) return fail('Forbidden', 403);
+    // ───────────────────────────────────────────────────────────────────────────
+
     const sb = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
