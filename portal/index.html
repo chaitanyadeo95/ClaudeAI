@@ -1705,109 +1705,85 @@ async function disconnectQuickBooks() {
 }
 
 async function connectTally() {
+  document.getElementById('tally-modal')?.remove();
   const headers = await authHeaders();
-  let token, lastSync, company;
   try {
     const res  = await fetch(`${SUPABASE_URL}/functions/v1/tally-setup`, { method: 'POST', headers });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Setup failed');
-    token    = data.token;
-    lastSync = data.last_sync;
-    company  = data.company;
+    showTallyModal(data.setup_code, data.expires_at, data.last_sync, data.company);
   } catch (e) {
-    showToast('Could not generate Tally token: ' + e.message, 'error');
-    return;
+    showToast('Could not generate setup code: ' + e.message, 'error');
   }
-  showTallyModal(token, lastSync, company);
 }
 
-function showTallyModal(token, lastSync, company) {
-  const configJson = JSON.stringify({
-    AGENT_TOKEN:           token,
-    AIFINANCEO_URL:        `${SUPABASE_URL}/functions/v1/tally-sync`,
-    TALLY_HOST:            'localhost',
-    TALLY_PORT:            9000,
-    SYNC_INTERVAL_MINUTES: 30,
-  }, null, 2);
-
+function showTallyModal(setupCode, expiresAt, lastSync, company) {
+  const mins = expiresAt ? Math.max(0, Math.round((new Date(expiresAt) - Date.now()) / 60000)) : 15;
   const overlay = document.createElement('div');
   overlay.id = 'tally-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9000;display:flex;align-items:center;justify-content:center;padding:24px';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:9000;display:flex;align-items:center;justify-content:center;padding:24px';
   overlay.innerHTML = `
-    <div style="background:#0e0f14;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:36px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+    <div style="background:#0e0f14;border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:36px;max-width:480px;width:100%">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
         <div>
-          <div style="font-size:18px;font-weight:700;color:#F0F1F6">Connect Tally ERP / TallyPrime</div>
-          ${company ? `<div style="font-size:12px;color:rgba(255,255,255,0.42);margin-top:2px">${company}</div>` : ''}
-          ${lastSync ? `<div style="font-size:12px;color:#4ade80;margin-top:2px">Last synced ${timeAgo(lastSync)}</div>` : ''}
+          <div style="font-size:18px;font-weight:700;color:#F0F1F6">Connect Tally</div>
+          ${company ? `<div style="font-size:12px;color:rgba(255,255,255,0.42);margin-top:3px">${company}</div>` : ''}
+          ${lastSync ? `<div style="font-size:12px;color:#4ade80;margin-top:3px">Last synced ${timeAgo(lastSync)}</div>` : ''}
         </div>
-        <button onclick="document.getElementById('tally-modal').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer;line-height:1">×</button>
+        <button onclick="document.getElementById('tally-modal').remove()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer;line-height:1;padding:0">×</button>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:20px">
-        <!-- Step 1 -->
-        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px">
-          <div style="font-size:13px;font-weight:700;color:#F0F1F6;margin-bottom:10px">Step 1 — Download the agent</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:12px">
-            Install Node.js 18+ on your PC (the one running Tally), then download the AiFinanceo Tally Agent folder:
-          </div>
-          <a href="https://nodejs.org/en/download" target="_blank"
-            style="display:inline-block;padding:8px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;font-size:12px;color:#E8E9EF;text-decoration:none;margin-right:8px;margin-bottom:8px">
-            ↓ Download Node.js
+      <!-- Step 1: Download -->
+      <div style="display:flex;gap:14px;margin-bottom:22px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:#0a0a0a;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#F0F1F6;margin-bottom:8px">Download the agent</div>
+          <a href="https://github.com/chaitanyadeo95/ClaudeAI/releases/latest/download/AiFinanceo-Tally-Setup.exe"
+            style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--gold);color:#0a0a0a;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">
+            ↓ Download AiFinanceo-Tally-Setup.exe
           </a>
-          <a href="https://github.com/chaitanyadeo95/ClaudeAI/tree/claude/build-website-GMmsV/portal/tally-agent" target="_blank"
-            style="display:inline-block;padding:8px 16px;background:rgba(201,168,76,0.12);border:1px solid var(--gold);border-radius:7px;font-size:12px;color:var(--gold);text-decoration:none;margin-bottom:8px">
-            ↓ Download Tally Agent (GitHub)
-          </a>
-        </div>
-
-        <!-- Step 2 -->
-        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div style="font-size:13px;font-weight:700;color:#F0F1F6">Step 2 — Create config.json</div>
-            <button onclick="navigator.clipboard.writeText(${JSON.stringify(configJson)}).then(()=>showToast('Copied!'))"
-              style="padding:5px 12px;background:rgba(201,168,76,0.15);border:1px solid var(--gold);border-radius:6px;font-size:11px;font-weight:600;color:var(--gold);cursor:pointer">
-              Copy
-            </button>
-          </div>
-          <pre style="background:#07080d;border-radius:8px;padding:14px;font-size:11.5px;color:#a5f3fc;overflow-x:auto;margin:0;line-height:1.6;white-space:pre-wrap;word-break:break-all">${escHtml(configJson)}</pre>
-          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px">
-            Save this as <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">config.json</code> in the tally-agent folder.
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:18px">
-          <div style="font-size:13px;font-weight:700;color:#F0F1F6;margin-bottom:10px">Step 3 — Start the agent</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:10px">
-            Open Command Prompt inside the tally-agent folder and run:
-          </div>
-          <pre style="background:#07080d;border-radius:8px;padding:12px;font-size:12px;color:#86efac;margin:0;line-height:1.8">npm install
-node agent.js</pre>
-          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px">
-            Or double-click <code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">start.bat</code> — make sure Tally is open with your company loaded.
-          </div>
-        </div>
-
-        <!-- Prerequisites -->
-        <div style="background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:16px">
-          <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">Tally prerequisites</div>
-          <ul style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.8;margin:0;padding-left:18px">
-            <li>Tally ERP 9 or TallyPrime must be running on the same PC</li>
-            <li>Gateway of Tally must be enabled (default port 9000)</li>
-            <li>Load your company in Tally before starting the agent</li>
-          </ul>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px">Windows · No installation required · ~40 MB</div>
         </div>
       </div>
 
-      <div style="margin-top:24px;text-align:center">
+      <!-- Step 2: Run & enter code -->
+      <div style="display:flex;gap:14px;margin-bottom:28px">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);color:#0a0a0a;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#F0F1F6;margin-bottom:10px">Run it — enter this code when asked</div>
+          <div style="background:#07080d;border:1px solid rgba(201,168,76,0.35);border-radius:12px;padding:18px;text-align:center">
+            <div style="font-size:38px;font-weight:800;letter-spacing:10px;color:var(--gold);font-family:monospace">${setupCode}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:8px">Expires in ~${mins} minutes · single use</div>
+          </div>
+          <button onclick="navigator.clipboard.writeText('${setupCode}').then(()=>showToast('Code copied!'))"
+            style="margin-top:10px;width:100%;padding:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:#E8E9EF;font-size:12px;font-weight:600;cursor:pointer">
+            Copy Code
+          </button>
+        </div>
+      </div>
+
+      <!-- Prerequisite note -->
+      <div style="background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.18);border-radius:10px;padding:14px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7">
+        Make sure <strong style="color:rgba(255,255,255,0.75)">Tally is open</strong> with your company loaded before running the agent. It syncs every 30 minutes automatically.
+      </div>
+
+      <div style="margin-top:22px;display:flex;gap:10px">
+        <button onclick="connectTally()"
+          style="flex:1;padding:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#E8E9EF;font-size:13px;font-weight:600;cursor:pointer">
+          Get New Code
+        </button>
         <button onclick="document.getElementById('tally-modal').remove()"
-          style="background:var(--gold);color:#0a0a0a;padding:12px 32px;border-radius:10px;font-weight:700;font-size:14px;border:none;cursor:pointer">
-          Done — I've set it up
+          style="flex:2;padding:10px;background:var(--gold);color:#0a0a0a;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
+          Done
         </button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
+
+  // Auto-refresh dashboard when modal is closed (in case sync came in)
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) { overlay.remove(); renderDashboard(); }
+  });
 }
 
 function escHtml(s) {

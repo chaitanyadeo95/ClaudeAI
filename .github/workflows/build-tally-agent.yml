@@ -1,0 +1,48 @@
+name: Build Tally Agent
+
+on:
+  push:
+    branches: [claude/build-website-GMmsV]
+    paths:
+      - 'portal/tally-agent/agent.js'
+      - 'portal/tally-agent/package.json'
+      - '.github/workflows/build-tally-agent.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install pkg
+        run: npm install -g pkg
+
+      - name: Build Windows exe
+        working-directory: portal/tally-agent
+        run: |
+          mkdir -p dist
+          pkg agent.js --targets node18-win-x64 --output dist/AiFinanceo-Tally-Setup.exe
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: tally-agent-latest
+          name: AiFinanceo Tally Agent
+          body: |
+            **AiFinanceo Tally Sync Agent for Windows**
+
+            1. Download `AiFinanceo-Tally-Setup.exe`
+            2. Run it — it will ask for your 6-char setup code from the AiFinanceo dashboard
+            3. Done — it syncs automatically every 30 minutes
+          prerelease: false
+          make_latest: true
+          files: portal/tally-agent/dist/AiFinanceo-Tally-Setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
