@@ -1109,24 +1109,12 @@
           <input type="password" id="signup-pass" placeholder="Min. 8 characters" required minlength="8" autocomplete="new-password" />
         </div>
         <div class="form-group">
-          <label>Your region <span style="font-weight:400;color:rgba(255,255,255,0.35)">(sets currency &amp; tax calendar)</span></label>
-          <div class="country-grid" id="signup-country-grid" style="margin-bottom:0">
-            <div class="country-card selected" data-country="IN" onclick="signupSelectCountry('IN',this)">
-              <div class="cc-flag">🇮🇳</div>
-              <div class="cc-name">India</div>
-              <div class="cc-curr">₹ INR</div>
-            </div>
-            <div class="country-card" data-country="US" onclick="signupSelectCountry('US',this)">
-              <div class="cc-flag">🇺🇸</div>
-              <div class="cc-name">United States</div>
-              <div class="cc-curr">$ USD</div>
-            </div>
-            <div class="country-card" data-country="AE" onclick="signupSelectCountry('AE',this)">
-              <div class="cc-flag">🇦🇪</div>
-              <div class="cc-name">UAE</div>
-              <div class="cc-curr">AED</div>
-            </div>
-          </div>
+          <label>Your region</label>
+          <select id="signup-country" style="width:100%;padding:10px 12px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.14);border-radius:var(--radius);font-size:14px;color:#E8E9EF;outline:none;cursor:pointer;appearance:auto">
+            <option value="IN">🇮🇳 India — ₹ INR</option>
+            <option value="US">🇺🇸 United States — $ USD</option>
+            <option value="AE">🇦🇪 UAE — AED</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Mobile number <span style="font-weight:400;color:rgba(255,255,255,0.35)">(optional)</span></label>
@@ -1416,19 +1404,13 @@ async function handleLogin(e) {
 }
 
 /* ── Sign Up ─────────────────────────────────────────────────────────────────── */
-function signupSelectCountry(code, el) {
-  document.querySelectorAll('#signup-country-grid .country-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
 async function handleSignup(e) {
   e.preventDefault();
   const name    = document.getElementById('signup-name').value.trim();
   const email   = document.getElementById('signup-email').value.trim();
   const pass    = document.getElementById('signup-pass').value;
   const phone   = (document.getElementById('signup-phone')?.value || '').trim() || null;
-  const countryEl = document.querySelector('#signup-country-grid .country-card.selected');
-  const country = countryEl?.dataset.country || 'IN';
+  const country = document.getElementById('signup-country')?.value || 'IN';
   const errEl = document.getElementById('signup-error');
   const btn   = document.getElementById('signup-btn');
   btn.textContent = 'Creating account…'; btn.disabled = true;
@@ -1567,7 +1549,7 @@ let obCountry = null;
 
 function obSelectCountry(code, el) {
   obCountry = code;
-  document.querySelectorAll('.country-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('#onboarding-overlay .country-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   document.getElementById('ob-next-1').disabled = false;
   // Pre-fill phone dial code
@@ -1613,9 +1595,8 @@ function updateSidebarCountry() {
 }
 
 function openProfileSettings() {
-  // Reuse onboarding modal as a settings panel
   obCountry = currentUser.country || 'IN';
-  document.querySelectorAll('.country-card').forEach(c => {
+  document.querySelectorAll('#onboarding-overlay .country-card').forEach(c => {
     c.classList.toggle('selected', c.dataset.country === obCountry);
   });
   document.getElementById('ob-phone').value = currentUser.phone || '';
