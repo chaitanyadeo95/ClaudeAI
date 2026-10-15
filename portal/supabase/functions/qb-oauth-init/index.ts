@@ -22,14 +22,15 @@ serve(async (req) => {
     return new Response("Server misconfiguration: missing QB_CLIENT_ID or QB_REDIRECT_URI", { status: 500 });
   }
 
-  const url        = new URL(req.url);
-  const clientId   = url.searchParams.get("client_id");
+  const url         = new URL(req.url);
+  const clientId    = url.searchParams.get("client_id");
   const environment = (url.searchParams.get("environment") ?? "production") as "production" | "sandbox";
+  const portalUrl   = url.searchParams.get("portal_url") ?? undefined;
 
   if (!clientId) return new Response("Missing client_id", { status: 400 });
 
-  // Encode clientId + environment into state — recovered in the callback
-  const state = btoa(JSON.stringify({ clientId, environment }));
+  // Encode clientId, environment, and portalUrl into state — recovered in the callback
+  const state = btoa(JSON.stringify({ clientId, environment, portalUrl }));
 
   const params = new URLSearchParams({
     client_id:     QB_CLIENT_ID,

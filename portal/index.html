@@ -1634,6 +1634,28 @@ function resetObNextBtn() {
   btn.disabled = true;
 }
 
+/* ── QuickBooks OAuth — popup flow ──────────────────────────────────────────── */
+function connectQuickBooks(clientId) {
+  const portalUrl = window.location.href.split('?')[0];
+  const oauthUrl  = `${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production&portal_url=${encodeURIComponent(portalUrl)}`;
+  const popup     = window.open(oauthUrl, 'qb_oauth', 'width=600,height=700,scrollbars=yes');
+  if (!popup) {
+    // Popups blocked — fall back to same-tab redirect
+    window.location.href = oauthUrl;
+    return;
+  }
+  // Listen for the callback page's postMessage
+  const handler = (event) => {
+    if (event.data?.type !== 'QB_CONNECTED') return;
+    window.removeEventListener('message', handler);
+    popup.close();
+    // Refresh the dashboard to reflect the new connection
+    renderDashboard();
+    showView('dashboard');
+  };
+  window.addEventListener('message', handler);
+}
+
 /* ── Auth helper: returns Authorization header for Edge Function calls ──────── */
 async function authHeaders(extra = {}) {
   const { data: { session } } = await sb.auth.getSession();
@@ -1715,10 +1737,10 @@ async function renderDashboard() {
         <p style="font-size:14px;color:rgba(255,255,255,0.52);margin-bottom:32px;line-height:1.7">
           Connect QuickBooks to see your AR, AP, cash position and financial insights — all in one place. Takes less than 2 minutes.
         </p>
-        <a href="${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production"
-           style="display:inline-block;background:var(--gold);color:#0a0a0a;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:12px">
+        <button onclick="connectQuickBooks('${clientId}')"
+           style="display:inline-block;background:var(--gold);color:#0a0a0a;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;border:none;cursor:pointer;margin-bottom:12px">
           Connect QuickBooks →
-        </a>
+        </button>
         <p style="font-size:12px;color:rgba(255,255,255,0.38);margin-top:8px">Secure OAuth 2.0 · Read-only access · Disconnect anytime</p>
 
         <div style="margin-top:48px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.1)">

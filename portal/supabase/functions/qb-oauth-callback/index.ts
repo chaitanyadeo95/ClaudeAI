@@ -31,14 +31,14 @@ serve(async (req) => {
     return htmlPage("Missing Parameters", "<p>Expected <code>code</code>, <code>realmId</code> and <code>state</code>.</p>", 400);
   }
 
-  let state: { clientId: string; environment: "production" | "sandbox" };
+  let state: { clientId: string; environment: "production" | "sandbox"; portalUrl?: string };
   try {
     state = JSON.parse(atob(stateRaw));
   } catch {
     return htmlPage("Invalid State", "<p>Could not parse OAuth state parameter.</p>", 400);
   }
 
-  const { clientId, environment } = state;
+  const { clientId, environment, portalUrl } = state;
   const credentials = btoa(`${QB_CLIENT_ID}:${QB_CLIENT_SECRET}`);
 
   // 1. Exchange auth code for tokens
@@ -80,13 +80,28 @@ serve(async (req) => {
     return htmlPage("Database Error", `<p>Could not save tokens: ${dbError.message}</p>`, 500);
   }
 
-  return htmlPage(
-    "QuickBooks Connected",
-    `<p>Your QuickBooks account has been connected successfully.</p>
-     <p>Company ID (RealmID): <strong>${realmId}</strong></p>
-     <p>Environment: <strong>${environment}</strong></p>
-     <p>You can close this window.</p>`,
-    200,
+  // Notify the opener (portal popup flow) and redirect back
+  const safePortalUrl = portalUrl ?? "https://chaitanyadeo95.github.io/ClaudeAI/portal/";
+  return new Response(
+    `<!DOCTYPE html><html><head><title>QuickBooks Connected</title>
+    <style>body{font-family:sans-serif;max-width:480px;margin:80px auto;padding:0 20px;color:#1C3054;text-align:center}
+    h2{color:#0B1728}.check{font-size:56px;margin-bottom:16px}.sub{color:#555;line-height:1.6}</style>
+    </head><body>
+    <div class="check">✅</div>
+    <h2>QuickBooks Connected!</h2>
+    <p class="sub">Your account has been linked. This window will close automatically.</p>
+    <script>
+      // Tell the portal window the connection succeeded
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ type: 'QB_CONNECTED', realmId: '${realmId}', environment: '${environment}' }, '*');
+        setTimeout(() => window.close(), 1500);
+      } else {
+        // Opened as full tab — redirect back to portal
+        setTimeout(() => { window.location.href = '${safePortalUrl}'; }, 2000);
+      }
+    </script>
+    </body></html>`,
+    { status: 200, headers: { "Content-Type": "text/html" } },
   );
 });
 
