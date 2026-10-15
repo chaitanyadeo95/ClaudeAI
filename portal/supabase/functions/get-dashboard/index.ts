@@ -33,7 +33,7 @@ serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
   const now      = new Date();
 
-  const [arRes, apRes, bankRes, syncRes] = await Promise.all([
+  const [arRes, apRes, bankRes, syncRes, tokenRes] = await Promise.all([
     supabase.from("ar_invoices")
       .select("balance, due_date, customer_name, invoice_number, total")
       .eq("client_id", clientId),
@@ -54,12 +54,18 @@ serve(async (req) => {
       .order("finished_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+
+    supabase.from("qb_tokens")
+      .select("realm_id, updated_at")
+      .eq("client_id", clientId)
+      .maybeSingle(),
   ]);
 
-  const invoices = arRes.data ?? [];
-  const bills    = apRes.data ?? [];
-  const banks    = bankRes.data ?? [];
-  const lastSync = syncRes.data;
+  const invoices    = arRes.data ?? [];
+  const bills       = apRes.data ?? [];
+  const banks       = bankRes.data ?? [];
+  const lastSync    = syncRes.data;
+  const qbConnected = !!tokenRes.data?.realm_id;
 
   const totalAR   = invoices.reduce((s, r) => s + (parseFloat(r.balance) || 0), 0);
   const totalAP   = bills.reduce((s, r) => s + (parseFloat(r.balance) || 0), 0);
@@ -92,6 +98,7 @@ serve(async (req) => {
       total:    totalBank,
       accounts: banks,
     },
+    qbConnected,
     lastSync: lastSync
       ? {
           at:      lastSync.finished_at,

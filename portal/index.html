@@ -1731,10 +1731,11 @@ async function renderDashboard() {
   const body = document.getElementById('dash-body');
   if (!body) return;
 
-  // No data at all — not connected yet
-  const notConnected = !d || (!d.ar?.count && !d.ap?.count && !d.bank?.accounts?.length && !d.lastSync);
+  // Distinguish: not connected at all vs connected but no sync yet
+  const notConnected  = !d || (!d.qbConnected && !d.ar?.count && !d.ap?.count && !d.bank?.accounts?.length && !d.lastSync);
+  const awaitingSync  = d?.qbConnected && !d.lastSync && !d.ar?.count && !d.ap?.count && !d.bank?.accounts?.length;
 
-  if (!d || notConnected) {
+  if (notConnected) {
     body.innerHTML = `
       <div style="max-width:480px;margin:60px auto;text-align:center">
         <div style="font-size:56px;margin-bottom:16px">🔗</div>
@@ -1762,6 +1763,23 @@ async function renderDashboard() {
             <div style="padding:10px 20px;border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:13px;color:rgba(255,255,255,0.38);background:rgba(255,255,255,0.04)">🧾 Tally — coming soon</div>
           </div>
         </div>
+      </div>`;
+    return;
+  }
+
+  if (awaitingSync) {
+    body.innerHTML = `
+      <div style="max-width:500px;margin:60px auto;text-align:center">
+        <div style="font-size:56px;margin-bottom:16px">✅</div>
+        <h2 style="font-size:22px;font-weight:700;color:#F0F1F6;margin-bottom:10px">QuickBooks Connected!</h2>
+        <p style="font-size:14px;color:rgba(255,255,255,0.52);margin-bottom:32px;line-height:1.7">
+          Your account is linked. Run your first sync to pull in your chart of accounts, invoices, bills, and bank balances.
+        </p>
+        <button id="sync-btn" onclick="syncNow()"
+          style="display:inline-block;background:var(--gold);color:#0a0a0a;padding:14px 32px;border-radius:10px;font-weight:700;font-size:15px;border:none;cursor:pointer;margin-bottom:12px">
+          Sync QuickBooks Now →
+        </button>
+        <p id="sync-note" style="font-size:12px;color:rgba(255,255,255,0.38);margin-top:8px">This usually takes 10–30 seconds</p>
       </div>`;
     return;
   }
