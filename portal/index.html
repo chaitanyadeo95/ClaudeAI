@@ -1692,7 +1692,7 @@ async function disconnectQuickBooks() {
 
   const headers = await authHeaders();
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-disconnect`, { method: 'DELETE', headers });
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-disconnect`, { method: 'POST', headers });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
       throw new Error(d.error || `HTTP ${res.status}`);

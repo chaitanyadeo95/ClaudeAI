@@ -12,7 +12,9 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const SUPABASE_ANON_KEY    = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", {
+    headers: { ...corsHeaders, "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS" },
+  });
   if (req.method !== "DELETE" && req.method !== "POST")
     return json({ error: "Method not allowed" }, 405);
 
