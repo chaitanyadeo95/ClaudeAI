@@ -1687,6 +1687,23 @@ function connectQuickBooks(clientId) {
   window.location.href = `${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production&portal_url=${encodeURIComponent(portalUrl)}`;
 }
 
+async function disconnectQuickBooks() {
+  if (!confirm('Disconnect QuickBooks?\n\nYour synced data (invoices, bills, bank balances) will be removed. You can reconnect at any time.')) return;
+
+  const headers = await authHeaders();
+  try {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/qb-disconnect`, { method: 'DELETE', headers });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || `HTTP ${res.status}`);
+    }
+    showToast('QuickBooks disconnected');
+    setTimeout(() => renderDashboard(), 600);
+  } catch (e) {
+    showToast('Disconnect failed: ' + e.message, 'error');
+  }
+}
+
 async function connectTally() {
   const headers = await authHeaders();
   let token, lastSync, company;
@@ -2040,6 +2057,7 @@ async function renderDashboard() {
         <div style="display:flex;align-items:center;gap:8px">
           <span style="font-size:11px;color:var(--muted)" id="sync-note">${syncNote}</span>
           <button id="sync-btn" onclick="syncNow()" style="font-size:11px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Sync Now</button>
+          ${d.qbConnected ? `<button onclick="disconnectQuickBooks()" style="font-size:11px;padding:3px 10px;border:1px solid rgba(239,68,68,0.4);color:rgba(239,68,68,0.8);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Disconnect QB</button>` : ''}
         </div>
       </div>
       ${actions.map(a => `
