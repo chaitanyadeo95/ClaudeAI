@@ -80,29 +80,11 @@ serve(async (req) => {
     return htmlPage("Database Error", `<p>Could not save tokens: ${dbError.message}</p>`, 500);
   }
 
-  // Notify the opener (portal popup flow) and redirect back
+  // HTTP redirect back to portal — works in all cases (popup or full tab)
   const safePortalUrl = portalUrl ?? "https://chaitanyadeo95.github.io/ClaudeAI/portal/";
-  return new Response(
-    `<!DOCTYPE html><html><head><title>QuickBooks Connected</title>
-    <style>body{font-family:sans-serif;max-width:480px;margin:80px auto;padding:0 20px;color:#1C3054;text-align:center}
-    h2{color:#0B1728}.check{font-size:56px;margin-bottom:16px}.sub{color:#555;line-height:1.6}</style>
-    </head><body>
-    <div class="check">✅</div>
-    <h2>QuickBooks Connected!</h2>
-    <p class="sub">Your account has been linked. This window will close automatically.</p>
-    <script>
-      // Tell the portal window the connection succeeded
-      if (window.opener && !window.opener.closed) {
-        window.opener.postMessage({ type: 'QB_CONNECTED', realmId: '${realmId}', environment: '${environment}' }, '*');
-        setTimeout(() => window.close(), 1500);
-      } else {
-        // Opened as full tab — redirect back to portal
-        setTimeout(() => { window.location.href = '${safePortalUrl}'; }, 2000);
-      }
-    </script>
-    </body></html>`,
-    { status: 200, headers: { "Content-Type": "text/html" } },
-  );
+  const redirectTarget = new URL(safePortalUrl);
+  redirectTarget.searchParams.set("qb", "connected");
+  return Response.redirect(redirectTarget.toString(), 302);
 });
 
 function htmlPage(title: string, body: string, status: number): Response {

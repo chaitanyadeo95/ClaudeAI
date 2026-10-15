@@ -1498,7 +1498,16 @@ async function logout() {
 /* ── Restore session on page load ────────────────────────────────────────────── */
 async function checkExistingSession() {
   const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) await loadUserAndShow(session.user);
+  if (session?.user) {
+    await loadUserAndShow(session.user);
+    // Detect redirect back from QuickBooks OAuth
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('qb') === 'connected') {
+      history.replaceState({}, '', window.location.pathname);
+      showView('dashboard');
+      setTimeout(() => showToast('QuickBooks connected successfully!'), 600);
+    }
+  }
 }
 
 function showApp() {
@@ -1634,26 +1643,22 @@ function resetObNextBtn() {
   btn.disabled = true;
 }
 
-/* ── QuickBooks OAuth — popup flow ──────────────────────────────────────────── */
+/* ── Toast notification ──────────────────────────────────────────────────────── */
+function showToast(msg, type = 'success') {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:${type==='success'?'#16A34A':'#DC2626'};color:#fff;
+    padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;
+    box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:9999;transition:opacity .4s`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3000);
+}
+
+/* ── QuickBooks OAuth ────────────────────────────────────────────────────────── */
 function connectQuickBooks(clientId) {
-  const portalUrl = window.location.href.split('?')[0];
-  const oauthUrl  = `${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production&portal_url=${encodeURIComponent(portalUrl)}`;
-  const popup     = window.open(oauthUrl, 'qb_oauth', 'width=600,height=700,scrollbars=yes');
-  if (!popup) {
-    // Popups blocked — fall back to same-tab redirect
-    window.location.href = oauthUrl;
-    return;
-  }
-  // Listen for the callback page's postMessage
-  const handler = (event) => {
-    if (event.data?.type !== 'QB_CONNECTED') return;
-    window.removeEventListener('message', handler);
-    popup.close();
-    // Refresh the dashboard to reflect the new connection
-    renderDashboard();
-    showView('dashboard');
-  };
-  window.addEventListener('message', handler);
+  const portalUrl = window.location.origin + window.location.pathname;
+  window.location.href = `${SUPABASE_URL}/functions/v1/qb-oauth-init?client_id=${clientId}&environment=production&portal_url=${encodeURIComponent(portalUrl)}`;
 }
 
 /* ── Auth helper: returns Authorization header for Edge Function calls ──────── */
