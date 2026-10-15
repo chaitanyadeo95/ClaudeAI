@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AiFinanceo — Client Portal</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><polygon points='114,28 286,28 372,200 286,372 114,372 28,200' fill='%23C9A84C'/><rect x='104' y='260' width='52' height='72' rx='6' fill='%230B1728'/><rect x='174' y='196' width='52' height='136' rx='6' fill='%230B1728'/><rect x='244' y='134' width='52' height='198' rx='6' fill='%230B1728'/></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><polygon points='114,28 286,28 372,200 286,372 114,372 28,200' fill='%23C9A84C'/><line x1='124.32' y1='268.80' x2='186.24' y2='206.88' stroke='%230B1728' stroke-width='39.56' stroke-linecap='butt'/><line x1='186.24' y1='124.32' x2='282.56' y2='268.80' stroke='%230B1728' stroke-width='39.56' stroke-linecap='butt'/></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -287,7 +287,8 @@
     }
     .nav-item:hover { background: rgba(255,255,255,.07); color: var(--white); }
     .nav-item.active { background: rgba(201,168,76,.18); color: var(--gold); }
-    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-icon { width: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .nav-icon svg { stroke: currentColor; }
     .sidebar-footer {
       padding: 16px;
       border-top: 1px solid rgba(255,255,255,.08);
@@ -1005,9 +1006,8 @@
     <div class="ob-logo">
       <svg width="28" height="28" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
-        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
-        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
       </svg>
       <span class="ob-logo-name">Ai<span>Financeo</span></span>
     </div>
@@ -1081,9 +1081,8 @@
     <div class="login-brand">
       <svg width="36" height="36" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
-        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
-        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
       </svg>
       <span class="login-brand-name">AI<span>Finance</span>o</span>
     </div>
@@ -1174,28 +1173,27 @@
     <div class="sidebar-header">
       <svg width="30" height="30" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
-        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
-        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
       </svg>
       <span class="sidebar-brand">AI<span>Finance</span>o</span>
     </div>
 
     <nav class="sidebar-nav">
       <button class="nav-item active" data-view="dashboard" onclick="showView('dashboard')">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard
       </button>
       <button class="nav-item" data-view="invoices" onclick="showView('invoices')">
-        <span class="nav-icon">📄</span> Invoice Generator
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg></span> Invoice Generator
       </button>
       <button class="nav-item" data-view="calculators" onclick="showView('calculators')">
-        <span class="nav-icon">🧮</span> Calculators
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="14" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="10" y2="18"/><line x1="14" y1="18" x2="16" y2="18"/></svg></span> Calculators
       </button>
       <button class="nav-item" data-view="calendar" onclick="showView('calendar')">
-        <span class="nav-icon">📅</span> Tax Calendar
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Tax Calendar
       </button>
       <button class="nav-item" data-view="import" onclick="showView('import')">
-        <span class="nav-icon">📤</span> Import Data
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span> Import Data
       </button>
     </nav>
 
@@ -1688,9 +1686,8 @@ async function renderDashboard() {
       </div>
       <svg width="80" height="80" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
-        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
-        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
       </svg>
     </div>
     <div id="dash-body"><div style="color:var(--muted);padding:20px 0">Loading financial data…</div></div>
@@ -2174,7 +2171,7 @@ function previewInvoice() {
     <div class="inv-header">
       <div>
         <div class="inv-logo-row">
-          <svg width="32" height="32" viewBox="0 0 400 400"><polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/><rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/><rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/><rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/></svg>
+          <svg width="32" height="32" viewBox="0 0 400 400"><polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/><line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/><line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/></svg>
           <strong style="font-size:16px;color:#0B1728;font-family:Georgia,serif">${esc(fromName)}</strong>
         </div>
         <div class="inv-company">${esc(fromAddr)}<br>${esc(fromEmail)}${fromGST ? `<br>${taxIdLbl}: ${esc(fromGST)}` : ''}</div>
