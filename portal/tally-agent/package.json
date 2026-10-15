@@ -1,0 +1,19 @@
+{
+  "name": "aifinanceo-tally-agent",
+  "version": "1.0.0",
+  "description": "AiFinanceo Tally Sync Agent",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js",
+    "build:win": "pkg agent.js --targets node18-win-x64 --output dist/AiFinanceo-Tally-Setup.exe",
+    "build:mac": "pkg agent.js --targets node18-macos-x64 --output dist/AiFinanceo-Tally-Setup-mac"
+  },
+  "pkg": {
+    "scripts": "agent.js",
+    "assets": [],
+    "targets": ["node18-win-x64"]
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  }
+}
