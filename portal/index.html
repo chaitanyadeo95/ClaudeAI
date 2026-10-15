@@ -900,6 +900,32 @@
     .col-map-table select { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.14); color: #E8E9EF; }
     .import-status { color: #E8E9EF; }
 
+    /* Invoice builder on dark */
+    .totals-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .totals-row {
+      border-bottom-color: rgba(255,255,255,0.07);
+      color: #C8CAD4;
+    }
+    .totals-row.grand { color: #F0F1F6; }
+    .totals-row.grand span:last-child { color: var(--gold); }
+    .items-table input, .items-table select {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.14);
+      color: #E8E9EF;
+    }
+    .items-table input::placeholder { color: rgba(255,255,255,0.28); }
+    .items-table input:focus, .items-table select:focus {
+      border-color: var(--gold);
+      background: rgba(255,255,255,0.1);
+      outline: none;
+    }
+    .items-table td { color: #E0E1E8; }
+    .items-table th { background: rgba(201,168,76,0.15); color: rgba(255,255,255,0.6); }
+    .remove-item { color: #F87171; }
+
     /* Invoice preview sheet stays white */
     .inv-sheet * { color: #1a1a1a; }
 
