@@ -883,9 +883,175 @@
 
     /* Invoice preview sheet stays white */
     .inv-sheet * { color: #1a1a1a; }
+
+    /* ── Design polish: sidebar gold accent + active nav border ─────────────── */
+    #sidebar {
+      background: linear-gradient(180deg, #0d0d11 0%, #080808 100%);
+      border-right: 1px solid rgba(201,168,76,0.08);
+    }
+    #sidebar::before {
+      content: ''; display: block; height: 2px;
+      background: linear-gradient(90deg, var(--gold) 0%, transparent 60%);
+      flex-shrink: 0;
+    }
+    .nav-item.active {
+      border-left: 2px solid var(--gold);
+      padding-left: 10px;
+    }
+    .card:hover {
+      border-color: rgba(201,168,76,0.14);
+    }
+    .card-title { color: var(--gold) !important; font-size: 11px; letter-spacing: .6px; text-transform: uppercase; font-weight: 600; }
+    .stat-card .stat-value { color: #E8C96A; }
+    #trial-banner { background: linear-gradient(90deg, rgba(201,168,76,0.18), rgba(201,168,76,0.06)); border-bottom: 1px solid rgba(201,168,76,0.18); color: #E8C96A; }
+    .trial-upgrade { background: var(--gold); color: #0a0a0a; }
+
+    /* ── Onboarding overlay ──────────────────────────────────────────────────── */
+    #onboarding-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(5,5,8,0.94);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .ob-card {
+      background: rgba(14,15,20,0.97);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 20px;
+      padding: 40px 36px;
+      width: 100%; max-width: 560px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.75), 0 0 0 1px rgba(201,168,76,0.06) inset;
+    }
+    .ob-logo { display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+    .ob-logo-name { font-size:18px; font-weight:700; color:#F0F1F6; letter-spacing:-0.3px; }
+    .ob-logo-name span { color:var(--gold); }
+    .ob-title { font-size:22px; font-weight:700; color:#F0F1F6; margin-bottom:6px; }
+    .ob-sub { font-size:13.5px; color:rgba(255,255,255,0.45); margin-bottom:30px; line-height:1.6; }
+    .ob-progress { display:flex; gap:6px; margin-bottom:28px; }
+    .ob-dot { height:3px; border-radius:2px; flex:1; background:rgba(255,255,255,0.12); transition:background .3s; }
+    .ob-dot.done { background:var(--gold); }
+    .ob-dot.active { background:rgba(201,168,76,0.5); }
+
+    /* Country picker grid */
+    .country-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:24px; }
+    .country-card {
+      background: rgba(255,255,255,0.05);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding:16px 10px; text-align:center;
+      cursor:pointer; transition:all .15s;
+    }
+    .country-card:hover { border-color:var(--gold); background:rgba(201,168,76,0.08); }
+    .country-card.selected {
+      border-color:var(--gold); background:rgba(201,168,76,0.12);
+      box-shadow:0 0 0 3px rgba(201,168,76,0.18);
+    }
+    .cc-flag { font-size:30px; margin-bottom:8px; }
+    .cc-name { font-size:12.5px; font-weight:600; color:#E8E9EF; }
+    .cc-curr { font-size:11px; color:rgba(255,255,255,0.38); margin-top:3px; }
+    .cc-tax  { font-size:10px; color:rgba(201,168,76,0.7); margin-top:3px; font-weight:500; }
+
+    .ob-field { margin-bottom:16px; }
+    .ob-field label { display:block; font-size:12px; font-weight:600; color:rgba(255,255,255,0.55); margin-bottom:6px; text-transform:uppercase; letter-spacing:.4px; }
+    .ob-field input {
+      width:100%; padding:10px 14px; border-radius:8px;
+      background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.14);
+      color:#E8E9EF; font-size:14px; font-family:inherit;
+    }
+    .ob-field input:focus { outline:none; border-color:var(--gold); background:rgba(255,255,255,0.1); }
+    .ob-field input::placeholder { color:rgba(255,255,255,0.25); }
+    .ob-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+    .ob-skip { background:none; border:none; color:rgba(255,255,255,0.35); font-size:13px; cursor:pointer; padding:10px 4px; font-family:inherit; }
+    .ob-skip:hover { color:rgba(255,255,255,0.6); }
+    .ob-next {
+      padding:11px 28px; background:var(--gold); color:#0a0a0a;
+      border:none; border-radius:8px; font-weight:700; font-size:14px;
+      cursor:pointer; font-family:inherit; transition:background .15s;
+    }
+    .ob-next:hover { background:var(--gold-light); }
+    .ob-next:disabled { opacity:.45; cursor:default; }
+
+    /* ── Country flag in sidebar ─────────────────────────────────────────────── */
+    .user-country-flag { font-size:14px; margin-left:4px; }
+    .sidebar-footer-settings {
+      font-size:11px; color:rgba(255,255,255,0.3); margin-top:6px;
+      cursor:pointer; text-align:center; transition:color .15s;
+    }
+    .sidebar-footer-settings:hover { color:rgba(201,168,76,0.7); }
   </style>
 </head>
 <body>
+
+<!-- ── Onboarding modal ───────────────────────────────────────────────────────── -->
+<div id="onboarding-overlay" class="hidden">
+  <div class="ob-card">
+    <div class="ob-logo">
+      <svg width="28" height="28" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
+        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+      </svg>
+      <span class="ob-logo-name">Ai<span>Financeo</span></span>
+    </div>
+    <div class="ob-progress">
+      <div class="ob-dot done" id="ob-dot-1"></div>
+      <div class="ob-dot active" id="ob-dot-2"></div>
+      <div class="ob-dot" id="ob-dot-3"></div>
+    </div>
+
+    <!-- Step 1: Country -->
+    <div class="ob-step active" id="ob-step-1">
+      <div class="ob-title">Where is your business based?</div>
+      <div class="ob-sub">We'll show the right tax calendar, currency, and calculators for your region.</div>
+      <div class="country-grid">
+        <div class="country-card" data-country="IN" onclick="obSelectCountry('IN',this)">
+          <div class="cc-flag">🇮🇳</div>
+          <div class="cc-name">India</div>
+          <div class="cc-curr">₹ INR</div>
+          <div class="cc-tax">GST · TDS · IT</div>
+        </div>
+        <div class="country-card" data-country="US" onclick="obSelectCountry('US',this)">
+          <div class="cc-flag">🇺🇸</div>
+          <div class="cc-name">United States</div>
+          <div class="cc-curr">$ USD</div>
+          <div class="cc-tax">Sales Tax · FICA</div>
+        </div>
+        <div class="country-card" data-country="AE" onclick="obSelectCountry('AE',this)">
+          <div class="cc-flag">🇦🇪</div>
+          <div class="cc-name">UAE</div>
+          <div class="cc-curr">AED</div>
+          <div class="cc-tax">VAT · Corp Tax</div>
+        </div>
+      </div>
+      <div class="ob-actions">
+        <button class="ob-next" id="ob-next-1" onclick="obGoStep(2)" disabled>Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Phone -->
+    <div class="ob-step" id="ob-step-2">
+      <div class="ob-title">Your mobile number</div>
+      <div class="ob-sub">Used for payment receipts and important deadline alerts. You can skip this for now.</div>
+      <div class="ob-field">
+        <label>Mobile Number</label>
+        <input type="tel" id="ob-phone" placeholder="+91 98765 43210" />
+      </div>
+      <div class="ob-actions">
+        <button class="ob-skip" onclick="obGoStep(3)">Skip</button>
+        <button class="ob-next" onclick="obGoStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Done -->
+    <div class="ob-step" id="ob-step-3">
+      <div style="text-align:center;padding:16px 0">
+        <div style="font-size:48px;margin-bottom:16px">🎉</div>
+        <div class="ob-title" style="text-align:center">You're all set!</div>
+        <div class="ob-sub" style="text-align:center">Your dashboard is now personalised for <span id="ob-country-name" style="color:var(--gold);font-weight:600">your region</span>.</div>
+        <button class="ob-next" style="width:100%;margin-top:8px;justify-content:center" onclick="obSave()">Open My Dashboard →</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ── Neural network background canvas ─────────────────────────────────────── -->
 <canvas id="portal-canvas"></canvas>
@@ -1006,9 +1172,11 @@
         <div>
           <div style="font-size:12px;color:#fff;font-weight:500" id="user-name-display">User</div>
           <div class="user-email" id="user-email-display">—</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:1px"><span id="user-flag"></span> <span id="user-country-label"></span></div>
         </div>
       </div>
       <button class="btn-logout" onclick="logout()">Sign Out</button>
+      <div class="sidebar-footer-settings" onclick="openProfileSettings()">⚙ Region &amp; Profile settings</div>
     </div>
   </aside>
 
@@ -1152,7 +1320,36 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ── State ───────────────────────────────────────────────────────────────────── */
-let currentUser  = null;   // { id, email, name, trialEndsAt, subscriptionStatus }
+let currentUser  = null;   // { id, email, name, country, phone, trialEndsAt, subscriptionStatus }
+
+/* ── Country configuration ───────────────────────────────────────────────────── */
+const COUNTRY_CONFIG = {
+  IN: {
+    name: 'India', flag: '🇮🇳', currency: 'INR', symbol: '₹',
+    locale: 'en-IN', dialCode: '+91',
+    calTitle: 'India — GST, TDS, Income Tax & PF/ESI deadlines',
+    calcSubtitle: 'GST, TDS, EMI and compound interest — instant calculations',
+    calcBtn: 'GST / TDS Calc',
+    taxHint: (ar) => ar > 0 ? `Set aside ~${fmtCur(ar * 0.18)} for GST — don't spend collected tax` : null,
+  },
+  US: {
+    name: 'United States', flag: '🇺🇸', currency: 'USD', symbol: '$',
+    locale: 'en-US', dialCode: '+1',
+    calTitle: 'United States — Federal & Payroll Tax Deadlines',
+    calcSubtitle: 'Sales Tax, FICA, Loan EMI and compound interest — instant calculations',
+    calcBtn: 'Sales Tax / FICA Calc',
+    taxHint: (ar) => ar > 0 ? `Consider setting aside ~${fmtCur(ar * 0.25)} for quarterly estimated tax` : null,
+  },
+  AE: {
+    name: 'UAE', flag: '🇦🇪', currency: 'AED', symbol: 'AED ',
+    locale: 'en-AE', dialCode: '+971',
+    calTitle: 'UAE — VAT, Corporate Tax & Excise Deadlines',
+    calcSubtitle: 'VAT, Corporate Tax, Loan EMI and compound interest — instant calculations',
+    calcBtn: 'VAT / Corp Tax Calc',
+    taxHint: (ar) => ar > 0 ? `Set aside ~${fmtCur(ar * 0.05)} for VAT — don't spend collected tax` : null,
+  },
+};
+function countryConfig() { return COUNTRY_CONFIG[currentUser?.country] || COUNTRY_CONFIG.IN; }
 let currentView  = 'dashboard';
 let invoiceItems = [];
 let invCounter   = parseInt(localStorage.getItem('afp_invCounter') || '1');
@@ -1218,7 +1415,7 @@ async function handleSignup(e) {
 async function loadUserAndShow(authUser) {
   const { data: client } = await sb
     .from('clients')
-    .select('name, trial_ends_at, subscription_status')
+    .select('name, trial_ends_at, subscription_status, country, phone')
     .eq('id', authUser.id)
     .maybeSingle();
 
@@ -1226,10 +1423,16 @@ async function loadUserAndShow(authUser) {
     id:                 authUser.id,
     email:              authUser.email,
     name:               client?.name || authUser.email.split('@')[0],
+    country:            client?.country || null,
+    phone:              client?.phone   || null,
     trialEndsAt:        client?.trial_ends_at ? new Date(client.trial_ends_at) : null,
     subscriptionStatus: client?.subscription_status || 'trial',
   };
   showApp();
+  if (!currentUser.country) {
+    // First login — show onboarding after a brief moment for the app to render
+    setTimeout(() => document.getElementById('onboarding-overlay').classList.remove('hidden'), 300);
+  }
 }
 
 /* ── Trial helpers ───────────────────────────────────────────────────────────── */
@@ -1272,6 +1475,11 @@ function showApp() {
 
   const initials = (currentUser.name || currentUser.email)[0].toUpperCase();
   document.getElementById('user-avatar').textContent = initials;
+  const cfg = countryConfig();
+  const flagEl = document.getElementById('user-flag');
+  const lblEl  = document.getElementById('user-country-label');
+  if (flagEl) flagEl.textContent = currentUser.country ? cfg.flag : '';
+  if (lblEl)  lblEl.textContent  = currentUser.country ? cfg.name : '';
   document.getElementById('user-name-display').textContent = currentUser.name || '';
   document.getElementById('user-email-display').textContent = currentUser.email;
 
@@ -1316,6 +1524,68 @@ function toggleSidebar() {
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+/* ── Onboarding ──────────────────────────────────────────────────────────────── */
+let obCountry = null;
+
+function obSelectCountry(code, el) {
+  obCountry = code;
+  document.querySelectorAll('.country-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('ob-next-1').disabled = false;
+  // Pre-fill phone dial code
+  const dial = COUNTRY_CONFIG[code]?.dialCode || '';
+  const ph = document.getElementById('ob-phone');
+  if (ph && !ph.value) ph.value = dial + ' ';
+}
+
+function obGoStep(n) {
+  document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(`ob-step-${n}`).classList.add('active');
+  ['ob-dot-1','ob-dot-2','ob-dot-3'].forEach((id, i) => {
+    const d = document.getElementById(id);
+    if (!d) return;
+    d.className = 'ob-dot ' + (i + 1 < n ? 'done' : i + 1 === n ? 'active' : '');
+  });
+  if (n === 3 && obCountry) {
+    document.getElementById('ob-country-name').textContent = COUNTRY_CONFIG[obCountry]?.name || obCountry;
+  }
+}
+
+async function obSave() {
+  if (!obCountry) { document.getElementById('onboarding-overlay').classList.add('hidden'); return; }
+  const phone = (document.getElementById('ob-phone')?.value || '').trim();
+  // Persist to Supabase
+  await sb.from('clients').update({
+    country: obCountry,
+    phone:   phone || null,
+  }).eq('id', currentUser.id);
+  // Update runtime state
+  currentUser.country = obCountry;
+  currentUser.phone   = phone || null;
+  document.getElementById('onboarding-overlay').classList.add('hidden');
+  updateSidebarCountry();
+  // Re-render current view with new locale
+  renderDashboard();
+}
+
+function updateSidebarCountry() {
+  const cfg = countryConfig();
+  const el = document.getElementById('user-flag');
+  if (el) el.textContent = cfg.flag;
+}
+
+function openProfileSettings() {
+  // Reuse onboarding modal as a settings panel
+  obCountry = currentUser.country || 'IN';
+  document.querySelectorAll('.country-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.country === obCountry);
+  });
+  document.getElementById('ob-phone').value = currentUser.phone || '';
+  document.getElementById('ob-next-1').disabled = false;
+  document.getElementById('onboarding-overlay').classList.remove('hidden');
+  obGoStep(1);
 }
 
 /* ── Auth helper: returns Authorization header for Edge Function calls ──────── */
@@ -1445,8 +1715,7 @@ async function renderDashboard() {
   const overdueInvoices = (d.ar.top || []).filter(inv => inv.due_date && new Date(inv.due_date) < today);
   overdueInvoices.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance));
 
-  // GST estimate (rough: 18% of AR as proxy for GST collected)
-  const gstEstimate = arTotal * 0.18;
+  const taxHint = countryConfig().taxHint(arTotal);
 
   // This week's action items
   const actions = [];
@@ -1457,8 +1726,8 @@ async function renderDashboard() {
   const deadlines = upcomingDeadlines().filter(dl => dl.urgent);
   if (deadlines.length)
     actions.push({ urgent: true,  icon: '📅', text: `${deadlines[0].title} due ${deadlines[0].dateStr} — don't miss it` });
-  if (gstEstimate > 0)
-    actions.push({ urgent: false, icon: '🔒', text: `Set aside ~${fmtCur(gstEstimate)} for GST — don't spend collected tax` });
+  if (taxHint)
+    actions.push({ urgent: false, icon: '🔒', text: taxHint });
   if (!actions.length)
     actions.push({ urgent: false, icon: '✅', text: 'All clear — no urgent actions this week' });
 
@@ -1549,7 +1818,7 @@ async function renderDashboard() {
         <div class="card-title">Bank &amp; Cash</div>
         ${bankRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No accounts found</div>'}
         ${bankRows ? `<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);margin-top:4px"><span>Total Cash</span><span>${fmtCur(bankTotal)}</span></div>` : ''}
-        ${gstEstimate > 0 ? `<div style="margin-top:12px;padding:10px 12px;background:#FFFBEB;border-radius:6px;border:1px solid #FDE68A;font-size:12px;color:#92400E"><strong>GST Reserve:</strong> Set aside ~${fmtCur(gstEstimate)} from collected AR for tax filing.</div>` : ''}
+        ${taxHint ? `<div style="margin-top:12px;padding:10px 12px;background:rgba(201,168,76,0.08);border-radius:6px;border:1px solid rgba(201,168,76,0.2);font-size:12px;color:#E8C96A"><strong>${countryConfig().currency} Reserve:</strong> ${taxHint}</div>` : ''}
       </div>
     </div>
 
@@ -1569,7 +1838,7 @@ async function renderDashboard() {
         <div class="card-title">Quick Actions</div>
         <div class="quick-actions">
           <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
-          <button class="btn btn-outline" onclick="showView('calculators')">GST / TDS Calc</button>
+          <button class="btn btn-outline" onclick="showView('calculators')">${countryConfig().calcBtn}</button>
           <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
         </div>
       </div>
@@ -1578,8 +1847,10 @@ async function renderDashboard() {
 }
 
 function fmtCur(n) {
-  const num = parseFloat(n) || 0;
-  return '$' + Math.abs(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cfg = countryConfig();
+  const num = Math.abs(parseFloat(n) || 0);
+  const str = num.toLocaleString(cfg.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return cfg.symbol + str;
 }
 
 function timeAgo(iso) {
@@ -1614,7 +1885,7 @@ function upcomingDeadlines() {
     .sort((a,b) => a.date - b.date)
     .slice(0, 4)
     .map(e => ({
-      dateStr: e.date.toLocaleDateString('en-IN', { day:'2-digit', month:'short' }),
+      dateStr: e.date.toLocaleDateString(countryConfig().locale, { day:'2-digit', month:'short' }),
       title:   e.title,
       urgent:  (e.date - now) < 5 * 86400000,
     }));
@@ -1873,123 +2144,181 @@ function closePreview() {
    CALCULATORS
 ══════════════════════════════════════════════════════════════════════════════ */
 function renderCalculators() {
-  const el = document.getElementById('view-calculators');
+  const el  = document.getElementById('view-calculators');
+  const cfg = countryConfig();
+  const sym = cfg.symbol;
+  const country = currentUser?.country || 'IN';
+
+  // Tab 1 content varies by country
+  let tab1Label, tab1Html;
+  if (country === 'US') {
+    tab1Label = 'Sales Tax';
+    tab1Html = `
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">Sales Tax Calculator</div>
+        <div class="calc-sub">Calculate sales tax for any US state rate</div>
+        <div class="field"><label>Pre-Tax Amount ($)</label><input type="number" id="st-amount" oninput="calcSalesTax()" placeholder="1000" /></div>
+        <div class="field"><label>State / Local Rate (%)</label><input type="number" id="st-rate" oninput="calcSalesTax()" step="0.001" placeholder="8.5" /></div>
+        <div class="field"><label>Amount Type</label>
+          <select id="st-incl" onchange="calcSalesTax()">
+            <option value="excl">Exclusive — add tax on top</option>
+            <option value="incl">Inclusive — extract tax</option>
+          </select>
+        </div>
+        <div id="st-result" class="result-box hidden"></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px">* Common rates: CA 8.25–10.75%, TX 6.25–8.25%, NY 4–8.875%, FL 6–7.5%, WA 6.5–10.4%</p>
+      </div></div>`;
+  } else if (country === 'AE') {
+    tab1Label = 'VAT Calculator';
+    tab1Html = `
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">VAT Calculator</div>
+        <div class="calc-sub">UAE standard VAT rate — 5%</div>
+        <div class="field"><label>Amount (AED)</label><input type="number" id="vat-amount" oninput="calcVAT()" placeholder="10000" /></div>
+        <div class="field"><label>Amount Type</label>
+          <select id="vat-incl" onchange="calcVAT()">
+            <option value="excl">Exclusive of VAT (add 5%)</option>
+            <option value="incl">Inclusive of VAT (extract 5%)</option>
+          </select>
+        </div>
+        <div id="vat-result" class="result-box hidden"></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px">* Standard UAE VAT rate is 5%. Zero-rated and exempt supplies exist — verify with your FTA advisor.</p>
+      </div></div>`;
+  } else {
+    tab1Label = 'GST Calculator';
+    tab1Html = `
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">GST Calculator</div>
+        <div class="calc-sub">Calculate GST on any amount — intra-state or inter-state</div>
+        <div class="field"><label>Enter Amount (₹)</label><input type="number" id="gst-amount" oninput="calcGST()" placeholder="10000" /></div>
+        <div class="field"><label>GST Rate</label>
+          <select id="gst-rate" onchange="calcGST()">
+            <option value="5">5%</option><option value="12">12%</option>
+            <option value="18" selected>18%</option><option value="28">28%</option>
+          </select>
+        </div>
+        <div class="field"><label>Amount Type</label>
+          <select id="gst-incl" onchange="calcGST()">
+            <option value="excl">Exclusive of GST (add GST on top)</option>
+            <option value="incl">Inclusive of GST (extract GST)</option>
+          </select>
+        </div>
+        <div class="field"><label>Transaction Type</label>
+          <select id="gst-txn" onchange="calcGST()">
+            <option value="intra">Intra-state (CGST + SGST)</option>
+            <option value="inter">Inter-state (IGST)</option>
+          </select>
+        </div>
+        <div id="gst-result" class="result-box hidden"></div>
+      </div></div>`;
+  }
+
+  // Tab 2 content varies by country
+  let tab2Label, tab2Html;
+  if (country === 'US') {
+    tab2Label = 'FICA / Payroll';
+    tab2Html = `
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">FICA / Payroll Tax Calculator</div>
+        <div class="calc-sub">Estimate employee and employer Social Security & Medicare taxes (2024)</div>
+        <div class="field"><label>Annual Gross Salary ($)</label><input type="number" id="fica-salary" oninput="calcFICA()" placeholder="75000" /></div>
+        <div class="field"><label>Pay Frequency</label>
+          <select id="fica-freq" onchange="calcFICA()">
+            <option value="26">Bi-weekly (26 pays/yr)</option>
+            <option value="24">Semi-monthly (24 pays/yr)</option>
+            <option value="12">Monthly (12 pays/yr)</option>
+            <option value="52">Weekly (52 pays/yr)</option>
+          </select>
+        </div>
+        <div id="fica-result" class="result-box hidden"></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px">* SS wage base 2024: $168,600. Additional Medicare 0.9% on wages >$200k. Federal income tax not included.</p>
+      </div></div>`;
+  } else if (country === 'AE') {
+    tab2Label = 'Corporate Tax';
+    tab2Html = `
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">Corporate Tax Calculator</div>
+        <div class="calc-sub">UAE Corporate Tax — 0% on first AED 375,000, then 9%</div>
+        <div class="field"><label>Annual Taxable Profit (AED)</label><input type="number" id="ct-profit" oninput="calcCorpTax()" placeholder="1000000" /></div>
+        <div id="ct-result" class="result-box hidden"></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px">* Applies to businesses registered in UAE mainland. Free zone entities may qualify for 0% if meeting conditions. Verify with a UAE tax advisor.</p>
+      </div></div>`;
+  } else {
+    tab2Label = 'TDS Calculator';
+    tab2Html = `
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">TDS Calculator</div>
+        <div class="calc-sub">Calculate TDS deductible under the Income Tax Act (FY 2024-25)</div>
+        <div class="field"><label>Payment Type</label>
+          <select id="tds-type" onchange="calcTDS()">
+            <option value="194J">Professional / Technical Fees (194J) — 10%</option>
+            <option value="194C-ind">Contractor — Individual (194C) — 1%</option>
+            <option value="194C-co">Contractor — Company (194C) — 2%</option>
+            <option value="194H">Commission / Brokerage (194H) — 5%</option>
+            <option value="194I-land">Rent — Land / Building (194I) — 10%</option>
+            <option value="194I-plant">Rent — Plant &amp; Machinery (194I) — 2%</option>
+            <option value="194A">Interest — Bank FD (194A) — 10%</option>
+            <option value="194D">Insurance Commission (194D) — 5%</option>
+          </select>
+        </div>
+        <div class="field"><label>Payment Amount (₹)</label><input type="number" id="tds-amount" oninput="calcTDS()" placeholder="100000" /></div>
+        <div id="tds-result" class="result-box hidden"></div>
+        <p style="font-size:11px;color:var(--muted);margin-top:12px">* Rates for Resident Indians. Surcharge/cess not included. Verify with current Finance Act.</p>
+      </div></div>`;
+  }
+
   el.innerHTML = `
     <h1 class="page-title">Financial Calculators</h1>
-    <p class="page-sub">GST, TDS, EMI and compound interest — instant calculations</p>
+    <p class="page-sub">${cfg.calcSubtitle}</p>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab(this,'tab-gst')">GST Calculator</button>
-      <button class="tab-btn" onclick="switchTab(this,'tab-tds')">TDS Calculator</button>
-      <button class="tab-btn" onclick="switchTab(this,'tab-emi')">EMI Calculator</button>
+      <button class="tab-btn active" onclick="switchTab(this,'tab-c1')">${tab1Label}</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-c2')">${tab2Label}</button>
+      <button class="tab-btn" onclick="switchTab(this,'tab-emi')">Loan / EMI</button>
       <button class="tab-btn" onclick="switchTab(this,'tab-ci')">Compound Interest</button>
     </div>
 
-    <!-- GST -->
-    <div id="tab-gst" class="tab-panel active">
-      <div style="max-width:480px">
-        <div class="calc-card">
-          <div class="calc-title">GST Calculator</div>
-          <div class="calc-sub">Calculate GST on any amount — intra-state or inter-state</div>
-          <div class="field"><label>Enter Amount (₹)</label><input type="number" id="gst-amount" oninput="calcGST()" placeholder="10000" /></div>
-          <div class="field">
-            <label>GST Rate</label>
-            <select id="gst-rate" onchange="calcGST()">
-              <option value="5">5%</option>
-              <option value="12">12%</option>
-              <option value="18" selected>18%</option>
-              <option value="28">28%</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Amount Type</label>
-            <select id="gst-incl" onchange="calcGST()">
-              <option value="excl">Exclusive of GST (add GST on top)</option>
-              <option value="incl">Inclusive of GST (extract GST)</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Transaction Type</label>
-            <select id="gst-txn" onchange="calcGST()">
-              <option value="intra">Intra-state (CGST + SGST)</option>
-              <option value="inter">Inter-state (IGST)</option>
-            </select>
-          </div>
-          <div id="gst-result" class="result-box hidden"></div>
-        </div>
-      </div>
-    </div>
+    <div id="tab-c1" class="tab-panel active">${tab1Html}</div>
+    <div id="tab-c2" class="tab-panel">${tab2Html}</div>
 
-    <!-- TDS -->
-    <div id="tab-tds" class="tab-panel">
-      <div style="max-width:480px">
-        <div class="calc-card">
-          <div class="calc-title">TDS Calculator</div>
-          <div class="calc-sub">Calculate TDS deductible under the Income Tax Act (FY 2024-25)</div>
-          <div class="field">
-            <label>Payment Type</label>
-            <select id="tds-type" onchange="calcTDS()">
-              <option value="194J">Professional / Technical Fees (194J) — 10%</option>
-              <option value="194C-ind">Contractor — Individual (194C) — 1%</option>
-              <option value="194C-co">Contractor — Company (194C) — 2%</option>
-              <option value="194H">Commission / Brokerage (194H) — 5%</option>
-              <option value="194I-land">Rent — Land / Building (194I) — 10%</option>
-              <option value="194I-plant">Rent — Plant & Machinery (194I) — 2%</option>
-              <option value="194A">Interest — Bank FD (194A) — 10%</option>
-              <option value="194D">Insurance Commission (194D) — 5%</option>
-            </select>
-          </div>
-          <div class="field"><label>Payment Amount (₹)</label><input type="number" id="tds-amount" oninput="calcTDS()" placeholder="100000" /></div>
-          <div id="tds-result" class="result-box hidden"></div>
-          <p style="font-size:11px;color:var(--muted);margin-top:12px">* Rates for Resident Indians. Surcharge/cess not included. Verify with current Finance Act.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- EMI -->
+    <!-- Loan / EMI -->
     <div id="tab-emi" class="tab-panel">
-      <div style="max-width:520px">
-        <div class="calc-card">
-          <div class="calc-title">EMI Calculator</div>
-          <div class="calc-sub">Loan EMI and amortisation breakdown</div>
-          <div class="field"><label>Loan Amount (₹)</label><input type="number" id="emi-principal" oninput="calcEMI()" placeholder="1000000" /></div>
-          <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="emi-rate" oninput="calcEMI()" step="0.1" placeholder="9.5" /></div>
-          <div class="field">
-            <label>Tenure</label>
-            <div style="display:flex;gap:10px;align-items:center">
-              <input type="number" id="emi-tenure" oninput="calcEMI()" style="flex:1" placeholder="5" />
-              <select id="emi-unit" onchange="calcEMI()" style="width:100px">
-                <option value="years">Years</option>
-                <option value="months">Months</option>
-              </select>
-            </div>
+      <div style="max-width:520px"><div class="calc-card">
+        <div class="calc-title">Loan / EMI Calculator</div>
+        <div class="calc-sub">Monthly repayment and full amortisation breakdown</div>
+        <div class="field"><label>Loan Amount (${sym.trim()})</label><input type="number" id="emi-principal" oninput="calcEMI()" placeholder="1000000" /></div>
+        <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="emi-rate" oninput="calcEMI()" step="0.1" placeholder="9.5" /></div>
+        <div class="field">
+          <label>Tenure</label>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="number" id="emi-tenure" oninput="calcEMI()" style="flex:1" placeholder="5" />
+            <select id="emi-unit" onchange="calcEMI()" style="width:100px">
+              <option value="years">Years</option>
+              <option value="months">Months</option>
+            </select>
           </div>
-          <div id="emi-result" class="hidden"></div>
         </div>
-      </div>
+        <div id="emi-result" class="hidden"></div>
+      </div></div>
     </div>
 
     <!-- Compound Interest -->
     <div id="tab-ci" class="tab-panel">
-      <div style="max-width:480px">
-        <div class="calc-card">
-          <div class="calc-title">Compound Interest Calculator</div>
-          <div class="calc-sub">See how your investment grows over time</div>
-          <div class="field"><label>Principal Amount (₹)</label><input type="number" id="ci-principal" oninput="calcCI()" placeholder="100000" /></div>
-          <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="ci-rate" oninput="calcCI()" step="0.1" placeholder="12" /></div>
-          <div class="field"><label>Period (Years)</label><input type="number" id="ci-years" oninput="calcCI()" placeholder="5" /></div>
-          <div class="field">
-            <label>Compounding Frequency</label>
-            <select id="ci-freq" onchange="calcCI()">
-              <option value="1">Annually</option>
-              <option value="2">Half-Yearly</option>
-              <option value="4" selected>Quarterly</option>
-              <option value="12">Monthly</option>
-            </select>
-          </div>
-          <div id="ci-result" class="result-box hidden"></div>
+      <div style="max-width:480px"><div class="calc-card">
+        <div class="calc-title">Compound Interest Calculator</div>
+        <div class="calc-sub">See how your investment grows over time</div>
+        <div class="field"><label>Principal Amount (${sym.trim()})</label><input type="number" id="ci-principal" oninput="calcCI()" placeholder="100000" /></div>
+        <div class="field"><label>Annual Interest Rate (%)</label><input type="number" id="ci-rate" oninput="calcCI()" step="0.1" placeholder="12" /></div>
+        <div class="field"><label>Period (Years)</label><input type="number" id="ci-years" oninput="calcCI()" placeholder="5" /></div>
+        <div class="field">
+          <label>Compounding Frequency</label>
+          <select id="ci-freq" onchange="calcCI()">
+            <option value="1">Annually</option><option value="2">Half-Yearly</option>
+            <option value="4" selected>Quarterly</option><option value="12">Monthly</option>
+          </select>
         </div>
-      </div>
+        <div id="ci-result" class="result-box hidden"></div>
+      </div></div>
     </div>
   `;
 }
@@ -2031,9 +2360,94 @@ function calcGST() {
 
   el.classList.remove('hidden');
   el.innerHTML = `
-    <div class="result-row"><span>Base Amount</span><span>₹${fmt(base)}</span></div>
+    <div class="result-row"><span>Base Amount</span><span>${fmtCur(base)}</span></div>
     ${gstLines}
-    <div class="result-row total"><span>Invoice Total</span><span>₹${fmt(base + gst)}</span></div>
+    <div class="result-row total"><span>Invoice Total</span><span>${fmtCur(base + gst)}</span></div>
+  `;
+}
+
+/* ── US: Sales Tax ────────────────────────────────────────────────────────────── */
+function calcSalesTax() {
+  const amt    = parseFloat(document.getElementById('st-amount')?.value) || 0;
+  const rate   = parseFloat(document.getElementById('st-rate')?.value)   || 0;
+  const isIncl = document.getElementById('st-incl')?.value === 'incl';
+  const el     = document.getElementById('st-result');
+  if (!el) return;
+  if (!amt || !rate) { el.classList.add('hidden'); return; }
+  let base, tax;
+  if (isIncl) { tax = amt * rate / (100 + rate); base = amt - tax; }
+  else        { base = amt; tax = amt * rate / 100; }
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="result-row"><span>Pre-Tax Amount</span><span>${fmtCur(base)}</span></div>
+    <div class="result-row"><span>Sales Tax (${rate}%)</span><span>${fmtCur(tax)}</span></div>
+    <div class="result-row total"><span>Total (incl. tax)</span><span>${fmtCur(base + tax)}</span></div>
+  `;
+}
+
+/* ── US: FICA / Payroll ───────────────────────────────────────────────────────── */
+function calcFICA() {
+  const annual = parseFloat(document.getElementById('fica-salary')?.value) || 0;
+  const pays   = parseInt(document.getElementById('fica-freq')?.value)     || 26;
+  const el     = document.getElementById('fica-result');
+  if (!el) return;
+  if (!annual) { el.classList.add('hidden'); return; }
+  const SS_BASE = 168600, SS_RATE = 0.062, MED_RATE = 0.0145, ADD_MED = 0.009;
+  const ssWages  = Math.min(annual, SS_BASE);
+  const ssEE = ssWages * SS_RATE;
+  const ssER = ssWages * SS_RATE;
+  const medEE = annual * MED_RATE + (annual > 200000 ? (annual - 200000) * ADD_MED : 0);
+  const medER = annual * MED_RATE;
+  const perPay = (g) => fmtCur(g / pays);
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Employee Share (per ${pays}-pay schedule)</div>
+    <div class="result-row"><span>Social Security (6.2%)</span><span>${perPay(ssEE)} / pay · ${fmtCur(ssEE)}/yr</span></div>
+    <div class="result-row"><span>Medicare (1.45%${annual>200000?' +0.9%':''})</span><span>${perPay(medEE)} / pay · ${fmtCur(medEE)}/yr</span></div>
+    <div class="result-row total"><span>Total EE FICA</span><span>${fmtCur((ssEE+medEE)/pays)} / pay</span></div>
+    <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.4px;margin:12px 0 8px">Employer Share</div>
+    <div class="result-row"><span>Social Security (6.2%)</span><span>${fmtCur(ssER)}/yr</span></div>
+    <div class="result-row"><span>Medicare (1.45%)</span><span>${fmtCur(medER)}/yr</span></div>
+    <div class="result-row total"><span>Total ER FICA</span><span>${fmtCur(ssER+medER)}/yr</span></div>
+  `;
+}
+
+/* ── UAE: VAT ─────────────────────────────────────────────────────────────────── */
+function calcVAT() {
+  const amt    = parseFloat(document.getElementById('vat-amount')?.value) || 0;
+  const isIncl = document.getElementById('vat-incl')?.value === 'incl';
+  const el     = document.getElementById('vat-result');
+  if (!el) return;
+  if (!amt) { el.classList.add('hidden'); return; }
+  let base, vat;
+  if (isIncl) { vat = amt * 5 / 105; base = amt - vat; }
+  else        { base = amt; vat = amt * 0.05; }
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="result-row"><span>Base Amount</span><span>${fmtCur(base)}</span></div>
+    <div class="result-row"><span>VAT (5%)</span><span>${fmtCur(vat)}</span></div>
+    <div class="result-row total"><span>Total (incl. VAT)</span><span>${fmtCur(base + vat)}</span></div>
+  `;
+}
+
+/* ── UAE: Corporate Tax ───────────────────────────────────────────────────────── */
+function calcCorpTax() {
+  const profit = parseFloat(document.getElementById('ct-profit')?.value) || 0;
+  const el     = document.getElementById('ct-result');
+  if (!el) return;
+  if (!profit) { el.classList.add('hidden'); return; }
+  const EXEMPT = 375000;
+  const taxable = Math.max(0, profit - EXEMPT);
+  const tax     = taxable * 0.09;
+  const eff     = profit > 0 ? (tax / profit * 100).toFixed(2) : 0;
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="result-row"><span>Total Profit</span><span>${fmtCur(profit)}</span></div>
+    <div class="result-row"><span>Exempt Amount (0%)</span><span>${fmtCur(Math.min(profit, EXEMPT))}</span></div>
+    <div class="result-row"><span>Taxable Above Threshold</span><span>${fmtCur(taxable)}</span></div>
+    <div class="result-row"><span>Corporate Tax @ 9%</span><span>${fmtCur(tax)}</span></div>
+    <div class="result-row total"><span>Net Profit After Tax</span><span>${fmtCur(profit - tax)}</span></div>
+    <div style="text-align:right;font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px">Effective rate: ${eff}%</div>
   `;
 }
 
@@ -2055,10 +2469,10 @@ function calcTDS() {
 
   el.classList.remove('hidden');
   el.innerHTML = `
-    <div class="result-row"><span>Gross Amount</span><span>₹${fmt(amt)}</span></div>
+    <div class="result-row"><span>Gross Amount</span><span>${fmtCur(amt)}</span></div>
     <div class="result-row"><span>TDS Rate</span><span>${(rate*100).toFixed(1)}%</span></div>
-    <div class="result-row"><span>TDS Amount</span><span>₹${fmt(tds)}</span></div>
-    <div class="result-row total"><span>Net Payable</span><span>₹${fmt(net)}</span></div>
+    <div class="result-row"><span>TDS Amount</span><span>${fmtCur(tds)}</span></div>
+    <div class="result-row total"><span>Net Payable</span><span>${fmtCur(net)}</span></div>
   `;
 }
 
@@ -2081,15 +2495,15 @@ function calcEMI() {
   el.innerHTML = `
     <div class="emi-summary">
       <div class="emi-stat">
-        <div class="value">₹${fmt(emi)}</div>
+        <div class="value">${fmtCur(emi)}</div>
         <div class="label">Monthly EMI</div>
       </div>
       <div class="emi-stat">
-        <div class="value">₹${fmt(total)}</div>
+        <div class="value">${fmtCur(total)}</div>
         <div class="label">Total Payment</div>
       </div>
       <div class="emi-stat">
-        <div class="value">₹${fmt(interest)}</div>
+        <div class="value">${fmtCur(interest)}</div>
         <div class="label">Total Interest</div>
       </div>
     </div>
@@ -2110,9 +2524,9 @@ function calcCI() {
 
   el.classList.remove('hidden');
   el.innerHTML = `
-    <div class="result-row"><span>Principal</span><span>₹${fmt(P)}</span></div>
-    <div class="result-row"><span>Interest Earned</span><span>₹${fmt(interest)}</span></div>
-    <div class="result-row total"><span>Maturity Amount</span><span>₹${fmt(maturity)}</span></div>
+    <div class="result-row"><span>Principal</span><span>${fmtCur(P)}</span></div>
+    <div class="result-row"><span>Interest Earned</span><span>${fmtCur(interest)}</span></div>
+    <div class="result-row total"><span>Maturity Amount</span><span>${fmtCur(maturity)}</span></div>
   `;
 }
 
@@ -2120,10 +2534,16 @@ function calcCI() {
    TAX CALENDAR
 ══════════════════════════════════════════════════════════════════════════════ */
 function getTaxEvents(year, month) {
+  const country = currentUser?.country || 'IN';
+  if (country === 'US') return getTaxEventsUS(year, month);
+  if (country === 'AE') return getTaxEventsAE(year, month);
+  return getTaxEventsIN(year, month);
+}
+
+function getTaxEventsIN(year, month) {
   const m = ((month % 12) + 12) % 12;
   const y = year + (month < 0 ? -1 : month > 11 ? 1 : 0);
   const d = (day) => new Date(y, m, day);
-
   const events = [
     { date: d(7),  title: 'TDS Deposit', desc: 'Deposit TDS/TCS collected in previous month', type: 'tds' },
     { date: d(10), title: 'GSTR-7 / GSTR-8', desc: 'TDS/TCS through GST for previous month', type: 'gst' },
@@ -2134,24 +2554,69 @@ function getTaxEvents(year, month) {
     { date: d(25), title: 'GST Composition', desc: 'Quarterly payment for composition scheme dealers', type: 'gst' },
     { date: d(28), title: 'GSTR-11', desc: 'Inward supplies by UIN holders', type: 'gst' },
   ];
-
-  // Advance tax (Q1: Jun 15, Q2: Sep 15, Q3: Dec 15, Q4: Mar 15)
   if ([5,8,11,2].includes(m)) {
     const qtrs = {5:'Q1 (15%)', 8:'Q2 (45%)', 11:'Q3 (75%)', 2:'Q4 (100%)'};
     events.push({ date: d(15), title: `Advance Tax ${qtrs[m]}`, desc: 'Advance income tax installment due', type: 'it' });
   }
-
-  // Annual
   if (m === 6)  events.push({ date: d(31), title: 'ITR Filing Deadline', desc: 'Income Tax Return — individuals & non-audit', type: 'it' });
   if (m === 8)  events.push({ date: d(30), title: 'Tax Audit Report', desc: 'Form 3CA-3CD / 3CB-3CD filing deadline', type: 'it' });
   if (m === 9)  events.push({ date: d(31), title: 'ITR — Audit Cases', desc: 'Income Tax Return for audit-required entities', type: 'it' });
   if (m === 11) events.push({ date: d(31), title: 'GSTR-9 / 9C', desc: 'Annual GST Return and Reconciliation Statement', type: 'gst' });
-
   return events.filter(e => !isNaN(e.date));
 }
 
-const CAL_COLORS = { gst: '#16A34A', tds: '#2563EB', it: '#7C3AED', other: '#D97706' };
-const CAL_LABELS = { gst: 'GST', tds: 'TDS / TCS', it: 'Income Tax', other: 'Other' };
+function getTaxEventsUS(year, month) {
+  const m = ((month % 12) + 12) % 12;
+  const y = year + (month < 0 ? -1 : month > 11 ? 1 : 0);
+  const d = (day) => new Date(y, m, day);
+  const events = [
+    { date: d(15), title: 'Payroll Tax Deposit', desc: 'Monthly 941 payroll tax deposit (if monthly depositor)', type: 'payroll' },
+  ];
+  // Quarterly estimated taxes
+  if (m === 0)  events.push({ date: d(15), title: 'Q4 Estimated Tax Due', desc: 'Form 1040-ES — Q4 estimated income tax payment', type: 'it' });
+  if (m === 3)  events.push({ date: d(15), title: 'Q1 Estimated Tax + Annual Return', desc: 'Form 1040-ES Q1 + Individual (1040) & C-Corp (1120) annual returns due', type: 'it' });
+  if (m === 5)  events.push({ date: d(15), title: 'Q2 Estimated Tax Due', desc: 'Form 1040-ES — Q2 estimated income tax payment', type: 'it' });
+  if (m === 8)  events.push({ date: d(15), title: 'Q3 Estimated Tax Due', desc: 'Form 1040-ES — Q3 estimated income tax payment', type: 'it' });
+  // Key annual
+  if (m === 0)  events.push({ date: d(31), title: 'W-2 / 1099-NEC Furnish', desc: 'Deadline to provide W-2s to employees and 1099-NEC to contractors', type: 'payroll' });
+  if (m === 2)  events.push({ date: d(15), title: 'S-Corp / Partnership Return', desc: 'Form 1120-S (S-Corp) and 1065 (Partnership) annual returns due', type: 'it' });
+  if (m === 8)  events.push({ date: d(15), title: 'S-Corp / Partnership Extension', desc: 'Extended deadline for 6-month extension filers', type: 'it' });
+  if (m === 9)  events.push({ date: d(15), title: 'Individual Extension Deadline', desc: 'Final deadline for extended 1040 returns', type: 'it' });
+  // Quarterly 941 payroll returns
+  if (m === 0)  events.push({ date: d(31), title: '941 Q4 Payroll Return', desc: 'Q4 Employer Quarterly Federal Tax Return (Form 941)', type: 'payroll' });
+  if (m === 3)  events.push({ date: d(30), title: '941 Q1 Payroll Return', desc: 'Q1 Employer Quarterly Federal Tax Return (Form 941)', type: 'payroll' });
+  if (m === 6)  events.push({ date: d(31), title: '941 Q2 Payroll Return', desc: 'Q2 Employer Quarterly Federal Tax Return (Form 941)', type: 'payroll' });
+  if (m === 9)  events.push({ date: d(31), title: '941 Q3 Payroll Return', desc: 'Q3 Employer Quarterly Federal Tax Return (Form 941)', type: 'payroll' });
+  return events.filter(e => !isNaN(e.date));
+}
+
+function getTaxEventsAE(year, month) {
+  const m = ((month % 12) + 12) % 12;
+  const y = year + (month < 0 ? -1 : month > 11 ? 1 : 0);
+  const d = (day) => new Date(y, m, day);
+  const events = [
+    { date: d(15), title: 'Excise Tax Return', desc: 'Monthly excise tax return (if liable)', type: 'vat' },
+  ];
+  // VAT quarterly: due 28 days after quarter end
+  if (m === 3)  events.push({ date: d(28), title: 'VAT Return — Q1 (Jan–Mar)', desc: 'Quarterly VAT return filing & payment via EmaraTax', type: 'vat' });
+  if (m === 6)  events.push({ date: d(28), title: 'VAT Return — Q2 (Apr–Jun)', desc: 'Quarterly VAT return filing & payment via EmaraTax', type: 'vat' });
+  if (m === 9)  events.push({ date: d(28), title: 'VAT Return — Q3 (Jul–Sep)', desc: 'Quarterly VAT return filing & payment via EmaraTax', type: 'vat' });
+  if (m === 0)  events.push({ date: d(28), title: 'VAT Return — Q4 (Oct–Dec)', desc: 'Quarterly VAT return filing & payment via EmaraTax', type: 'vat' });
+  // Corporate Tax (9% on taxable profits > AED 375k) — annual, 9 months after FY end
+  if (m === 8)  events.push({ date: d(30), title: 'Corporate Tax Return', desc: 'Annual CT return via EmaraTax (9 months after FY end for Dec-year-end businesses)', type: 'ct' });
+  if (m === 8)  events.push({ date: d(30), title: 'Economic Substance Report', desc: 'Annual ESR notification/report for qualifying activities', type: 'ct' });
+  if (m === 2)  events.push({ date: d(31), title: 'UBO Register Update', desc: 'Ultimate Beneficial Owner register — confirm or update annually', type: 'ct' });
+  return events.filter(e => !isNaN(e.date));
+}
+
+const CAL_COLORS = {
+  gst: '#16A34A', tds: '#2563EB', it: '#7C3AED', other: '#D97706',
+  payroll: '#0891B2', vat: '#16A34A', ct: '#7C3AED',
+};
+const CAL_LABELS = {
+  gst: 'GST', tds: 'TDS/TCS', it: 'Income Tax', other: 'Other',
+  payroll: 'Payroll', vat: 'VAT', ct: 'Corp Tax',
+};
 
 function renderCalendar() {
   const el = document.getElementById('view-calendar');
@@ -2181,7 +2646,7 @@ function renderCalendar() {
 
   el.innerHTML = `
     <h1 class="page-title">Tax Compliance Calendar</h1>
-    <p class="page-sub">India — GST, TDS, Income Tax and PF/ESI deadlines</p>
+    <p class="page-sub">${countryConfig().calTitle}</p>
 
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>

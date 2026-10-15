@@ -6,7 +6,7 @@ on:
       migration_file:
         description: 'Migration file path (relative to repo root)'
         required: true
-        default: 'portal/supabase/migrations/20241014000002_csv_import_policies.sql'
+        default: 'portal/supabase/migrations/20241015000001_add_country_phone.sql'
 
 jobs:
   migrate:
