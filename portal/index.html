@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AiFinanceo — Client Portal</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><polygon points='114,28 286,28 372,200 286,372 114,372 28,200' fill='%23C9A84C'/><line x1='124.32' y1='268.80' x2='186.24' y2='206.88' stroke='%230B1728' stroke-width='39.56' stroke-linecap='butt'/><line x1='186.24' y1='124.32' x2='282.56' y2='268.80' stroke='%230B1728' stroke-width='39.56' stroke-linecap='butt'/></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><polygon points='114,28 286,28 372,200 286,372 114,372 28,200' fill='%23C9A84C'/><rect x='104' y='260' width='52' height='72' rx='6' fill='%230B1728'/><rect x='174' y='196' width='52' height='136' rx='6' fill='%230B1728'/><rect x='244' y='134' width='52' height='198' rx='6' fill='%230B1728'/></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -756,10 +756,23 @@
     }
 
     @media print {
+      @page { size: A4 portrait; margin: 14mm 16mm; }
       body * { visibility: hidden; }
       #invoice-preview, #invoice-preview * { visibility: visible; }
-      #invoice-preview { position: static; background: none; padding: 0; }
-      .inv-footer-actions { display: none; }
+      #invoice-preview {
+        position: fixed; inset: 0;
+        background: #fff; padding: 0;
+        display: flex; align-items: flex-start; justify-content: center;
+      }
+      .inv-sheet {
+        max-width: none !important;
+        width: 100% !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        font-size: 10.5pt;
+      }
+      .inv-footer-actions { display: none !important; }
     }
 
     /* ── Import wizard ───────────────────────────────────────────────────────── */
@@ -992,8 +1005,9 @@
     <div class="ob-logo">
       <svg width="28" height="28" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
-        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
+        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
+        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
       </svg>
       <span class="ob-logo-name">Ai<span>Financeo</span></span>
     </div>
@@ -1067,8 +1081,9 @@
     <div class="login-brand">
       <svg width="36" height="36" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
-        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
+        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
+        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
       </svg>
       <span class="login-brand-name">AI<span>Finance</span>o</span>
     </div>
@@ -1159,8 +1174,9 @@
     <div class="sidebar-header">
       <svg width="30" height="30" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
-        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
+        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
+        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
       </svg>
       <span class="sidebar-brand">AI<span>Finance</span>o</span>
     </div>
@@ -1672,8 +1688,9 @@ async function renderDashboard() {
       </div>
       <svg width="80" height="80" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
         <polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/>
-        <line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
-        <line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/>
+        <rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/>
+        <rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/>
+        <rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/>
       </svg>
     </div>
     <div id="dash-body"><div style="color:var(--muted);padding:20px 0">Loading financial data…</div></div>
@@ -1927,12 +1944,30 @@ function upcomingDeadlines() {
    INVOICE GENERATOR
 ══════════════════════════════════════════════════════════════════════════════ */
 function renderInvoices() {
-  if (!invoiceItems.length) invoiceItems = [{ desc: '', qty: 1, rate: '', gst: 18 }];
+  const cfg     = countryConfig();
+  const country = currentUser?.country || 'IN';
+  const sym     = cfg.symbol;
+  const isIN    = country === 'IN';
+  const isUS    = country === 'US';
+  const isAE    = country === 'AE';
+
+  // Default tax rate per country
+  const defaultTax = isIN ? 18 : isAE ? 5 : 0;
+  if (!invoiceItems.length) invoiceItems = [{ desc: '', qty: 1, rate: '', gst: defaultTax }];
+
+  // Country-specific labels
+  const taxIdLabel   = isIN ? 'GSTIN'             : isAE ? 'TRN'          : 'EIN / Tax ID';
+  const taxIdPh      = isIN ? '27AABCA1234A1Z5'   : isAE ? '100123456700003' : '12-3456789';
+  const taxColLabel  = isIN ? 'GST %'             : isAE ? 'VAT %'        : 'Tax %';
+  const addrDefault  = isIN ? 'Pune, Maharashtra, India' : isAE ? 'Dubai, UAE' : 'New York, USA';
+  const invoiceSub   = isIN ? 'Professional GST-compliant invoices'
+                     : isAE ? 'VAT-compliant invoices for UAE businesses'
+                     : 'Professional invoices with sales tax';
 
   const el = document.getElementById('view-invoices');
   el.innerHTML = `
     <h1 class="page-title">Invoice Generator</h1>
-    <p class="page-sub">Create and download professional GST invoices</p>
+    <p class="page-sub">${invoiceSub}</p>
 
     <div class="invoice-layout">
       <!-- Left: form -->
@@ -1943,15 +1978,15 @@ function renderInvoices() {
             <div>
               <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">YOUR DETAILS</div>
               <div class="field"><label>Business Name</label><input id="from-name" value="AiFinanceo" /></div>
-              <div class="field"><label>GSTIN</label><input id="from-gstin" placeholder="27AABCA1234A1Z5" /></div>
-              <div class="field"><label>Address</label><input id="from-addr" value="Pune, Maharashtra, India" /></div>
+              <div class="field"><label>${taxIdLabel}</label><input id="from-gstin" placeholder="${taxIdPh}" /></div>
+              <div class="field"><label>Address</label><input id="from-addr" value="${addrDefault}" /></div>
               <div class="field"><label>Email</label><input id="from-email" value="info@aifinanceo.com" /></div>
             </div>
             <div>
               <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px">BILL TO</div>
               <div class="field"><label>Client Name</label><input id="to-name" placeholder="Client Company Ltd." /></div>
-              <div class="field"><label>GSTIN</label><input id="to-gstin" placeholder="Optional" /></div>
-              <div class="field"><label>Address</label><input id="to-addr" placeholder="City, State" /></div>
+              <div class="field"><label>${taxIdLabel}</label><input id="to-gstin" placeholder="Optional" /></div>
+              <div class="field"><label>Address</label><input id="to-addr" placeholder="City${isUS ? ', State' : ''}" /></div>
               <div class="field"><label>Email</label><input id="to-email" placeholder="client@example.com" /></div>
             </div>
           </div>
@@ -1971,9 +2006,9 @@ function renderInvoices() {
                 <tr>
                   <th>Description</th>
                   <th style="width:70px">Qty</th>
-                  <th style="width:110px">Rate (₹)</th>
-                  <th style="width:90px">GST %</th>
-                  <th style="width:100px;text-align:right">Amount</th>
+                  <th style="width:120px">Rate (${sym})</th>
+                  <th style="width:90px">${taxColLabel}</th>
+                  <th style="width:110px;text-align:right">Amount</th>
                   <th style="width:40px"></th>
                 </tr>
               </thead>
@@ -1983,15 +2018,15 @@ function renderInvoices() {
           <button class="btn btn-outline btn-sm" style="margin-top:12px" onclick="addItem()">+ Add Row</button>
         </div>
 
-        <!-- GST type -->
+        <!-- Tax type (India only) / Notes -->
         <div class="card" style="margin-bottom:16px">
-          <div class="field">
+          ${isIN ? `<div class="field">
             <label>GST Type</label>
-            <select id="gst-type" onchange="renderItemsTable()">
+            <select id="gst-type" onchange="recalculate()">
               <option value="intra">Intra-state (CGST + SGST)</option>
               <option value="inter">Inter-state (IGST)</option>
             </select>
-          </div>
+          </div>` : ''}
           <div class="field">
             <label>Notes / Terms</label>
             <textarea id="inv-notes" rows="2" style="resize:none" placeholder="Payment within 30 days. Bank transfer preferred."></textarea>
@@ -2003,9 +2038,7 @@ function renderInvoices() {
       <div>
         <div class="card" style="position:sticky;top:20px">
           <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px">SUMMARY</div>
-          <div class="totals-box" id="totals-box">
-            <!-- Filled by recalculate() -->
-          </div>
+          <div class="totals-box" id="totals-box"></div>
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
             <button class="btn btn-gold" onclick="previewInvoice()" style="justify-content:center;width:100%">
               👁 Preview &amp; Print PDF
@@ -2018,13 +2051,13 @@ function renderInvoices() {
 
   renderItemsTable();
   recalculate();
-
-  // Re-calc on any field change
   el.addEventListener('input', recalculate);
 }
 
 function addItem() {
-  invoiceItems.push({ desc: '', qty: 1, rate: '', gst: 18 });
+  const country = currentUser?.country || 'IN';
+  const defaultTax = country === 'AE' ? 5 : country === 'US' ? 0 : 18;
+  invoiceItems.push({ desc: '', qty: 1, rate: '', gst: defaultTax });
   renderItemsTable();
 }
 
@@ -2038,6 +2071,11 @@ function removeItem(i) {
 function renderItemsTable() {
   const tbody = document.getElementById('items-body');
   if (!tbody) return;
+  const country = currentUser?.country || 'IN';
+  const cfg     = countryConfig();
+  const taxRates = country === 'AE' ? [0, 5]
+                 : country === 'US' ? [0, 5, 6, 7, 8, 9, 10]
+                 : [0, 5, 12, 18, 28];
   tbody.innerHTML = invoiceItems.map((item, i) => `
     <tr>
       <td><input value="${esc(item.desc)}" oninput="invoiceItems[${i}].desc=this.value" placeholder="Service description" /></td>
@@ -2045,10 +2083,10 @@ function renderItemsTable() {
       <td><input type="number" min="0" value="${item.rate}" oninput="invoiceItems[${i}].rate=+this.value;recalculate()" placeholder="0.00" /></td>
       <td>
         <select onchange="invoiceItems[${i}].gst=+this.value;recalculate()">
-          ${[0,5,12,18,28].map(r => `<option value="${r}" ${item.gst==r?'selected':''}>${r}%</option>`).join('')}
+          ${taxRates.map(r => `<option value="${r}" ${item.gst==r?'selected':''}>${r}%</option>`).join('')}
         </select>
       </td>
-      <td style="text-align:right;font-weight:500">₹${fmt((item.qty||1) * (item.rate||0))}</td>
+      <td style="text-align:right;font-weight:500">${cfg.symbol}${fmt((item.qty||1) * (item.rate||0))}</td>
       <td><button class="remove-item" onclick="removeItem(${i})" title="Remove">✕</button></td>
     </tr>
   `).join('');
@@ -2057,71 +2095,89 @@ function renderItemsTable() {
 function recalculate() {
   const box = document.getElementById('totals-box');
   if (!box) return;
-  const isInter = document.getElementById('gst-type')?.value === 'inter';
+  const country = currentUser?.country || 'IN';
+  const cfg     = countryConfig();
+  const sym     = cfg.symbol;
+  const isIN    = country === 'IN';
+  const isAE    = country === 'AE';
+  const isInter = isIN && document.getElementById('gst-type')?.value === 'inter';
 
-  let subtotal = 0, gstTotal = 0;
-  const gstGroups = {};
+  let subtotal = 0, taxTotal = 0;
+  const taxGroups = {};
 
   invoiceItems.forEach(item => {
     const amt = (item.qty || 1) * (item.rate || 0);
     subtotal += amt;
-    const gstAmt = amt * (item.gst || 0) / 100;
-    gstTotal += gstAmt;
-    if (item.gst > 0) {
-      gstGroups[item.gst] = (gstGroups[item.gst] || 0) + gstAmt;
-    }
+    const taxAmt = amt * (item.gst || 0) / 100;
+    taxTotal += taxAmt;
+    if (item.gst > 0) taxGroups[item.gst] = (taxGroups[item.gst] || 0) + taxAmt;
   });
 
-  const gstLines = Object.entries(gstGroups).map(([r, amt]) => {
-    if (isInter) return `<div class="totals-row"><span>IGST @ ${r}%</span><span>₹${fmt(amt)}</span></div>`;
-    return `<div class="totals-row"><span>CGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>
-            <div class="totals-row"><span>SGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>`;
+  const taxLines = Object.entries(taxGroups).map(([r, amt]) => {
+    if (isIN) {
+      if (isInter) return `<div class="totals-row"><span>IGST @ ${r}%</span><span>${sym}${fmt(amt)}</span></div>`;
+      return `<div class="totals-row"><span>CGST @ ${r/2}%</span><span>${sym}${fmt(amt/2)}</span></div>
+              <div class="totals-row"><span>SGST @ ${r/2}%</span><span>${sym}${fmt(amt/2)}</span></div>`;
+    }
+    const label = isAE ? `VAT @ ${r}%` : `Sales Tax @ ${r}%`;
+    return `<div class="totals-row"><span>${label}</span><span>${sym}${fmt(amt)}</span></div>`;
   }).join('');
 
   box.innerHTML = `
-    <div class="totals-row"><span>Subtotal</span><span>₹${fmt(subtotal)}</span></div>
-    ${gstLines}
-    <div class="totals-row grand"><span>Total</span><span>₹${fmt(subtotal + gstTotal)}</span></div>
+    <div class="totals-row"><span>Subtotal</span><span>${sym}${fmt(subtotal)}</span></div>
+    ${taxLines}
+    <div class="totals-row grand"><span>Total</span><span>${sym}${fmt(subtotal + taxTotal)}</span></div>
   `;
 }
 
 function previewInvoice() {
-  const isInter = document.getElementById('gst-type')?.value === 'inter';
-  const fromName  = v('from-name'),  fromGST = v('from-gstin'), fromAddr = v('from-addr'), fromEmail = v('from-email');
-  const toName    = v('to-name'),    toGST   = v('to-gstin'),   toAddr   = v('to-addr'),   toEmail  = v('to-email');
-  const invNum    = v('inv-number'), invDate = v('inv-date'),   invDue   = v('inv-due');
+  const country  = currentUser?.country || 'IN';
+  const cfg      = countryConfig();
+  const sym      = cfg.symbol;
+  const isIN     = country === 'IN';
+  const isAE     = country === 'AE';
+  const isInter  = isIN && document.getElementById('gst-type')?.value === 'inter';
+  const taxIdLbl = isIN ? 'GSTIN' : isAE ? 'TRN' : 'EIN';
+
+  const fromName  = v('from-name'), fromGST = v('from-gstin'), fromAddr = v('from-addr'), fromEmail = v('from-email');
+  const toName    = v('to-name'),   toGST   = v('to-gstin'),   toAddr   = v('to-addr'),   toEmail   = v('to-email');
+  const invNum    = v('inv-number'), invDate = v('inv-date'),   invDue  = v('inv-due');
   const notes     = v('inv-notes');
 
-  let subtotal = 0, gstTotal = 0;
-  const gstGroups = {};
+  let subtotal = 0, taxTotal = 0;
+  const taxGroups = {};
   const rows = invoiceItems.map(item => {
     const amt = (item.qty || 1) * (item.rate || 0);
     subtotal += amt;
-    const gstAmt = amt * (item.gst || 0) / 100;
-    gstTotal += gstAmt;
-    if (item.gst > 0) gstGroups[item.gst] = (gstGroups[item.gst] || 0) + gstAmt;
+    const taxAmt = amt * (item.gst || 0) / 100;
+    taxTotal += taxAmt;
+    if (item.gst > 0) taxGroups[item.gst] = (taxGroups[item.gst] || 0) + taxAmt;
     return `<tr>
       <td>${esc(item.desc) || '—'}</td>
       <td style="text-align:right">${item.qty}</td>
-      <td style="text-align:right">₹${fmt(item.rate||0)}</td>
-      <td style="text-align:right">₹${fmt(amt)}</td>
+      <td style="text-align:right">${sym}${fmt(item.rate||0)}</td>
+      <td style="text-align:right">${sym}${fmt(amt)}</td>
     </tr>`;
   }).join('');
 
-  const gstLines = Object.entries(gstGroups).map(([r,amt]) => {
-    if (isInter) return `<div class="inv-trow"><span>IGST @ ${r}%</span><span>₹${fmt(amt)}</span></div>`;
-    return `<div class="inv-trow"><span>CGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>
-            <div class="inv-trow"><span>SGST @ ${r/2}%</span><span>₹${fmt(amt/2)}</span></div>`;
+  const taxLines = Object.entries(taxGroups).map(([r, amt]) => {
+    if (isIN) {
+      if (isInter) return `<div class="inv-trow"><span>IGST @ ${r}%</span><span>${sym}${fmt(amt)}</span></div>`;
+      return `<div class="inv-trow"><span>CGST @ ${r/2}%</span><span>${sym}${fmt(amt/2)}</span></div>
+              <div class="inv-trow"><span>SGST @ ${r/2}%</span><span>${sym}${fmt(amt/2)}</span></div>`;
+    }
+    const label = isAE ? `VAT @ ${r}%` : `Sales Tax @ ${r}%`;
+    return `<div class="inv-trow"><span>${label}</span><span>${sym}${fmt(amt)}</span></div>`;
   }).join('');
 
   document.getElementById('inv-sheet-content').innerHTML = `
     <div class="inv-header">
       <div>
         <div class="inv-logo-row">
-          <svg width="32" height="32" viewBox="0 0 400 400"><polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/><line x1="124.32" y1="268.80" x2="186.24" y2="206.88" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/><line x1="186.24" y1="124.32" x2="282.56" y2="268.80" stroke="#0B1728" stroke-width="39.56" stroke-linecap="butt"/></svg>
+          <svg width="32" height="32" viewBox="0 0 400 400"><polygon points="114,28 286,28 372,200 286,372 114,372 28,200" fill="#C9A84C"/><rect x="104" y="260" width="52" height="72" rx="6" fill="#0B1728"/><rect x="174" y="196" width="52" height="136" rx="6" fill="#0B1728"/><rect x="244" y="134" width="52" height="198" rx="6" fill="#0B1728"/></svg>
           <strong style="font-size:16px;color:#0B1728;font-family:Georgia,serif">${esc(fromName)}</strong>
         </div>
-        <div class="inv-company">${esc(fromAddr)}<br>${esc(fromEmail)}${fromGST ? '<br>GSTIN: '+esc(fromGST) : ''}</div>
+        <div class="inv-company">${esc(fromAddr)}<br>${esc(fromEmail)}${fromGST ? `<br>${taxIdLbl}: ${esc(fromGST)}` : ''}</div>
       </div>
       <div>
         <div class="inv-tag">INVOICE</div>
@@ -2136,7 +2192,7 @@ function previewInvoice() {
     <div class="inv-parties">
       <div class="inv-party">
         <h4>Bill To</h4>
-        <p><strong>${esc(toName) || '—'}</strong><br>${esc(toAddr) || ''}${toGST ? '<br>GSTIN: '+esc(toGST) : ''}${toEmail ? '<br>'+esc(toEmail) : ''}</p>
+        <p><strong>${esc(toName) || '—'}</strong><br>${esc(toAddr) || ''}${toGST ? `<br>${taxIdLbl}: ${esc(toGST)}` : ''}${toEmail ? '<br>'+esc(toEmail) : ''}</p>
       </div>
     </div>
 
@@ -2147,9 +2203,9 @@ function previewInvoice() {
 
     <div class="clearfix">
       <div class="inv-totals">
-        <div class="inv-trow"><span>Subtotal</span><span>₹${fmt(subtotal)}</span></div>
-        ${gstLines}
-        <div class="inv-trow grand"><span>Total</span><span>₹${fmt(subtotal + gstTotal)}</span></div>
+        <div class="inv-trow"><span>Subtotal</span><span>${sym}${fmt(subtotal)}</span></div>
+        ${taxLines}
+        <div class="inv-trow grand"><span>Total</span><span>${sym}${fmt(subtotal + taxTotal)}</span></div>
       </div>
     </div>
 
@@ -2162,8 +2218,6 @@ function previewInvoice() {
   `;
 
   document.getElementById('invoice-preview').style.display = 'block';
-
-  // Increment counter after first preview
   invCounter++;
   localStorage.setItem('afp_invCounter', invCounter);
 }
