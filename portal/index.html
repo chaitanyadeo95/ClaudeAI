@@ -1828,6 +1828,16 @@ async function syncNow() {
   }
 }
 
+function switchDashTab(tab) {
+  document.querySelectorAll('.dash-tab-btn').forEach(b => {
+    b.style.color       = b.dataset.tab === tab ? 'var(--gold)'  : 'var(--muted)';
+    b.style.borderBottom= b.dataset.tab === tab ? '2px solid var(--gold)' : '2px solid transparent';
+  });
+  document.querySelectorAll('.dash-tab-panel').forEach(p => {
+    p.style.display = p.dataset.tab === tab ? 'block' : 'none';
+  });
+}
+
 async function renderDashboard() {
   const el   = document.getElementById('view-dashboard');
   const name = currentUser.name || 'there';
@@ -2024,87 +2034,340 @@ async function renderDashboard() {
       <span style="font-weight:600;color:${a.balance >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmtCur(a.balance)}</span>
     </div>`).join('');
 
+  // ── Build AR aging bar ──────────────────────────────────────────────────
+  const ag = d.ar.aging || {};
+  const agTotal = (ag.current||0)+(ag.d1_30||0)+(ag.d31_60||0)+(ag.d61_90||0)+(ag.d90plus||0);
+  function agPct(v){ return agTotal > 0 ? ((v/agTotal)*100).toFixed(1) : 0; }
+  const agingBar = agTotal > 0 ? `
+    <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:10px">
+      <div style="width:${agPct(ag.current)}%;background:#22c55e" title="Current: ${fmtCur(ag.current)}"></div>
+      <div style="width:${agPct(ag.d1_30)}%;background:#eab308" title="1-30d: ${fmtCur(ag.d1_30)}"></div>
+      <div style="width:${agPct(ag.d31_60)}%;background:#f97316" title="31-60d: ${fmtCur(ag.d31_60)}"></div>
+      <div style="width:${agPct(ag.d61_90)}%;background:#ef4444" title="61-90d: ${fmtCur(ag.d61_90)}"></div>
+      <div style="width:${agPct(ag.d90plus)}%;background:#7f1d1d" title="90+d: ${fmtCur(ag.d90plus)}"></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;margin-bottom:16px">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px"></span>Current ${fmtCur(ag.current)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#eab308;margin-right:4px"></span>1–30d ${fmtCur(ag.d1_30)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f97316;margin-right:4px"></span>31–60d ${fmtCur(ag.d31_60)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:4px"></span>61–90d ${fmtCur(ag.d61_90)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#7f1d1d;margin-right:4px"></span>90+d ${fmtCur(ag.d90plus)}</span>
+    </div>` : '<div style="color:var(--muted);font-size:13px;padding:8px 0">No open receivables</div>';
+
+  // ── AP aging bar ────────────────────────────────────────────────────────
+  const apag = d.ap.aging || {};
+  const apagTotal = (apag.current||0)+(apag.d1_30||0)+(apag.d31_60||0)+(apag.d61_90||0)+(apag.d90plus||0);
+  function apagPct(v){ return apagTotal > 0 ? ((v/apagTotal)*100).toFixed(1) : 0; }
+  const apAgingBar = apagTotal > 0 ? `
+    <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:10px">
+      <div style="width:${apagPct(apag.current)}%;background:#22c55e"></div>
+      <div style="width:${apagPct(apag.d1_30)}%;background:#eab308"></div>
+      <div style="width:${apagPct(apag.d31_60)}%;background:#f97316"></div>
+      <div style="width:${apagPct(apag.d61_90)}%;background:#ef4444"></div>
+      <div style="width:${apagPct(apag.d90plus)}%;background:#7f1d1d"></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:11px;margin-bottom:16px">
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px"></span>Current ${fmtCur(apag.current)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#eab308;margin-right:4px"></span>1–30d ${fmtCur(apag.d1_30)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f97316;margin-right:4px"></span>31–60d ${fmtCur(apag.d31_60)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:4px"></span>61–90d ${fmtCur(apag.d61_90)}</span>
+      <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#7f1d1d;margin-right:4px"></span>90+d ${fmtCur(apag.d90plus)}</span>
+    </div>` : '<div style="color:var(--muted);font-size:13px;padding:8px 0">No open payables</div>';
+
+  // ── Customer concentration rows ──────────────────────────────────────────
+  const concRows = (d.ar.customer_concentration || []).map(c => `
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(c.name)}</div>
+        <div style="height:4px;border-radius:2px;background:rgba(201,168,76,0.15);margin-top:4px">
+          <div style="width:${c.pct}%;height:4px;border-radius:2px;background:var(--gold)"></div>
+        </div>
+      </div>
+      <div style="text-align:right;white-space:nowrap">
+        <div style="font-size:13px;font-weight:700">${fmtCur(c.balance)}</div>
+        <div style="font-size:11px;color:${c.pct > 30 ? 'var(--danger)' : 'var(--muted)'}">${c.pct}%${c.pct > 30 ? ' ⚠' : ''}</div>
+      </div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No data</div>';
+
+  // ── Vendor concentration rows ────────────────────────────────────────────
+  const vendorRows = (d.ap.vendor_concentration || []).map(v => `
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(v.name)}</div>
+        <div style="height:4px;border-radius:2px;background:rgba(201,168,76,0.15);margin-top:4px">
+          <div style="width:${v.pct}%;height:4px;border-radius:2px;background:#f97316"></div>
+        </div>
+      </div>
+      <div style="text-align:right;white-space:nowrap">
+        <div style="font-size:13px;font-weight:700">${fmtCur(v.balance)}</div>
+        <div style="font-size:11px;color:${v.pct > 30 ? 'var(--danger)' : 'var(--muted)'}">${v.pct}%${v.pct > 30 ? ' ⚠' : ''}</div>
+      </div>
+    </div>`).join('') || '<div style="color:var(--muted);font-size:13px;padding:8px 0">No data</div>';
+
+  // ── Duplicate bill rows ──────────────────────────────────────────────────
+  const dupRows = (d.ap.duplicates || []).slice(0, 10).map(dup => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.2);border-radius:6px;margin-bottom:6px">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--danger)">${esc(dup.vendor)}</div>
+        <div style="font-size:11px;color:var(--muted)">${esc(dup.bill1)} &amp; ${esc(dup.bill2)} · ${dup.days_apart}d apart</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--danger)">${fmtCur(dup.amount)}</div>
+    </div>`).join('') || '';
+
+  // ── AR cash-in forecast rows ─────────────────────────────────────────────
+  const arFcstRows = (d.ar.cash_forecast || []).map(w => `
+    <tr>
+      <td style="padding:7px 8px;font-size:12px;color:var(--muted)">Wk ${w.week}</td>
+      <td style="padding:7px 8px;font-size:12px;color:var(--muted)">${w.week_start}</td>
+      <td style="padding:7px 8px;font-size:13px;font-weight:600;color:${w.amount > 0 ? 'var(--success)' : 'var(--muted)'};text-align:right">${fmtCur(w.amount)}</td>
+    </tr>`).join('');
+
+  // ── 13-week combined forecast rows ──────────────────────────────────────
+  const fc13Rows = (d.forecast_13w || []).map(w => {
+    const closingColor = w.closing < 0 ? 'var(--danger)' : w.closing < w.opening * 0.5 ? 'var(--warning)' : 'var(--success)';
+    return `
+    <tr>
+      <td style="padding:7px 8px;font-size:12px;color:var(--muted)">Wk ${w.week}</td>
+      <td style="padding:7px 8px;font-size:12px;color:var(--muted)">${w.week_start}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right">${fmtCur(w.opening)}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right;color:var(--success)">${w.inflows > 0 ? '+'+fmtCur(w.inflows) : '—'}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right;color:var(--danger)">${w.outflows > 0 ? '-'+fmtCur(w.outflows) : '—'}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right;color:${w.net >= 0 ? 'var(--success)' : 'var(--danger)'};font-weight:600">${w.net >= 0 ? '+' : ''}${fmtCur(w.net)}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right;font-weight:700;color:${closingColor}">${fmtCur(w.closing)}</td>
+    </tr>`;
+  }).join('');
+
+  const thStyle = 'padding:6px 8px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;text-align:right;border-bottom:1px solid var(--border)';
+  const thStyleL = thStyle.replace('text-align:right','text-align:left');
+
+  // ── Metric helper ────────────────────────────────────────────────────────
+  function metricCard(label, value, sub, color) {
+    return `<div class="card stat-card">
+      <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${label}</div>
+      <div style="font-size:22px;font-weight:700;color:${color||'var(--navy)'};">${value}</div>
+      ${sub ? `<div style="font-size:12px;color:var(--muted);margin-top:4px">${sub}</div>` : ''}
+    </div>`;
+  }
+
+  const dsoColor  = d.ar.dso === null ? 'var(--muted)' : d.ar.dso > 60 ? 'var(--danger)' : d.ar.dso > 30 ? 'var(--warning)' : 'var(--success)';
+  const addColor  = d.ar.avg_days_delinquent === null ? 'var(--muted)' : d.ar.avg_days_delinquent > 15 ? 'var(--danger)' : d.ar.avg_days_delinquent > 5 ? 'var(--warning)' : 'var(--success)';
+  const dpoColor  = d.ap.dpo === null ? 'var(--muted)' : d.ap.dpo > 60 ? 'var(--success)' : 'var(--warning)';
+  const cccColor  = d.ap.ccc === null ? 'var(--muted)' : d.ap.ccc < 0 ? 'var(--success)' : d.ap.ccc < 30 ? 'var(--warning)' : 'var(--danger)';
+
   body.innerHTML = `
-
-    <!-- ── Action strip ─────────────────────────────────────────────────── -->
-    <div class="card" style="margin-bottom:20px;border-left:4px solid var(--gold)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="font-weight:600;font-size:14px;color:var(--navy)">This Week — Focus On</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;color:var(--muted)" id="sync-note">${syncNote}</span>
-          <button id="sync-btn" onclick="syncNow()" style="font-size:11px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Sync Now</button>
-          ${d.qbConnected ? `<button onclick="disconnectQuickBooks()" style="font-size:11px;padding:3px 10px;border:1px solid rgba(239,68,68,0.4);color:rgba(239,68,68,0.8);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Disconnect QB</button>` : ''}
-        </div>
-      </div>
-      ${actions.map(a => `
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-top:1px solid var(--border)">
-          <span style="font-size:15px;margin-top:1px">${a.icon}</span>
-          <span style="font-size:13px;color:${a.urgent ? 'var(--text)' : 'var(--muted)'};font-weight:${a.urgent ? '500' : '400'}">${a.text}</span>
-          ${a.urgent ? '<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--danger);white-space:nowrap;padding-top:2px">ACTION</span>' : ''}
-        </div>`).join('')}
-    </div>
-
-    <!-- ── Key numbers ──────────────────────────────────────────────────── -->
-    <div class="grid-4" style="margin-bottom:20px">
-      <div class="card stat-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Cash Position</div>
-        <div style="font-size:22px;font-weight:700;color:var(--navy)">${fmtCur(bankTotal)}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">${d.bank.accounts.length} account${d.bank.accounts.length !== 1 ? 's' : ''}</div>
-      </div>
-      <div class="card stat-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Cash Runway</div>
-        <div style="font-size:22px;font-weight:700;color:${runwayColor}">${runwayText}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">vs outstanding bills</div>
-      </div>
-      <div class="card stat-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Money to Collect</div>
-        <div style="font-size:22px;font-weight:700;color:var(--navy)">${fmtCur(arTotal)}</div>
-        <div style="font-size:12px;color:${d.ar.overdue ? 'var(--danger)' : 'var(--muted)'};margin-top:4px;font-weight:${d.ar.overdue ? '600' : '400'}">${d.ar.overdue ? `${d.ar.overdue} overdue` : `${d.ar.count} invoices`}</div>
-      </div>
-      <div class="card stat-card">
-        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Bills to Pay</div>
-        <div style="font-size:22px;font-weight:700;color:${paymentRisk ? 'var(--danger)' : 'var(--navy)}'}">${fmtCur(apTotal)}</div>
-        <div style="font-size:12px;color:${paymentRisk ? 'var(--danger)' : 'var(--muted)'};margin-top:4px;font-weight:${paymentRisk ? '600' : '400'}">${paymentRisk ? 'Insufficient funds' : `${d.ap.count} bills`}</div>
+    <!-- ── Tab nav ───────────────────────────────────────────────────────── -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto">
+      <button class="dash-tab-btn" data-tab="overview"    onclick="switchDashTab('overview')"    style="background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold);padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">Overview</button>
+      <button class="dash-tab-btn" data-tab="ar"          onclick="switchDashTab('ar')"          style="background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">AR Intelligence</button>
+      <button class="dash-tab-btn" data-tab="ap"          onclick="switchDashTab('ap')"          style="background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">AP Intelligence</button>
+      <button class="dash-tab-btn" data-tab="forecast"    onclick="switchDashTab('forecast')"    style="background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">13-Week Forecast</button>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:0 4px">
+        <span style="font-size:11px;color:var(--muted)" id="sync-note">${syncNote}</span>
+        <button id="sync-btn" onclick="syncNow()" style="font-size:11px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Sync Now</button>
+        ${d.qbConnected ? `<button onclick="disconnectQuickBooks()" style="font-size:11px;padding:3px 10px;border:1px solid rgba(239,68,68,0.4);color:rgba(239,68,68,0.8);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Disconnect QB</button>` : ''}
       </div>
     </div>
 
-    <!-- ── Collection priority + Bank ──────────────────────────────────── -->
-    <div class="grid-2" style="margin-bottom:20px">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <div class="card-title" style="margin:0">Collection Priority</div>
-          <span style="font-size:11px;color:var(--muted)">Largest first</span>
-        </div>
-        ${collectionRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No open invoices — great!</div>'}
-        ${d.ar.count > 5 ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">${d.ar.count - 5} more not shown</div>` : ''}
-      </div>
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: OVERVIEW                                                      -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-tab-panel" data-tab="overview" style="display:block">
 
-      <div class="card">
-        <div class="card-title">Bank &amp; Cash</div>
-        ${bankRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No accounts found</div>'}
-        ${bankRows ? `<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);margin-top:4px"><span>Total Cash</span><span>${fmtCur(bankTotal)}</span></div>` : ''}
-        ${taxHint ? `<div style="margin-top:12px;padding:10px 12px;background:rgba(201,168,76,0.08);border-radius:6px;border:1px solid rgba(201,168,76,0.2);font-size:12px;color:#E8C96A"><strong>${countryConfig().currency} Reserve:</strong> ${taxHint}</div>` : ''}
-      </div>
-    </div>
-
-    <!-- ── Tax deadlines + Quick actions ───────────────────────────────── -->
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Upcoming Tax Deadlines</div>
-        ${upcomingDeadlines().map(dl => `
-          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:12px;min-width:54px;color:${dl.urgent ? 'var(--danger)' : 'var(--muted)'};font-weight:${dl.urgent ? '600' : '400'}">${dl.dateStr}</span>
-            <span style="font-size:13px;font-weight:500">${dl.title}</span>
-            ${dl.urgent ? '<span style="margin-left:auto;font-size:10px;color:var(--danger);font-weight:700">SOON</span>' : ''}
+      <!-- Action strip -->
+      <div class="card" style="margin-bottom:20px;border-left:4px solid var(--gold)">
+        <div style="font-weight:600;font-size:14px;color:var(--navy);margin-bottom:12px">This Week — Focus On</div>
+        ${actions.map(a => `
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-top:1px solid var(--border)">
+            <span style="font-size:15px;margin-top:1px">${a.icon}</span>
+            <span style="font-size:13px;color:${a.urgent ? 'var(--text)' : 'var(--muted)'};font-weight:${a.urgent ? '500' : '400'}">${a.text}</span>
+            ${a.urgent ? '<span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--danger);white-space:nowrap;padding-top:2px">ACTION</span>' : ''}
           </div>`).join('')}
       </div>
 
+      <!-- Key numbers -->
+      <div class="grid-4" style="margin-bottom:20px">
+        ${metricCard('Cash Position', fmtCur(bankTotal), `${d.bank.accounts.length} account${d.bank.accounts.length !== 1 ? 's' : ''}`)}
+        ${metricCard('Cash Runway', runwayText, 'vs outstanding bills', runwayColor)}
+        ${metricCard('Money to Collect', fmtCur(arTotal), d.ar.overdue ? `<span style="color:var(--danger);font-weight:600">${d.ar.overdue} overdue</span>` : `${d.ar.count} invoices`)}
+        ${metricCard('Bills to Pay', fmtCur(apTotal), paymentRisk ? `<span style="color:var(--danger);font-weight:600">Insufficient funds</span>` : `${d.ap.count} bills`, paymentRisk ? 'var(--danger)' : 'var(--navy)')}
+      </div>
+
+      <!-- Collection priority + Bank -->
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div class="card-title" style="margin:0">Collection Priority</div>
+            <span style="font-size:11px;color:var(--muted)">Largest first</span>
+          </div>
+          ${collectionRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No open invoices — great!</div>'}
+          ${d.ar.count > 5 ? `<div style="margin-top:8px;font-size:12px;color:var(--muted)">${d.ar.count - 5} more not shown</div>` : ''}
+        </div>
+        <div class="card">
+          <div class="card-title">Bank &amp; Cash</div>
+          ${bankRows || '<div style="color:var(--muted);font-size:13px;padding:12px 0">No accounts found</div>'}
+          ${bankRows ? `<div style="display:flex;justify-content:space-between;padding:10px 0 0;font-size:13px;font-weight:700;color:var(--navy);border-top:2px solid var(--border);margin-top:4px"><span>Total Cash</span><span>${fmtCur(bankTotal)}</span></div>` : ''}
+          ${taxHint ? `<div style="margin-top:12px;padding:10px 12px;background:rgba(201,168,76,0.08);border-radius:6px;border:1px solid rgba(201,168,76,0.2);font-size:12px;color:#E8C96A"><strong>${countryConfig().currency} Reserve:</strong> ${taxHint}</div>` : ''}
+        </div>
+      </div>
+
+      <!-- Tax deadlines + Quick actions -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Upcoming Tax Deadlines</div>
+          ${upcomingDeadlines().map(dl => `
+            <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:12px;min-width:54px;color:${dl.urgent ? 'var(--danger)' : 'var(--muted)'};font-weight:${dl.urgent ? '600' : '400'}">${dl.dateStr}</span>
+              <span style="font-size:13px;font-weight:500">${dl.title}</span>
+              ${dl.urgent ? '<span style="margin-left:auto;font-size:10px;color:var(--danger);font-weight:700">SOON</span>' : ''}
+            </div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="card-title">Quick Actions</div>
+          <div class="quick-actions">
+            <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
+            <button class="btn btn-outline" onclick="showView('calculators')">${countryConfig().calcBtn}</button>
+            <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: AR INTELLIGENCE                                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-tab-panel" data-tab="ar" style="display:none">
+
+      <!-- DSO metrics -->
+      <div class="grid-4" style="margin-bottom:20px">
+        ${metricCard('DSO', d.ar.dso !== null ? d.ar.dso+'d' : '—', 'Days Sales Outstanding', dsoColor)}
+        ${metricCard('Best Possible DSO', d.ar.best_possible_dso !== null ? d.ar.best_possible_dso+'d' : '—', 'If all current collected on time')}
+        ${metricCard('Avg Days Delinquent', d.ar.avg_days_delinquent !== null ? d.ar.avg_days_delinquent+'d' : '—', 'DSO − Best Possible DSO', addColor)}
+        ${metricCard('Bad Debt Provision', fmtCur(d.ar.bad_debt_provision||0), 'Estimated uncollectible', d.ar.bad_debt_provision > 0 ? 'var(--danger)' : 'var(--success)')}
+      </div>
+
+      <!-- Aging + Customer concentration -->
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">AR Aging Buckets</div>
+          ${agingBar}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            ${[['Current', ag.current,'#22c55e'],['1–30 days', ag.d1_30,'#eab308'],['31–60 days', ag.d31_60,'#f97316'],['61–90 days', ag.d61_90,'#ef4444'],['90+ days', ag.d90plus,'#7f1d1d']].map(([lbl,val,col])=>`
+            <div style="padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border-left:3px solid ${col}">
+              <div style="font-size:11px;color:var(--muted)">${lbl}</div>
+              <div style="font-size:15px;font-weight:700;color:${col}">${fmtCur(val||0)}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Customer Concentration</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Top 10 by open balance · >30% = concentration risk</div>
+          ${concRows}
+        </div>
+      </div>
+
+      <!-- Cash-in forecast -->
       <div class="card">
-        <div class="card-title">Quick Actions</div>
-        <div class="quick-actions">
-          <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
-          <button class="btn btn-outline" onclick="showView('calculators')">${countryConfig().calcBtn}</button>
-          <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
+        <div class="card-title">13-Week Cash-In Forecast</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Expected collections based on invoice due dates</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+              <th style="${thStyleL}">Week</th>
+              <th style="${thStyleL}">Starts</th>
+              <th style="${thStyle}">Expected Cash In</th>
+            </tr></thead>
+            <tbody>${arFcstRows || '<tr><td colspan="3" style="padding:12px 8px;color:var(--muted);font-size:13px">No forecast data</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: AP INTELLIGENCE                                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-tab-panel" data-tab="ap" style="display:none">
+
+      <!-- DPO + payment calendar metrics -->
+      <div class="grid-4" style="margin-bottom:20px">
+        ${metricCard('DPO', d.ap.dpo !== null ? d.ap.dpo+'d' : '—', 'Days Payable Outstanding', dpoColor)}
+        ${metricCard('CCC', d.ap.ccc !== null ? (d.ap.ccc >= 0 ? '+' : '')+d.ap.ccc+'d' : '—', 'Cash Conversion Cycle (DSO−DPO)', cccColor)}
+        ${metricCard('Overdue Bills', fmtCur(d.ap.overdue_total||0), `${d.ap.overdue||0} bills past due`, d.ap.overdue_total > 0 ? 'var(--danger)' : 'var(--success)')}
+        <div class="card stat-card">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Payment Calendar</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Due ≤7 days</span><span style="font-weight:600;color:${(d.ap.due_7d||0) > 0 ? 'var(--danger)' : 'var(--muted)'}">${fmtCur(d.ap.due_7d||0)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Due ≤14 days</span><span style="font-weight:600;color:${(d.ap.due_14d||0) > 0 ? 'var(--warning)' : 'var(--muted)'}">${fmtCur(d.ap.due_14d||0)}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--muted)">Due ≤30 days</span><span style="font-weight:600">${fmtCur(d.ap.due_30d||0)}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AP Aging + Vendor concentration -->
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-title">AP Aging Buckets</div>
+          ${apAgingBar}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            ${[['Current', apag.current,'#22c55e'],['1–30 days', apag.d1_30,'#eab308'],['31–60 days', apag.d31_60,'#f97316'],['61–90 days', apag.d61_90,'#ef4444'],['90+ days', apag.d90plus,'#7f1d1d']].map(([lbl,val,col])=>`
+            <div style="padding:8px;background:rgba(255,255,255,0.04);border-radius:6px;border-left:3px solid ${col}">
+              <div style="font-size:11px;color:var(--muted)">${lbl}</div>
+              <div style="font-size:15px;font-weight:700;color:${col}">${fmtCur(val||0)}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Vendor Concentration</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Top 10 by open balance · >30% = concentration risk</div>
+          ${vendorRows}
+        </div>
+      </div>
+
+      <!-- Duplicate bill alerts -->
+      ${(d.ap.duplicates||[]).length > 0 ? `
+      <div class="card">
+        <div class="card-title" style="color:var(--danger)">⚠ Potential Duplicate Bills Detected</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Same vendor, same amount, within 30 days — review before paying</div>
+        ${dupRows}
+      </div>` : ''}
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: 13-WEEK FORECAST                                              -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-tab-panel" data-tab="forecast" style="display:none">
+
+      <!-- Summary row -->
+      <div class="grid-4" style="margin-bottom:20px">
+        ${(() => {
+          const fc = d.forecast_13w || [];
+          const totalIn  = fc.reduce((s,w) => s + w.inflows,  0);
+          const totalOut = fc.reduce((s,w) => s + w.outflows, 0);
+          const ending   = fc.length ? fc[fc.length-1].closing : bankTotal;
+          const lowestWk = fc.length ? fc.reduce((mn,w) => w.closing < mn.closing ? w : mn, fc[0]) : null;
+          return metricCard('Total Expected In', fmtCur(totalIn), 'Next 13 weeks', 'var(--success)')
+               + metricCard('Total Expected Out', fmtCur(totalOut), 'Next 13 weeks', 'var(--danger)')
+               + metricCard('Ending Balance', fmtCur(ending), 'Week 13 closing', ending < 0 ? 'var(--danger)' : ending < bankTotal * 0.3 ? 'var(--warning)' : 'var(--success)')
+               + metricCard('Lowest Point', lowestWk ? fmtCur(lowestWk.closing) : '—', lowestWk ? `Week ${lowestWk.week}` : '', lowestWk && lowestWk.closing < 0 ? 'var(--danger)' : 'var(--warning)');
+        })()}
+      </div>
+
+      <!-- Week-by-week table -->
+      <div class="card">
+        <div class="card-title">13-Week Cash Flow Forecast</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Opening balance + expected AR collections − expected AP payments</div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr>
+              <th style="${thStyleL}">Wk</th>
+              <th style="${thStyleL}">Starts</th>
+              <th style="${thStyle}">Opening</th>
+              <th style="${thStyle}">Inflows</th>
+              <th style="${thStyle}">Outflows</th>
+              <th style="${thStyle}">Net</th>
+              <th style="${thStyle}">Closing</th>
+            </tr></thead>
+            <tbody>${fc13Rows || '<tr><td colspan="7" style="padding:12px 8px;color:var(--muted);font-size:13px">No forecast data</td></tr>'}</tbody>
+          </table>
         </div>
       </div>
     </div>
