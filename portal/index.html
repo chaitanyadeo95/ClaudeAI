@@ -2164,7 +2164,7 @@ async function renderDashboard() {
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:0 4px">
         <span style="font-size:11px;color:var(--muted)" id="sync-note">${syncNote}</span>
         <button id="sync-btn" onclick="syncNow()" style="font-size:11px;padding:3px 10px;border:1px solid var(--gold);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Sync Now</button>
-        ${d.qbConnected ? `<button onclick="disconnectQuickBooks()" style="font-size:11px;padding:3px 10px;border:1px solid rgba(239,68,68,0.4);color:rgba(239,68,68,0.8);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Disconnect QB</button>` : ''}
+        ${d.qbConnected ? `<button onclick="disconnectQuickBooks()" style="font-size:11px;padding:3px 10px;border:1px solid rgba(239,68,68,0.4);color:rgba(239,68,68,0.8);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">Disconnect QB</button>` : `<button onclick="connectQuickBooks('${clientId}')" style="font-size:11px;padding:3px 10px;border:1px solid rgba(201,168,76,0.5);color:var(--gold);background:none;border-radius:4px;cursor:pointer;font-family:inherit;font-weight:500">+ Connect QB</button>`}
       </div>
     </div>
 
@@ -2227,6 +2227,8 @@ async function renderDashboard() {
             <button class="btn btn-primary" onclick="showView('invoices')">+ New Invoice</button>
             <button class="btn btn-outline" onclick="showView('calculators')">${countryConfig().calcBtn}</button>
             <button class="btn btn-outline" onclick="showView('calendar')">Tax Calendar</button>
+            ${!d.qbConnected ? `<button class="btn btn-outline" onclick="connectQuickBooks('${clientId}')">Connect QuickBooks</button>` : ''}
+            ${!d.tallyConnected ? `<button class="btn btn-outline" onclick="connectTally()">Connect Tally</button>` : ''}
           </div>
         </div>
       </div>
