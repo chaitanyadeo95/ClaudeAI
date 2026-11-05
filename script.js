@@ -258,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nameInput    = document.getElementById('name');
   const emailInput   = document.getElementById('email');
   const messageInput = document.getElementById('message');
+  const consentInput = document.getElementById('consent');
   const submitBtn    = document.getElementById('submitBtn');
   const formSuccess  = document.getElementById('formSuccess');
   const formErrorMsg = document.getElementById('formErrorMsg');
@@ -303,6 +304,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  if (consentInput) {
+    consentInput.addEventListener('change', () => {
+      const err = document.getElementById('consentError');
+      if (err) err.textContent = '';
+    });
+  }
+
   const validateForm = () => {
     let valid = true;
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -329,6 +337,15 @@ document.addEventListener('DOMContentLoaded', () => {
       valid = false;
     } else {
       clearError(messageInput, document.getElementById('messageError'));
+    }
+
+    if (consentInput && !consentInput.checked) {
+      const err = document.getElementById('consentError');
+      if (err) err.textContent = 'Please confirm you agree to being contacted.';
+      valid = false;
+    } else {
+      const err = document.getElementById('consentError');
+      if (err) err.textContent = '';
     }
 
     return valid;
