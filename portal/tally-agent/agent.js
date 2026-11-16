@@ -1,8 +1,8 @@
 /**
- * AiFinanceo — Tally Sync Agent
+ * AIFinanceO — Tally Sync Agent
  * Single-file, zero-dependency Windows desktop agent.
  *
- * First run: asks for a 6-char setup code from the AiFinanceo dashboard.
+ * First run: asks for a 6-char setup code from the AIFinanceO dashboard.
  * Subsequent runs: reads saved config and syncs automatically.
  */
 
@@ -17,7 +17,7 @@ const readline = require('readline');
 
 // ── Constants (hardcoded public URL) ─────────────────────────────────────────
 const SUPABASE_URL = 'https://keiladscsohyzfgbzidn.supabase.co';
-const APP_DIR      = path.join(process.env.APPDATA || path.join(os.homedir(), '.config'), 'AiFinanceo');
+const APP_DIR      = path.join(process.env.APPDATA || path.join(os.homedir(), '.config'), 'AIFinanceO');
 const CONFIG_PATH  = path.join(APP_DIR, 'tally-config.json');
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -94,11 +94,11 @@ async function redeemCode(code) {
 async function firstTimeSetup() {
   console.log('');
   console.log('  ╔═════════════════════════════════════════╗');
-  console.log('  ║      AiFinanceo — Tally Sync Agent      ║');
+  console.log('  ║      AIFinanceO — Tally Sync Agent      ║');
   console.log('  ║         First Time Setup                ║');
   console.log('  ╚═════════════════════════════════════════╝');
   console.log('');
-  console.log('  1. Open your AiFinanceo dashboard');
+  console.log('  1. Open your AIFinanceO dashboard');
   console.log('  2. Go to Dashboard → Connect Tally');
   console.log('  3. Copy the 6-character setup code shown there');
   console.log('');
@@ -113,7 +113,7 @@ async function firstTimeSetup() {
     process.exit(1);
   }
 
-  console.log('\n  Connecting to AiFinanceo…');
+  console.log('\n  Connecting to AIFinanceO…');
   const result = await redeemCode(code);
 
   saveConfig({
@@ -253,7 +253,7 @@ async function run() {
     await firstTimeSetup();
     loadConfig();
   } else {
-    console.log('\n  AiFinanceo Tally Agent  |  press Ctrl+C to stop\n');
+    console.log('\n  AIFinanceO Tally Agent  |  press Ctrl+C to stop\n');
   }
 
   try { await sync(); } catch (e) {
